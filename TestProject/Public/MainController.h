@@ -27,6 +27,11 @@ public:
 public:
 	void ToggleTableMaterial();
 
+	/**鼠标点击一些物体然后实现拖拽*/
+	void DragSomeThing();
+
+	void StopDrag();
+
 private:
 	/**用于桌面的材质库*/
 	UPROPERTY()
@@ -35,6 +40,10 @@ private:
 	/**Controller对应的桌面*/
 	UPROPERTY()
 	class ATable* CurTable;
+
+	/**当前拖拽的物体*/
+	UPROPERTY()
+	class AInventoryActor* CurDragThing;
 
 	int32 MaterialIndex;
 };
