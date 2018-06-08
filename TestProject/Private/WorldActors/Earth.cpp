@@ -22,8 +22,9 @@ AEarth::AEarth()
 	{
 		FVector EarthBound = ActorMesh->Bounds.BoxExtent;
 		ActorMesh->SetRelativeLocation(FVector(0.f, 0.f, -EarthBound.Z));   //地球的局部根坐标在球体下方，所以只需要设置其Z轴相对方向
+		SetActorScale3D(FVector(0.8f, 0.8f, 0.8f));
+		Height = EarthBound.Z * 2.f * 0.8f;
 	}
-	SetActorScale3D(FVector(0.6f, 0.6f, 0.6f));
 
 	bCanRotate = false;
 }
@@ -38,7 +39,7 @@ void AEarth::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (bCanRotate)
-		SetActorRotation(GetActorRotation() + FRotator(0.f, 100.f*DeltaTime, 0.f));
+		SetActorRotation(GetActorRotation() + FRotator(0.f, 100.f * DeltaTime, 0.f));
 }
 
 void AEarth::PostInitializeComponents()
@@ -48,12 +49,16 @@ void AEarth::PostInitializeComponents()
 
 void AEarth::BeginCursorOver(UPrimitiveComponent* TouchedComponent)
 {
-	SetActorScale3D(FVector(1.01f, 1.01f, 1.01f));
+	Super::BeginCursorOver(TouchedComponent);
+
+	SetActorScale3D(FVector(0.82f, 0.82f, 0.82f));
 	bCanRotate = true;
 }
 
 void AEarth::EndCursorOver(UPrimitiveComponent* TouchedComponent)
 {
-	SetActorScale3D(FVector(1.f, 1.f, 1.f));
+	Super::EndCursorOver(TouchedComponent);
+
+	SetActorScale3D(FVector(0.8f, 0.8f, 0.8f));
 	bCanRotate = false;
 }

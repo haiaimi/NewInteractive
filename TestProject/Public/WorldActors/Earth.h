@@ -30,6 +30,7 @@ public:
 	virtual void BeginCursorOver(UPrimitiveComponent* TouchedComponent)override;
 	UFUNCTION()
 	virtual void EndCursorOver(UPrimitiveComponent* TouchedComponent)override;
+
 private:
 	UPROPERTY()
 	class UStaticMesh* EarthMesh;
