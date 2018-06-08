@@ -26,6 +26,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	/** 根据鼠标结束拖拽最后的位置来放置物体*/
+	void AddInventoryThing(class AInventoryActor* AddedActor, FVector CursorLastPoint);
+
+	void RemoveInventoryThing(class AInventoryActor* RemovedActor);
+
+	/**给物体投射光线*/
+	void CastLight(class AInventoryActor* CastedActor);
+
+	void StopCastLight();
+
 private:
 	/**储物柜中存放的东西*/
 	UPROPERTY()
@@ -47,4 +58,12 @@ private:
 	/**聚光灯组件，用于照亮物体*/
 	UPROPERTY()
 	class USpotLightComponent* SpotLight;
+
+public:
+	float LockerLength;
+
+	float LockerWidth;
+
+	/***/
+	int32 LockerCapacity;
 };

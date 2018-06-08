@@ -28,18 +28,19 @@ ATable::ATable()
 	//if (BaseSceneComponent)
 	//	RootComponent = BaseSceneComponent;
 
-	if (TableMeshComponent)
+	if (TableMeshComponent && BaseSceneComponent)
 	{
+		RootComponent = BaseSceneComponent;
 		TableMeshComponent->SetStaticMesh(TableMesh);
 		TableMeshComponent->SetMaterial(0, TableMaterial);
-		//TableMeshComponent->SelectedEditorMaterial = 0;
 		TableMeshComponent->SetupAttachment(RootComponent);
+		// 把局部坐标中心移到中心
+		FVector TableExtent = TableMeshComponent->Bounds.BoxExtent;
+		TableMeshComponent->SetRelativeLocation(FVector(-TableExtent.X, -TableExtent.Y, 0.f));
+		//鼠标指针事件监听
+		TableMeshComponent->OnBeginCursorOver.AddDynamic(this, &ATable::BeginCursorOver);
+		TableMeshComponent->OnEndCursorOver.AddDynamic(this, &ATable::EndCursorOver);
 	}
-	
-	//鼠标指针事件监听
-	TableMeshComponent->OnBeginCursorOver.AddDynamic(this, &ATable::BeginCursorOver);
-	TableMeshComponent->OnEndCursorOver.AddDynamic(this, &ATable::EndCursorOver);
-
 }
 
 // Called when the game starts or when spawned
@@ -59,9 +60,6 @@ void ATable::Tick(float DeltaTime)
 void ATable::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	FVector TableExtent = TableMeshComponent->Bounds.BoxExtent;
-	TableMeshComponent->SetRelativeLocation(FVector(-TableExtent.X, -TableExtent.Y, 0.f));
 }
 
 void ATable::ToggleMaterial(UMaterialInterface* InMaterial)
@@ -71,11 +69,11 @@ void ATable::ToggleMaterial(UMaterialInterface* InMaterial)
 
 void ATable::BeginCursorOver(UPrimitiveComponent* TouchedComponent)
 {
-	TableMeshComponent->SetWorldScale3D(FVector(1.01f, 1.01f, 1.01f));
+	SetActorScale3D(FVector(1.01f, 1.01f, 1.01f));
 }
 
 void ATable::EndCursorOver(UPrimitiveComponent* TouchedComponent)
 {
-	TableMeshComponent->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
+	SetActorScale3D(FVector(1.f, 1.f, 1.f));
 }
 
