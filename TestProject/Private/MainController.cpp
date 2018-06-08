@@ -8,6 +8,8 @@
 #include "Engine/LocalPlayer.h"
 #include "SceneView.h"
 #include "InventoryActor.h"
+#include "Locker.h"
+#include "TestProject.h"
 
 
 AMainController::AMainController()
@@ -33,6 +35,7 @@ void AMainController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetPawn()->SetActorHiddenInGame(true);
 	//把鼠标指针限制在Viewport里
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
@@ -51,7 +54,7 @@ void AMainController::BeginPlay()
 	const FVector TableY = TableRotMat.GetUnitAxis(EAxis::Y).GetSafeNormal();
 
 	TestProjectHelper::Debug_ScreenMessage(TableX2D.ToString());
-	const FVector TableSapwnLoaction = ViewLocation - TableX2D * 200.f + ViewRotation.Vector()*500.f;
+	const FVector TableSapwnLoaction = ViewLocation + TableX2D * -30.f + ViewRotation.Vector() * 500.f;
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.Owner = this;
 	
@@ -98,8 +101,7 @@ void AMainController::DragSomeThing()
 	TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
 
 	FHitResult HitResult;
-	//FCollisionQueryParams
-	GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, ECollisionChannel::ECC_WorldStatic);
+	GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_INVENTORYRAY);
 
 	if (HitResult.GetActor())
 	{
@@ -120,6 +122,46 @@ void AMainController::StopDrag()
 {
 	if (CurDragThing)
 	{
+		//检测是否停留在储物柜上，然后决定存放位置
+		FVector WorldPosition, WorldDirection;
+		TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
+		FHitResult HitResult;
+		//FCollisionQueryParams QueryParam;
+		//QueryParam.bIgnoreBlocks = true;  //忽略阻挡
+		GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_LOCKERRAY);
+		
+			//TestProjectHelper::Debug_ScreenMessage(HitResult[i].GetActor()->GetName());
+		if (ALocker* AimLocker = Cast<ALocker>(HitResult.GetActor()))
+		{
+			if (CurDragThing->bInLocker)
+			{
+				AimLocker->RemoveInventoryThing(CurDragThing);
+				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
+			}
+			else
+			{
+				TestProjectHelper::Debug_ScreenMessage(TEXT("Catch Locker"));
+				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
+				//TestProjectHelper::Debug_ScreenMessage(HitResult[i].ImpactPoint.ToString());
+			}
+		}
+		else
+		{
+			CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
+			if (CurDragThing->bInLocker)
+			{
+				ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
+				CurDragThing->bInLocker = false;
+
+				if (OwnerLocker)
+				{
+					TestProjectHelper::Debug_ScreenMessage(OwnerLocker->GetName());
+					OwnerLocker->RemoveInventoryThing(CurDragThing);
+				}
+				CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			}
+		}
+
 		CurDragThing->StopMoveWithCursor();
 		CurDragThing = nullptr;
 	}
