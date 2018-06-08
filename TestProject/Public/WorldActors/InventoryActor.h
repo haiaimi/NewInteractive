@@ -34,10 +34,17 @@ public:
 	UFUNCTION()
 	virtual void EndCursorOver(UPrimitiveComponent* TouchedComponent);
 
+	/**获取物体的高度*/
+	virtual float GetHeight();
+
 	/**跟随鼠标移动*/
 	void StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne);
 
 	void StopMoveWithCursor();
+
+private:
+	/**物体移动，有过渡效果，使其看起来不那么突兀*/
+	void MoveTick(float DeltaTime);
 
 public:
 	UPROPERTY()
@@ -46,6 +53,20 @@ public:
 	/**基础场景，为场景的根*/
 	UPROPERTY()
 	class USceneComponent* BaseScene;
+
+	/**物体高度*/
+	float Height;
+
+	/**该物体是否在储物柜中*/
+	int32 bInLocker : 1;
+
+	uint32 bIsInMove : 1;
+
+	/**物体的停留位置*/
+	FVector OriginLocation;
+
+	/**目标地点*/
+	FVector DestLocation;
 
 private:
 	FVector RelativeLoc;
