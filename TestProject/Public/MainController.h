@@ -46,4 +46,5 @@ private:
 	class AInventoryActor* CurDragThing;
 
 	int32 MaterialIndex;
+
 };

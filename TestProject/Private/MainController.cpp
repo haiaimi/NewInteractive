@@ -10,6 +10,7 @@
 #include "InventoryActor.h"
 #include "Locker.h"
 #include "TestProject.h"
+#include "UI/Widgets/SInventoryMenuWidget.h"
 
 
 AMainController::AMainController()
@@ -29,19 +30,21 @@ AMainController::AMainController()
 	CurDragThing = nullptr;
 	MaterialIndex = 0;    //默认材质目录
 	bEnableMouseOverEvents = true;    //启用鼠标覆盖事件检测
+	bShowMouseCursor = true;
 }
 
 void AMainController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetPawn()->SetActorHiddenInGame(true);
 	//把鼠标指针限制在Viewport里
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 	GetLocalPlayer()->ViewportClient->SetCaptureMouseOnClick(EMouseCaptureMode::CaptureDuringMouseDown);    //鼠标按下时就监听事件，不然需要双击
 	GetLocalPlayer()->ViewportClient->SetMouseLockMode(EMouseLockMode::LockAlways);
 
+	GetPawn()->SetActorHiddenInGame(true);
+	
 	//在视口前方设置一个桌面	
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -97,6 +100,7 @@ void AMainController::ToggleTableMaterial()
 
 void AMainController::DragSomeThing()
 {
+	TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
 	FVector WorldPosition, WorldDirection;
 	TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
 
@@ -155,8 +159,8 @@ void AMainController::StopDrag()
 
 				if (OwnerLocker)
 				{
-					TestProjectHelper::Debug_ScreenMessage(OwnerLocker->GetName());
 					OwnerLocker->RemoveInventoryThing(CurDragThing);
+					OwnerLocker->StopCastLight();
 				}
 				CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 			}
