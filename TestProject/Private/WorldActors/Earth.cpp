@@ -51,7 +51,7 @@ void AEarth::BeginCursorOver(UPrimitiveComponent* TouchedComponent)
 {
 	Super::BeginCursorOver(TouchedComponent);
 
-	SetActorScale3D(FVector(0.82f, 0.82f, 0.82f));
+	SetActorScale3D(FVector(0.85f, 0.85f, 0.85f));
 	bCanRotate = true;
 }
 

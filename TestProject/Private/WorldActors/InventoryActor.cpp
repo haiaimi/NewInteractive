@@ -85,7 +85,6 @@ void AInventoryActor::EndCursorOver(UPrimitiveComponent* TouchedComponent)
 			OwnerLocker->StopCastLight();
 		}
 	}
-	
 }
 
 float AInventoryActor::GetHeight()
