@@ -54,7 +54,7 @@ ALocker::ALocker()
 	}
 
 	LockerCapacity = 4;    //默认储物柜的容量为4
-	TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
+	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
 }
 
 // Called when the game starts or when spawned
@@ -63,7 +63,6 @@ void ALocker::BeginPlay()
 	Super::BeginPlay();
 	
 	LockerContent.SetNum(4);      //设置储物柜的容量
-	TestProjectHelper::Debug_ScreenMessage(RootComponent->GetName());
 }
 
 // Called every frame
@@ -120,7 +119,6 @@ void ALocker::RemoveInventoryThing(class AInventoryActor* RemovedActor)
 {
 	int32 RemoveIndex = LockerContent.Find(RemovedActor);
 	LockerContent[RemoveIndex] = nullptr;
-	TestProjectHelper::Debug_LogMessage(FString::FormatAsNumber(RemoveIndex));
 }
 
 void ALocker::CastLight(class AInventoryActor* CastedActor)
@@ -137,14 +135,12 @@ void ALocker::CastLight(class AInventoryActor* CastedActor)
 	const float PerGridWidth = 150.f;
 	float RelativeY = CastedActorIndex * PerGridWidth + 0.5f * PerGridWidth - (LockerLength * 0.5f);    //Y方向的相对距离
 
-	TestProjectHelper::Debug_ScreenMessage(FString::FormatAsNumber(CastedActorIndex));
-	FVector RelativeLoc = DirZ * 200.f + DirY.GetSafeNormal() * RelativeY * 0.7f;
-	SpotLight->SetRelativeLocation(RelativeLoc);
+	FVector RelativeLoc = FVector(0.f, RelativeY, 200.f);
+	SpotLight->SetWorldLocation(GetActorLocation() + DirY * RelativeLoc + DirZ * 200.f);
 	SpotLight->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 }
 
 void ALocker::StopCastLight()
 {
-	TestProjectHelper::Debug_ScreenMessage(TEXT("StopLight"));
-	SpotLight->Intensity = 0.f;
+	SpotLight->SetWorldLocation(FVector(1000.f, 1000.f, 1000.f)); //把灯调离视区
 }
