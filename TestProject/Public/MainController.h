@@ -34,6 +34,8 @@ public:
 
 	void SpawnInventoryActors(UClass* SpawnedActor);
 
+	void QuitGame();
+
 private:
 	/**用于桌面的材质库*/
 	UPROPERTY()
