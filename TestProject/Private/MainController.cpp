@@ -11,6 +11,8 @@
 #include "Locker.h"
 #include "TestProject.h"
 #include "UI/Widgets/SInventoryMenuWidget.h"
+#include "Engine/World.h"
+#include "UI/TestProjectHUD.h"
 
 
 AMainController::AMainController()
@@ -100,26 +102,40 @@ void AMainController::ToggleTableMaterial()
 
 void AMainController::DragSomeThing()
 {
-	TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
+	//玩家如果在UI中操作就不执行拖拽操作
+	/*if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
+		if (CurHUD->IsInUI())
+			return;*/
+
 	FVector WorldPosition, WorldDirection;
 	TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
 
-	FHitResult HitResult;
-	GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_INVENTORYRAY);
+	TArray<FHitResult> HitResult;
+	FCollisionQueryParams QueryParam;
 
-	if (HitResult.GetActor())
+	GetWorld()->LineTraceMultiByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_INVENTORYRAY, QueryParam);
+	TestProjectHelper::Debug_ScreenMessage(FString::FormatAsNumber(HitResult.Num()));
+
+	if (HitResult.Num() > 0)
 	{
-		AInventoryActor* HitActor = nullptr;
-		HitActor = Cast<AInventoryActor>(HitResult.GetActor());
-		if (HitActor && CurTable)
+		for (int32 i = 0; i < HitResult.Num(); ++i)
 		{
-			TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
-			CurDragThing = HitActor;
-			const FVector Offset = CurDragThing->GetActorLocation() - HitResult.ImpactPoint;   //鼠标指针相对于物体的位置
-			const FPlane MovePlane(HitResult.ImpactPoint, FRotationMatrix(CurDragThing->GetActorRotation()).GetUnitAxis(EAxis::Z));   //获取鼠标与物体撞击点的平面
-			CurDragThing->StartMoveWithCursor(this, Offset, MovePlane);
+			if (HitResult[i].GetActor())
+			{
+				AInventoryActor* HitActor = nullptr;
+				HitActor = Cast<AInventoryActor>(HitResult[i].GetActor());
+				if (HitActor && CurTable)
+				{
+					TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
+					CurDragThing = HitActor;
+					const FVector Offset = CurDragThing->GetActorLocation() - HitResult[i].ImpactPoint;   //鼠标指针相对于物体的位置
+					const FPlane MovePlane(HitResult[i].ImpactPoint, FRotationMatrix(CurDragThing->GetActorRotation()).GetUnitAxis(EAxis::Z));   //获取鼠标与物体撞击点的平面
+					CurDragThing->StartMoveWithCursor(this, Offset, MovePlane);
+				}
+			}
 		}
 	}
+	
 }
 
 void AMainController::StopDrag()
@@ -168,5 +184,16 @@ void AMainController::StopDrag()
 
 		CurDragThing->StopMoveWithCursor();
 		CurDragThing = nullptr;
+	}
+}
+
+void AMainController::SpawnInventoryActors(UClass* SpawnedActor)
+{
+	if (GetWorld())
+	{
+		FVector WorldPos, WorldDir;
+		TestProjectHelper::DeProjectScreenToWorld(this, WorldPos, WorldDir);
+		FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
+		GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform);
 	}
 }

@@ -32,6 +32,8 @@ public:
 
 	void StopDrag();
 
+	void SpawnInventoryActors(UClass* SpawnedActor);
+
 private:
 	/**用于桌面的材质库*/
 	UPROPERTY()

@@ -19,6 +19,7 @@ AInventoryActor::AInventoryActor()
 
 	if (BaseScene)
 		RootComponent = BaseScene;
+
 	if (ActorMesh)
 	{
 		ActorMesh->SetCollisionResponseToChannel(COLLISION_LOCKERRAY, ECollisionResponse::ECR_Ignore);
@@ -49,6 +50,9 @@ void AInventoryActor::Tick(float DeltaTime)
 
 	if (MoveWithCursor)
 	{
+		FVector2D MousePosition;
+		OwnerController->GetMousePosition(MousePosition.X, MousePosition.Y);
+		//TestProjectHelper::Debug_ScreenMessage(MousePosition.ToString());
 		FVector WorldPosition, WorldDirection;
 		TestProjectHelper::DeProjectScreenToWorld(OwnerController, WorldPosition, WorldDirection);      //获取鼠标所对应的射线
 
