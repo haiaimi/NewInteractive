@@ -19,6 +19,9 @@ public:
 	
 	virtual void DrawHUD()override;
 
+public:
+	bool IsInUI();
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
 };

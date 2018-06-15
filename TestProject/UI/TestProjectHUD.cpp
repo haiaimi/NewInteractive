@@ -5,38 +5,54 @@
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "TestProjectHelper.h"
+#include "MainController.h"
 
 
 
 
 ATestProjectHUD::ATestProjectHUD()
 {
-
+	
 }
 
 void ATestProjectHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	//if (!InventoryWidget.IsValid())
-	//{
-	//	SAssignNew(InventoryWidget, SInventoryMenuWidget);
+	if (!InventoryWidget.IsValid() && GEngine)
+	{
+		if (AMainController* OwnerController = Cast<AMainController>(GetOwningPlayerController()))
+		{
+			SAssignNew(InventoryWidget, SInventoryMenuWidget)
+			.OwnerController(OwnerController);
 
-	//	if (InventoryWidget.IsValid() && GEngine)
-	//	{
-	//		GEngine->GameViewport->AddViewportWidgetContent(
-	//			SNew(SWeakWidget)
-	//			.PossiblyNullContent(InventoryWidget.ToSharedRef()),
-	//			0
-	//		);
+				if (InventoryWidget.IsValid())
+				{
+					GEngine->GameViewport->AddViewportWidgetContent(
+						SNew(SWeakWidget)
+						.PossiblyNullContent(InventoryWidget.ToSharedRef()),
+						0
+					);
 
-	//		//InventoryWidget->SetVisibility(EVisibility::Visible);
-	//	}
-	//}
+					InventoryWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
+					FSlateApplication::Get().SetKeyboardFocus(InventoryWidget.ToSharedRef());
+				}
+		}
+	}
 
-	//if (InventoryWidget.IsValid())
-	//{
-	//	if (InventoryWidget->IsHovered())
-	//		TestProjectHelper::Debug_ScreenMessage(TEXT("Hovered"));
-	//}
+	/*if (InventoryWidget.IsValid())
+	{
+		if (InventoryWidget->IsHovered())
+			TestProjectHelper::Debug_ScreenMessage(TEXT("Hovered"));
+	}*/
+}
+
+bool ATestProjectHUD::IsInUI()
+{
+	if (InventoryWidget.IsValid())
+	{
+		return InventoryWidget->IsInUI;
+	}
+
+	return false;
 }
