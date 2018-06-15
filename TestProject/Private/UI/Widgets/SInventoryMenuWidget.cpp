@@ -5,6 +5,7 @@
 #include "Engine/Engine.h"
 #include "TestProjectHelper.h"
 #include "Earth.h"
+#include "Engine/GameViewportClient.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -19,7 +20,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	.HAlign(EHorizontalAlignment::HAlign_Left)
 	[
 		SNew(SOverlay)
-		+SOverlay::Slot()
+		/*+SOverlay::Slot()
 		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.HAlign(EHorizontalAlignment::HAlign_Left)
 		[
@@ -34,11 +35,11 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 				.WidthOverride(400)
 				.HeightOverride(600)
 			]
-		]
+		]*/
 		+SOverlay::Slot()
 		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.HAlign(EHorizontalAlignment::HAlign_Left)
-		//.Padding(FMargin(-100, 0, 0, 0))
+		.Padding(TAttribute<FMargin>(this, &SInventoryMenuWidget::GetMenuOffset))
 		[
 			SNew(SBorder)
 			.HAlign(HAlign_Fill)
@@ -113,6 +114,9 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 		]
 		
 	];
+
+	bShowMenu = false;
+	SetupAnimation();
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -163,10 +167,46 @@ void SInventoryMenuWidget::SetupAnimation()
 	float DurationSeconds = 0.5f;
 	InventoryMenuAnimation = FCurveSequence();
 
-	InventoryMenuIn = InventoryMenuAnimation.AddCurve(StartSeconds, DurationSeconds, ECurveEaseFunction::QuadInOut);
+	InventoryMenuIn = InventoryMenuAnimation.AddCurve(StartSeconds, DurationSeconds, ECurveEaseFunction::CubicInOut);
+	InventoryMenuAnimation.Play(this->AsShared());  //先创建智能指针，再播放
 }
 
-FMargin SInventoryMenuWidget::GetMenuOffset()
+FMargin SInventoryMenuWidget::GetMenuOffset()const
 {
+	FMargin Result;
+	static bool IsFirst = true;      //是否还未触发过
 
+	if (bShowMenu)
+		IsFirst = false;
+	if (IsFirst)
+		return FMargin(-400, 0, 0, 0);
+
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+	const float MenuWidth = 400.f;
+	const float AnimProgess = InventoryMenuIn.GetLerp();
+	Result = FMargin(-400.f + AnimProgess * 400.f, 0.f, 0.f, 0.f);
+	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("%f"), AnimProgess));
+
+	return Result;
+}
+
+void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
+{
+	if (bShow && !bShowMenu)    //没有显示菜单的时候才会执行
+	{
+		bShowMenu = true;
+
+		InventoryMenuAnimation.JumpToStart();
+		InventoryMenuAnimation.Play(this->AsShared());
+	}
+	else if(!bShow && bShowMenu)     //正在显示菜单，需要关闭时
+	{
+		bShowMenu = false;       //关闭菜单
+
+		InventoryMenuAnimation.PlayReverse(this->AsShared());
+	}
 }

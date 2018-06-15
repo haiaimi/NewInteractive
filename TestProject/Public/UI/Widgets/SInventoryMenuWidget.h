@@ -34,13 +34,19 @@ public:
 	/**初始化动画*/
 	void SetupAnimation();
 
-	FMargin GetMenuOffset();
+	/**获取动画播放时的Menu偏移*/
+	FMargin GetMenuOffset()const;
+
+	void PlayOrClosePlayMenuAnim(bool bShow);
 
 public:
 	TWeakObjectPtr<AMainController> OwnerController;
 
 	/**玩家当前鼠标是否在UI内*/
 	uint32 IsInUI : 1;
+
+	/**是否显示Inventory Menu*/
+	uint32 bShowMenu : 1;
 
 	/**用于Menu界面渐入的动画*/
 	FCurveHandle InventoryMenuIn;

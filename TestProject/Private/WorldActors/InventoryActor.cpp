@@ -52,7 +52,7 @@ void AInventoryActor::Tick(float DeltaTime)
 	{
 		FVector2D MousePosition;
 		OwnerController->GetMousePosition(MousePosition.X, MousePosition.Y);
-		//TestProjectHelper::Debug_ScreenMessage(MousePosition.ToString());
+		TestProjectHelper::Debug_ScreenMessage(MousePosition.ToString());
 		FVector WorldPosition, WorldDirection;
 		TestProjectHelper::DeProjectScreenToWorld(OwnerController, WorldPosition, WorldDirection);      //获取鼠标所对应的射线
 
