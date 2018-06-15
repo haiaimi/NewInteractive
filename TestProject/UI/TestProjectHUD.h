@@ -22,6 +22,11 @@ public:
 public:
 	bool IsInUI();
 
+	bool IsInventoryWidgetValid();
+
+	/**œ‘ æ≤Àµ•*/
+	void ShowMenu(bool ShouldShow);
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
 };

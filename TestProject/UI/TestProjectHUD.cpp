@@ -56,3 +56,16 @@ bool ATestProjectHUD::IsInUI()
 
 	return false;
 }
+
+bool ATestProjectHUD::IsInventoryWidgetValid()
+{
+	return InventoryWidget.IsValid();
+}
+
+void ATestProjectHUD::ShowMenu(bool bShouldShow)
+{
+	if (InventoryWidget.IsValid())
+	{
+		InventoryWidget->PlayOrClosePlayMenuAnim(bShouldShow);
+	}
+}
