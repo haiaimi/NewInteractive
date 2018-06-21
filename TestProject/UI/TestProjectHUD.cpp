@@ -8,8 +8,6 @@
 #include "MainController.h"
 
 
-
-
 ATestProjectHUD::ATestProjectHUD()
 {
 	
@@ -26,17 +24,18 @@ void ATestProjectHUD::DrawHUD()
 			SAssignNew(InventoryWidget, SInventoryMenuWidget)
 			.OwnerController(OwnerController);
 
-				if (InventoryWidget.IsValid())
-				{
-					GEngine->GameViewport->AddViewportWidgetContent(
-						SNew(SWeakWidget)
-						.PossiblyNullContent(InventoryWidget.ToSharedRef()),
-						0
-					);
+			if (InventoryWidget.IsValid())
+			{
+				GEngine->GameViewport->AddViewportWidgetContent(
+					SNew(SWeakWidget)
+					.PossiblyNullContent(InventoryWidget.ToSharedRef()),
+					0
+				);
 
-					InventoryWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
-					FSlateApplication::Get().SetKeyboardFocus(InventoryWidget.ToSharedRef());
-				}
+				InventoryWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
+				FSlateApplication::Get().SetKeyboardFocus(InventoryWidget.ToSharedRef());
+			}
+				
 		}
 	}
 
@@ -62,10 +61,17 @@ bool ATestProjectHUD::IsInventoryWidgetValid()
 	return InventoryWidget.IsValid();
 }
 
+bool ATestProjectHUD::IsMenuShow()
+{
+	return InventoryWidget->bShowMenu;
+}
+
 void ATestProjectHUD::ShowMenu(bool bShouldShow)
 {
 	if (InventoryWidget.IsValid())
 	{
 		InventoryWidget->PlayOrClosePlayMenuAnim(bShouldShow);
 	}
+
+	FSlateApplication::Get().ShowVirtualKeyboard(true, 0);
 }

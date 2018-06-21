@@ -24,6 +24,9 @@ public:
 
 	bool IsInventoryWidgetValid();
 
+	/**菜单是否在显示状态*/
+	bool IsMenuShow();
+
 	/**显示菜单*/
 	void ShowMenu(bool ShouldShow);
 
