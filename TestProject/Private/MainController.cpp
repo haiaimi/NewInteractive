@@ -13,6 +13,7 @@
 #include "UI/Widgets/SInventoryMenuWidget.h"
 #include "Engine/World.h"
 #include "UI/TestProjectHUD.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AMainController::AMainController()
@@ -30,6 +31,7 @@ AMainController::AMainController()
 
 	CurTable = nullptr;
 	CurDragThing = nullptr;
+	CurMenuSpawnThing = nullptr;
 	MaterialIndex = 0;    //默认材质目录
 	bEnableMouseOverEvents = true;    //启用鼠标覆盖事件检测
 	bShowMouseCursor = true;
@@ -129,11 +131,7 @@ void AMainController::DragSomeThing()
 	{
 		if (CurHUD->IsInventoryWidgetValid())
 		{
-			FVector2D ViewportSize, MousePosition;
-			GetLocalPlayer()->ViewportClient->GetViewportSize(ViewportSize);  //获取客户端窗口大小
-			GetMousePosition(MousePosition.X, MousePosition.Y);       //获取鼠标坐标
-
-			const bool bTriggerMenu = (MousePosition.X / ViewportSize.X) < (static_cast<float>(400) / static_cast<float>(2048));
+			const bool bTriggerMenu = DoesCursorInMenu();
 			if (bTriggerMenu)
 			{
 				CurHUD->ShowMenu(true);      //显示菜单
@@ -159,7 +157,6 @@ void AMainController::StopDrag()
 		//QueryParam.bIgnoreBlocks = true;  //忽略阻挡
 		GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_LOCKERRAY);
 		
-			//TestProjectHelper::Debug_ScreenMessage(HitResult[i].GetActor()->GetName());
 		if (ALocker* AimLocker = Cast<ALocker>(HitResult.GetActor()))
 		{
 			if (CurDragThing->bInLocker)
@@ -171,28 +168,42 @@ void AMainController::StopDrag()
 			{
 				TestProjectHelper::Debug_ScreenMessage(TEXT("Catch Locker"));
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
-				//TestProjectHelper::Debug_ScreenMessage(HitResult[i].ImpactPoint.ToString());
 			}
 		}
 		else
 		{
-			CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
-			if (CurDragThing->bInLocker)
+			if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
 			{
-				ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
-				CurDragThing->bInLocker = false;
-
-				if (OwnerLocker)
+				if (CurHUD->IsInventoryWidgetValid())
 				{
-					OwnerLocker->RemoveInventoryThing(CurDragThing);
-					OwnerLocker->StopCastLight();
+					const bool bInMenu = DoesCursorInMenu();
+					if (bInMenu && CurHUD->IsMenuShow() && CurMenuSpawnThing)      //菜单正在显示，并且鼠标指针在菜单内
+					{
+						CurMenuSpawnThing->Destroy();
+					}
+					else
+					{
+						CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
+						if (CurDragThing->bInLocker)
+						{
+							ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
+							CurDragThing->bInLocker = false;
+
+							if (OwnerLocker)
+							{
+								OwnerLocker->RemoveInventoryThing(CurDragThing);
+								OwnerLocker->StopCastLight();
+							}
+							CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+						}
+					}
 				}
-				CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 			}
 		}
 
 		CurDragThing->StopMoveWithCursor();
 		CurDragThing = nullptr;
+		CurMenuSpawnThing = nullptr;
 	}
 }
 
@@ -203,11 +214,31 @@ void AMainController::SpawnInventoryActors(UClass* SpawnedActor)
 		FVector WorldPos, WorldDir;
 		TestProjectHelper::DeProjectScreenToWorld(this, WorldPos, WorldDir);
 		FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
-		GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform);
+		CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform));
 	}
 }
 
 void AMainController::QuitGame()
 {
 	ConsoleCommand("quit");
+}
+
+bool AMainController::DoesCursorInMenu()
+{
+	bool bTriggerMenu;
+
+	FVector2D ViewportSize, MousePosition;
+	GetLocalPlayer()->ViewportClient->GetViewportSize(ViewportSize);  //获取客户端窗口大小
+	GetMousePosition(MousePosition.X, MousePosition.Y);       //获取鼠标坐标
+
+	bTriggerMenu = (MousePosition.X / ViewportSize.X) < (static_cast<float>(400) / static_cast<float>(2048));
+	return bTriggerMenu;
+}
+
+void AMainController::LoadLandscape(FName const LevelName)
+{
+	if (GetWorld())
+	{
+		UGameplayStatics::LoadStreamLevel(GetWorld(), LevelName, true, false, FLatentActionInfo());
+	}
 }

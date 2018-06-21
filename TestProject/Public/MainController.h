@@ -36,6 +36,11 @@ public:
 
 	void QuitGame();
 
+	/**判断鼠标指针是否在菜单区域*/
+	bool DoesCursorInMenu();
+
+	void LoadLandscape(FName const LevelName);
+
 private:
 	/**用于桌面的材质库*/
 	UPROPERTY()
@@ -48,6 +53,9 @@ private:
 	/**当前拖拽的物体*/
 	UPROPERTY()
 	class AInventoryActor* CurDragThing;
+
+	/**当前在菜单中生成的物体*/
+	class AInventoryActor* CurMenuSpawnThing;
 
 	int32 MaterialIndex;
 
