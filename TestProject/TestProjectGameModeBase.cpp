@@ -8,6 +8,7 @@ ATestProjectGameModeBase::ATestProjectGameModeBase(const FObjectInitializer& Ini
 {
 	PlayerControllerClass = AMainController::StaticClass();
 	HUDClass = ATestProjectHUD::StaticClass();
+	//SpectatorClass
 }
 
 
