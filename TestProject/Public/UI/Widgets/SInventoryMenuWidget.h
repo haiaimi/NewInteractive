@@ -26,10 +26,14 @@ public:
 
 	void OnReleased();
 
+	void LoadLandscape();
+
 	FReply OnClicked();
 
 	/**用于触发Inventory菜单*/
 	FReply OnEmptyMouseButtonDown(const FGeometry&, const FPointerEvent&);
+
+	void OnTextCommitted(const FText& ChangedText, ETextCommit::Type CommitType);
 
 	/**初始化动画*/
 	void SetupAnimation();
@@ -53,4 +57,6 @@ public:
 
 	/**动画序列*/
 	FCurveSequence InventoryMenuAnimation;
+
+	TSharedPtr<SEditableText> EditableText;
 };

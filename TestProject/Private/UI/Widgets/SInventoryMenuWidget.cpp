@@ -53,17 +53,6 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 				.HeightOverride(600)
 				[
 					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Center)
-					.HAlign(EHorizontalAlignment::HAlign_Center)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(FText::FromString(FString(TEXT("TEXT"))))
-						.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-						.Font(FSlateFontInfo(TEXT("TestFont"), 40))
-						.AutoWrapText(true)
-					]
 					+SVerticalBox::Slot()
 					.VAlign(EVerticalAlignment::VAlign_Center)
 					.HAlign(EHorizontalAlignment::HAlign_Center)
@@ -102,17 +91,46 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
 						[
 							SNew(STextBlock)
-							.Text(FText::FromString(FString(TEXT("TEST Button"))))
+							.Text(FText::FromString(FString(TEXT("Earth"))))
 							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
 							.Font(FSlateFontInfo(TEXT("TestFont"), 40))
 							.AutoWrapText(true)
 						]
-						
+					]
+					+ SVerticalBox::Slot()
+					.VAlign(EVerticalAlignment::VAlign_Fill)
+					.HAlign(EHorizontalAlignment::HAlign_Fill)
+					.AutoHeight()
+					[
+						SNew(SButton)
+						.ButtonColorAndOpacity(FLinearColor(0.4f, 0.4f, 0.4f, 0.1f))
+						.VAlign(VAlign_Center)
+						.HAlign(HAlign_Center)
+						.OnReleased(this, &SInventoryMenuWidget::LoadLandscape)
+						.PressMethod(EButtonPressMethod::Type::DownAndUp)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString(FString(TEXT("Landscape"))))
+							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
+							.Font(FSlateFontInfo(TEXT("TestFont"), 40))
+							.AutoWrapText(true)
+						]
+					]
+					+SVerticalBox::Slot()
+					.VAlign(EVerticalAlignment::VAlign_Fill)
+					.HAlign(EHorizontalAlignment::HAlign_Fill)
+					.AutoHeight()
+					[
+						SAssignNew(EditableText, SEditableText)
+						.HintText(FText::FromString(TEXT("Input")))
+						.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
+						.Font(FSlateFontInfo(TEXT("TestFont"), 40))
+						.OnTextCommitted(this,&SInventoryMenuWidget::OnTextCommitted)
+						.VirtualKeyboardTrigger(EVirtualKeyboardTrigger::OnAllFocusEvents)
 					]
 				]
 			]
 		]
-		
 	];
 
 	bShowMenu = false;
@@ -138,6 +156,15 @@ void SInventoryMenuWidget::OnReleased()
 	IsInUI = false;
 }
 
+void SInventoryMenuWidget::LoadLandscape()
+{
+	if (OwnerController.IsValid())
+	{
+		TestProjectHelper::Debug_ScreenMessage(TEXT("Load Landscape"));
+		OwnerController->LoadLandscape(TEXT("BattleField"));
+	}
+}
+
 FReply SInventoryMenuWidget::OnClicked()
 {
 	if (GEngine && OwnerController.IsValid())
@@ -158,6 +185,14 @@ FReply SInventoryMenuWidget::OnEmptyMouseButtonDown(const FGeometry&, const FPoi
 {
 	TestProjectHelper::Debug_ScreenMessage(TEXT("Inventory UI Trigger"));
 	return FReply::Handled();
+}
+
+void SInventoryMenuWidget::OnTextCommitted(const FText& ChangedText, ETextCommit::Type CommitType)
+{
+	SVirtualKeyboardEntry* VirtualKeyboardEntryPtr = (SVirtualKeyboardEntry*)EditableText.Get();
+
+	IVirtualKeyboardEntry* IVirtualKeyboardEntryPtr = (IVirtualKeyboardEntry*)VirtualKeyboardEntryPtr;
+	FSlateApplication::Get().ShowVirtualKeyboard(true, 0, MakeShareable(IVirtualKeyboardEntryPtr));
 }
 
 void SInventoryMenuWidget::SetupAnimation()
@@ -207,6 +242,6 @@ void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
 	{
 		bShowMenu = false;       //¹Ø±Õ²Ëµ¥
 
-		InventoryMenuAnimation.PlayReverse(this->AsShared());
+		InventoryMenuAnimation.Reverse();
 	}
 }
