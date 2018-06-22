@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TestProjectHUD.h"
-#include "UI/Widgets/SInventoryMenuWidget.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "TestProjectHelper.h"
 #include "MainController.h"
+#include "Widgets/SInventoryMenuWidget.h"
 
 
 ATestProjectHUD::ATestProjectHUD()
@@ -72,6 +72,4 @@ void ATestProjectHUD::ShowMenu(bool bShouldShow)
 	{
 		InventoryWidget->PlayOrClosePlayMenuAnim(bShouldShow);
 	}
-
-	FSlateApplication::Get().ShowVirtualKeyboard(true, 0);
 }

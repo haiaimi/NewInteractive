@@ -6,6 +6,7 @@
 #include "TestProjectHelper.h"
 #include "Earth.h"
 #include "Engine/GameViewportClient.h"
+#include "GameFramework/PlayerInput.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -20,22 +21,6 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	.HAlign(EHorizontalAlignment::HAlign_Left)
 	[
 		SNew(SOverlay)
-		/*+SOverlay::Slot()
-		.VAlign(EVerticalAlignment::VAlign_Fill)
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		[
-			SNew(SBorder)
-			.VAlign(EVerticalAlignment::VAlign_Fill)
-			.HAlign(EHorizontalAlignment::HAlign_Fill)
-			.OnMouseButtonDown(this, &SInventoryMenuWidget::OnEmptyMouseButtonDown)
-			[
-				SNew(SBox)
-				.VAlign(EVerticalAlignment::VAlign_Fill)
-				.HAlign(EHorizontalAlignment::HAlign_Fill)
-				.WidthOverride(400)
-				.HeightOverride(600)
-			]
-		]*/
 		+SOverlay::Slot()
 		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.HAlign(EHorizontalAlignment::HAlign_Left)
@@ -89,6 +74,8 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.OnClicked(this, &SInventoryMenuWidget::OnClicked)
 						.PressMethod(EButtonPressMethod::Type::ButtonRelease)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
+						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
+						.IsFocusable(false)
 						[
 							SNew(STextBlock)
 							.Text(FText::FromString(FString(TEXT("Earth"))))
@@ -140,11 +127,10 @@ END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SInventoryMenuWidget::OnPressed()
 {
-	IsInUI = true;
-	if (GEngine && OwnerController.IsValid())
+	if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
+		IsInUI = true;
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, TEXT("Button Down"));
-		TestProjectHelper::Debug_ScreenMessage(this->GetDesiredSize().ToString());
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		OwnerController->DragSomeThing();
@@ -154,6 +140,10 @@ void SInventoryMenuWidget::OnPressed()
 void SInventoryMenuWidget::OnReleased()
 {
 	IsInUI = false;
+	FVector2D CursorPos;
+	OwnerController->GetMousePosition(CursorPos.X, CursorPos.Y);
+	//if(OwnerController->PlayerInput)
+	TestProjectHelper::Debug_ScreenMessage(CursorPos.ToString());
 }
 
 void SInventoryMenuWidget::LoadLandscape()
@@ -167,10 +157,10 @@ void SInventoryMenuWidget::LoadLandscape()
 
 FReply SInventoryMenuWidget::OnClicked()
 {
-	if (GEngine && OwnerController.IsValid())
+	if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
+		IsInUI = true;
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, TEXT("Button Down"));
-		TestProjectHelper::Debug_ScreenMessage(this->GetDesiredSize().ToString());
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		OwnerController->DragSomeThing();
@@ -242,6 +232,6 @@ void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
 	{
 		bShowMenu = false;       //关闭菜单
 
-		InventoryMenuAnimation.Reverse();
+		InventoryMenuAnimation.Reverse();    //反向播放动画
 	}
 }

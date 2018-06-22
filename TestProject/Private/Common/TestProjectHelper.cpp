@@ -3,7 +3,7 @@
 #include "TestProjectHelper.h"
 #include "Engine/Engine.h"
 #include "TestProject/TestProject.h"
-#include "MainController.h"
+#include "Gameplay/MainController.h"
 #include "SceneView.h"
 #include "Engine/LocalPlayer.h"
 

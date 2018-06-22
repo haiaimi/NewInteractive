@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Common/TestProjectHelper.h"
+#include "Gameplay/MainController.h"
 #include "TestProject.h"
 #include "Locker.h"
 
