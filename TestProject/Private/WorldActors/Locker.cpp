@@ -54,6 +54,9 @@ ALocker::ALocker()
 	}
 
 	LockerCapacity = 4;    //默认储物柜的容量为4
+	Owner = nullptr;
+	InMove = false;
+	InShow = true;       //默认是显示的
 	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
 }
 
@@ -63,6 +66,10 @@ void ALocker::BeginPlay()
 	Super::BeginPlay();
 	
 	LockerContent.SetNum(4);      //设置储物柜的容量
+	if (GetOwner())
+	{
+		Owner = Cast<AMainController>(GetOwner());
+	}
 }
 
 // Called every frame
@@ -70,6 +77,17 @@ void ALocker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (InMove && Owner)
+	{
+		if (InShow)       //展示状态
+		{
+			
+		}
+		else
+		{
+
+		}
+	}
 }
 
 void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector CursorLastPoint)
@@ -143,4 +161,9 @@ void ALocker::CastLight(class AInventoryActor* CastedActor)
 void ALocker::StopCastLight()
 {
 	SpotLight->SetWorldLocation(FVector(1000.f, 1000.f, 1000.f)); //把灯调离视区
+}
+
+void ALocker::Switch()
+{
+	InShow += 1;     //切换Locker状态
 }

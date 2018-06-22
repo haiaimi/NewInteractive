@@ -37,6 +37,9 @@ public:
 
 	void StopCastLight();
 
+	/**控制储物柜的伸收*/
+	void Switch();
+
 private:
 	/**储物柜中存放的东西*/
 	UPROPERTY()
@@ -58,6 +61,12 @@ private:
 	/**聚光灯组件，用于照亮物体*/
 	UPROPERTY()
 	class USpotLightComponent* SpotLight;
+
+	class AMainController* Owner;
+
+	uint8 InMove : 1;
+
+	uint8 InShow : 1;
 
 public:
 	float LockerLength;
