@@ -66,4 +66,7 @@ private:
 
 	int32 MaterialIndex;
 
+	/**生成Locker的定时器*/
+	FTimerHandle SpawnLockerHandle;
+
 };

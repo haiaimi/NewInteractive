@@ -14,6 +14,8 @@
 #include "UI/TestProjectHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../Public/Gameplay/GroundCameraComponent.h"
+#include "SlateApplication.h"
+#include "TimerManager.h"
 
 
 AMainController::AMainController()
@@ -70,10 +72,34 @@ void AMainController::BeginPlay()
 	
 	ATable* SpawnedTable = GetWorld()->SpawnActor<ATable>(TableSapwnLoaction, FRotator::ZeroRotator, SpawnParam);
 	ALocker* SpawnedLocker = GetWorld()->SpawnActor<ALocker>(LockerSpawnLocation, FRotator::ZeroRotator, SpawnParam);
+
 	if (SpawnedTable)
+	{
 		CurTable = SpawnedTable;
+		if (GetPawn())
+			CurTable->AttachToActor(GetPawn(), FAttachmentTransformRules::KeepWorldTransform);       //绑定到Pawn中
+	}
+	
 	if (SpawnedLocker)
+	{
 		CurLocker = SpawnedLocker;
+		CurLocker->AttachToActor(GetPawn(), FAttachmentTransformRules::KeepWorldTransform);       //绑定到Pawn中
+		CurLocker->SetVisibility(false);    //关闭Locker可见性
+		CurLocker->StopCastLight();
+	}
+
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([&]() 
+	{
+		if (CurLocker)
+		{
+			CurLocker->UpdateRelativePosToPawn(nullptr, 0);
+			CurLocker->SetActorRelativeLocation(CurLocker->GetRelativeLocationToPawn_Hide());
+			CurLocker->SetVisibility(true);
+			CurLocker->Switch();
+		}
+	});
+	GetWorldTimerManager().SetTimer(SpawnLockerHandle, TimerDelegate, 0.1f, false);
 }
 
 void AMainController::Tick(float DeltaSeconds)
@@ -112,7 +138,7 @@ void AMainController::ToggleTableMaterial()
 void AMainController::DragSomeThing()
 {
 	FVector WorldPosition, WorldDirection;
-	TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
+	TestProjectHelper::DeprojectScreenToWorld_Cursor(this, WorldPosition, WorldDirection);
 
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParam;
@@ -157,7 +183,7 @@ void AMainController::StopDrag()
 	{
 		//检测是否停留在储物柜上，然后决定存放位置
 		FVector WorldPosition, WorldDirection;
-		TestProjectHelper::DeProjectScreenToWorld(this, WorldPosition, WorldDirection);
+		TestProjectHelper::DeprojectScreenToWorld_Cursor(this, WorldPosition, WorldDirection);
 		FHitResult HitResult;
 		//FCollisionQueryParams QueryParam;
 		//QueryParam.bIgnoreBlocks = true;  //忽略阻挡
@@ -218,7 +244,7 @@ void AMainController::SpawnInventoryActors(UClass* SpawnedActor)
 	if (GetWorld() && !CurMenuSpawnThing)      //如果当前已经控制着一个就不需要生成
 	{
 		FVector WorldPos, WorldDir;
-		TestProjectHelper::DeProjectScreenToWorld(this, WorldPos, WorldDir);
+		TestProjectHelper::DeprojectScreenToWorld_Cursor(this, WorldPos, WorldDir);
 		FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
 		CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform));
 	}
@@ -231,7 +257,7 @@ void AMainController::QuitGame()
 
 void AMainController::SwitchLocker()
 {
-	
+	CurLocker->Switch();
 }
 
 bool AMainController::DoesCursorInMenu()
