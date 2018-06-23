@@ -40,6 +40,16 @@ public:
 	/**控制储物柜的伸收*/
 	void Switch();
 
+	FVector GetRelativeLocationToPawn_Hide() { return RelativeToPawn_Hide; }
+
+	void UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i);
+
+	/**设置Locker可见性*/
+	void SetVisibility(bool bVisible);
+
+private:
+	FVector GetRelativeLocationToPawn();
+
 private:
 	/**储物柜中存放的东西*/
 	UPROPERTY()
@@ -62,11 +72,17 @@ private:
 	UPROPERTY()
 	class USpotLightComponent* SpotLight;
 
-	class AMainController* Owner;
+	class AMainController* OwnerController;
 
 	uint8 InMove : 1;
 
 	uint8 InShow : 1;
+
+	/**Locker正常显示时相对于Pawn的位置*/
+	FVector RelativeToPawn_Show;
+
+	/**Locker隐藏时相对于Pawn的位置*/
+	FVector RelativeToPawn_Hide;
 
 public:
 	float LockerLength;

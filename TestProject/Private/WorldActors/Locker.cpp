@@ -7,7 +7,11 @@
 #include "Components/SpotLightComponent.h"
 #include "InventoryActor.h"
 #include "TestProject.h"
+#include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
 
+static const FVector2D LockerShowPos(0.5f, 0.2f);     //显示位置
+static const FVector2D LockerHidePos(0.5f, 0.0f);      //隐藏位置
 
 // Sets default values
 ALocker::ALocker()
@@ -54,9 +58,9 @@ ALocker::ALocker()
 	}
 
 	LockerCapacity = 4;    //默认储物柜的容量为4
-	Owner = nullptr;
+	OwnerController = nullptr;
 	InMove = false;
-	InShow = true;       //默认是显示的
+	InShow = false;       //默认是显示的
 	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
 }
 
@@ -65,10 +69,17 @@ void ALocker::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UpdateRelativePosToPawn(nullptr, 0);
 	LockerContent.SetNum(4);      //设置储物柜的容量
 	if (GetOwner())
 	{
-		Owner = Cast<AMainController>(GetOwner());
+		OwnerController = Cast<AMainController>(GetOwner());
+	}
+
+	if (GEngine && GEngine->GameViewport)
+	{
+		FViewport* Viewport = GEngine->GameViewport->Viewport;
+		Viewport->ViewportResizedEvent.AddUObject(this, &ALocker::UpdateRelativePosToPawn);
 	}
 }
 
@@ -77,15 +88,22 @@ void ALocker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (InMove && Owner)
+	if (InMove && OwnerController)
 	{
-		if (InShow)       //展示状态
-		{
-			
-		}
-		else
-		{
+		FVector NewRelativeLoc, DestRelPos;
+		DestRelPos = InShow ? RelativeToPawn_Show : RelativeToPawn_Hide;
 
+		if (InShow)       //展示状态
+			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Show, DeltaTime, 5.f);
+		else
+			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Hide, DeltaTime, 5.f);
+
+		SetActorRelativeLocation(NewRelativeLoc);
+
+		if ((GetRelativeLocationToPawn() - DestRelPos).Size() <= 0.01f)
+		{
+			SetActorRelativeLocation(DestRelPos);
+			InMove = false;
 		}
 	}
 }
@@ -165,5 +183,36 @@ void ALocker::StopCastLight()
 
 void ALocker::Switch()
 {
+	InMove = true;
 	InShow += 1;     //切换Locker状态
+}
+
+void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
+{
+	if (OwnerController)
+	{
+		FVector WorldPos, WorldDir, DestPos;
+		FPlane LockerPlane(GetActorLocation(), FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::Z));       //Locker所在平面
+
+		TestProjectHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerShowPos, WorldPos, WorldDir);
+		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);    //计算射线与平面的交点
+		RelativeToPawn_Show = IntersectionPos - OwnerController->GetFocalLocation();     //相对位置
+
+		TestProjectHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerHidePos, WorldPos, WorldDir);
+		IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);
+		RelativeToPawn_Hide = IntersectionPos + FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X)*(LockerWidth + 10.f) - OwnerController->GetFocalLocation();   //隐藏相对位置
+	}
+}
+
+void ALocker::SetVisibility(bool bVisible)
+{
+	LockerMeshComponent->SetVisibility(bVisible);
+}
+
+FVector ALocker::GetRelativeLocationToPawn()
+{
+	if (OwnerController)
+		return GetActorLocation() - OwnerController->GetFocalLocation();
+
+	return FVector::ZeroVector;
 }
