@@ -7,6 +7,7 @@
 #include "Earth.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
+#include "Gameplay/MainController.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION

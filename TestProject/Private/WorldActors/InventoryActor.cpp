@@ -7,6 +7,7 @@
 #include "Gameplay/MainController.h"
 #include "TestProject.h"
 #include "Locker.h"
+#include "Engine/Engine.h"
 
 
 // Sets default values
@@ -55,8 +56,8 @@ void AInventoryActor::Tick(float DeltaTime)
 		OwnerController->GetMousePosition(MousePosition.X, MousePosition.Y);
 		//TestProjectHelper::Debug_ScreenMessage(MousePosition.ToString());
 		FVector WorldPosition, WorldDirection;
-		TestProjectHelper::DeProjectScreenToWorld(OwnerController, WorldPosition, WorldDirection);      //获取鼠标所对应的射线
-
+		TestProjectHelper::DeprojectScreenToWorld_Cursor(OwnerController, WorldPosition, WorldDirection);      //获取鼠标所对应的射线
+		
 		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + 1000.f*WorldDirection, MovePlane);    //计算射线与平面的交点
 		SetActorLocation(IntersectionPos + Offset);
 	}

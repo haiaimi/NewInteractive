@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "TestProjectHelper.h"
-#include "MainController.h"
+#include "Gameplay/MainController.h"
 #include "Widgets/SInventoryMenuWidget.h"
 
 
