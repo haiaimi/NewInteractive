@@ -24,6 +24,8 @@ public:
 
 	virtual void SetupInputComponent()override;
 
+	virtual void ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)override;
+
 public:
 	void ToggleTableMaterial();
 
@@ -43,6 +45,12 @@ public:
 	bool DoesCursorInMenu();
 
 	void LoadLandscape(FName const LevelName);
+
+	void OnePointPressed(const FVector2D& Point, float DownTime);
+
+	void OnePointReleased(const FVector2D& Point, float DownTime);
+
+	void OnePointRepeat(const FVector2D& Point, float DownTime);
 
 private:
 	/**用于桌面的材质库*/
@@ -68,5 +76,7 @@ private:
 
 	/**生成Locker的定时器*/
 	FTimerHandle SpawnLockerHandle;
+
+	class UCustomTouchInput* InputHandle;
 
 };

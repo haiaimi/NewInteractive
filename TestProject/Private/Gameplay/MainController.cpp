@@ -16,6 +16,7 @@
 #include "../../Public/Gameplay/GroundCameraComponent.h"
 #include "SlateApplication.h"
 #include "TimerManager.h"
+#include "Gameplay/CustomTouchInput.h"
 
 
 AMainController::AMainController()
@@ -35,6 +36,7 @@ AMainController::AMainController()
 	CurLocker = nullptr;
 	CurDragThing = nullptr;
 	CurMenuSpawnThing = nullptr;
+	InputHandle = nullptr;
 	MaterialIndex = 0;    //默认材质目录
 	bEnableMouseOverEvents = true;    //启用鼠标覆盖事件检测
 	bShowMouseCursor = true;
@@ -44,6 +46,7 @@ void AMainController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InputHandle = NewObject<UCustomTouchInput>(this);
 	//把鼠标指针限制在Viewport里
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
@@ -116,6 +119,13 @@ void AMainController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	if (InputHandle)
+	{
+		InputHandle->OnePointEvent[IE_Pressed].BindUObject(this, &AMainController::OnePointPressed);
+		InputHandle->OnePointEvent[IE_Released].BindUObject(this, &AMainController::OnePointReleased);
+		InputHandle->OnePointEvent[IE_Repeat].BindUObject(this, &AMainController::OnePointRepeat);
+	}
+
 	if (InputComponent)
 	{
 		InputComponent->BindAction(TEXT("ToggleMaterial"), EInputEvent::IE_Pressed, this, &AMainController::ToggleTableMaterial);
@@ -124,6 +134,11 @@ void AMainController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Quit"), EInputEvent::IE_Pressed, this, &AMainController::QuitGame);
 		InputComponent->BindAction(TEXT("LockerSwitch"), EInputEvent::IE_Pressed, this, &AMainController::SwitchLocker);
 	}
+}
+
+void AMainController::ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)
+{
+	Super::ProcessPlayerInput(DeltaTime, bGamePaused);
 }
 
 void AMainController::ToggleTableMaterial()
@@ -151,7 +166,7 @@ void AMainController::DragSomeThing()
 		HitActor = Cast<AInventoryActor>(HitResult.GetActor());
 		if (HitActor && CurTable)
 		{
-			TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
+			//TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
 			CurDragThing = HitActor;
 			const FVector Offset = CurDragThing->GetActorLocation() - HitResult.ImpactPoint;   //鼠标指针相对于物体的位置
 			const FPlane MovePlane(HitResult.ImpactPoint, FRotationMatrix(CurDragThing->GetActorRotation()).GetUnitAxis(EAxis::Z));   //获取鼠标与物体撞击点的平面
@@ -278,4 +293,25 @@ void AMainController::LoadLandscape(FName const LevelName)
 	{
 		UGameplayStatics::LoadStreamLevel(GetWorld(), LevelName, true, false, FLatentActionInfo());
 	}
+}
+
+void AMainController::OnePointPressed(const FVector2D& Point, float DownTime)
+{
+	if (GEngine)
+	{
+		FVector2D ScreenSize;
+		GEngine->GameViewport->GetViewportSize(ScreenSize);
+
+
+	}
+}
+
+void AMainController::OnePointReleased(const FVector2D& Point, float DownTime)
+{
+
+}
+
+void AMainController::OnePointRepeat(const FVector2D& Point, float DownTime)
+{
+
 }
