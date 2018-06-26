@@ -9,6 +9,8 @@
 #include "TestProject.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
+#include "GameFramework/PlayerInput.h"
+#include "Engine/LocalPlayer.h"
 
 static const FVector2D LockerShowPos(0.5f, 0.2f);     //显示位置
 static const FVector2D LockerHidePos(0.5f, 0.0f);      //隐藏位置
@@ -59,9 +61,15 @@ ALocker::ALocker()
 
 	LockerCapacity = 4;    //默认储物柜的容量为4
 	OwnerController = nullptr;
-	InMove = false;
-	InShow = false;       //默认是显示的
+	bInMove = false;
+	bInShow = false;       //默认是显示的
+	bCanUpdate = false;
+	bStartTraceLine = false;
 	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
+
+	LockerMeshComponent->OnInputTouchBegin.AddDynamic(this, &ALocker::BeginMove);
+	LockerMeshComponent->OnInputTouchEnd.AddDynamic(this, &ALocker::EndMove);
+	LockerMeshComponent->OnInputTouchLeave.AddDynamic(this, &ALocker::EndMove);
 }
 
 // Called when the game starts or when spawned
@@ -88,12 +96,12 @@ void ALocker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (InMove && OwnerController)
+	if (bInMove && OwnerController && !bCanUpdate)
 	{
 		FVector NewRelativeLoc, DestRelPos;
-		DestRelPos = InShow ? RelativeToPawn_Show : RelativeToPawn_Hide;
+		DestRelPos = bInShow ? RelativeToPawn_Show : RelativeToPawn_Hide;
 
-		if (InShow)       //展示状态
+		if (bInShow)       //展示状态
 			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Show, DeltaTime, 5.f);
 		else
 			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Hide, DeltaTime, 5.f);
@@ -103,9 +111,11 @@ void ALocker::Tick(float DeltaTime)
 		if ((GetRelativeLocationToPawn() - DestRelPos).Size() <= 0.01f)
 		{
 			SetActorRelativeLocation(DestRelPos);
-			InMove = false;
+			bInMove = false;
 		}
 	}
+
+	UpdateMove();
 }
 
 void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector CursorLastPoint)
@@ -183,8 +193,8 @@ void ALocker::StopCastLight()
 
 void ALocker::Switch()
 {
-	InMove = true;
-	InShow += 1;     //切换Locker状态
+	bInMove = true;
+	bInShow += 1;     //切换Locker状态
 }
 
 void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
@@ -207,6 +217,112 @@ void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
 void ALocker::SetVisibility(bool bVisible)
 {
 	LockerMeshComponent->SetVisibility(bVisible);
+}
+
+void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent)
+{
+	if (OwnerController)
+	{
+		FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
+		if (TouchPos.Z > 0)
+		{
+			FVector2D ScreenSize;
+			bCanUpdate = true;
+			this->FingerIndex = FingerIndex;
+			
+			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();	
+			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
+			FVector RelativeTouchPoint = FMath::Lerp<FVector>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*(0.2f - TouchPos.Y / ScreenSize.Y));            //计算触摸的相对位置
+			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // 计算触摸点到Locker的相对位置
+
+			UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
+		}
+	}
+}
+
+void ALocker::UpdateMove()
+{
+	if (OwnerController && bCanUpdate)
+	{
+		FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
+		if (TouchPos.Z > 0)
+		{
+			FVector2D ScreenSize;
+
+			float ScreenPrecent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();
+			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
+			float ScreenPos_X = (0.2f - TouchPos.Y / ScreenSize.Y) / 0.2f;
+
+			if (ScreenPos_X < 0.f)     //触摸点超出最大显示位置
+			{
+				SetActorRelativeLocation(RelativeToPawn_Show);
+			}
+			else
+			{
+				FVector RelativeTouchPoint = FMath::Lerp<FVector>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPrecent * ScreenPos_X);            //计算触摸的相对位置
+				SetActorRelativeLocation(RelativeTouchPoint - TouchOffset);
+			}
+		}
+	}
+}
+
+void ALocker::EndMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent)
+{
+	bCanUpdate = false;   //结束移动
+	TouchOffset = FVector::ZeroVector;
+	if (OwnerController)
+	{
+		const FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
+		FVector2D ScreenSize;
+
+		OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
+		float ScreenPos_X = TouchPos.Y / ScreenSize.Y;
+
+		//根据触摸事件结束的位置来判断Locker的开关
+		if (ScreenPos_X > 0.15f)
+		{
+			bInMove = true;
+			bInShow = true;
+		}
+		else
+		{
+			bInMove = true;
+			bInShow = false;
+		}
+	}
+}
+
+void ALocker::StartOpenLocker(const FVector2D& Point, float DownTime)
+{
+	if (OwnerController)
+	{
+		FVector2D ScreenSize;
+		OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
+
+		if (Point.X / ScreenSize.X > 0.2f && Point.X / ScreenSize.X < 0.8f && Point.Y / ScreenSize.Y < 0.2f)       //响应Locker触发的区域
+		{
+			bStartTraceLine = true;
+			StartPoint = Point;
+		}
+	}
+}
+
+void ALocker::UpdateOpenLocker(const FVector2D& Point, float DownTime)
+{
+
+}
+
+void ALocker::EndOpenLocker(const FVector2D& Point, float DownTime)
+{
+	if (bStartTraceLine)
+	{
+		bStartTraceLine = false;
+		if ((Point.Y - StartPoint.Y) > 10.f && DownTime < 0.3f)
+		{
+			bInMove = true;
+			bInShow = true;
+		}
+	}
 }
 
 FVector ALocker::GetRelativeLocationToPawn()

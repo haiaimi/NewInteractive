@@ -47,6 +47,20 @@ public:
 	/**设置Locker可见性*/
 	void SetVisibility(bool bVisible);
 
+	UFUNCTION()
+	void BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent);
+
+	void UpdateMove();
+
+	UFUNCTION()
+	void EndMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent);
+
+	void StartOpenLocker(const FVector2D& Point, float DownTime);
+
+	void UpdateOpenLocker(const FVector2D& Point, float DownTime);
+
+	void EndOpenLocker(const FVector2D& Point, float DownTime);
+
 private:
 	FVector GetRelativeLocationToPawn();
 
@@ -74,15 +88,29 @@ private:
 
 	class AMainController* OwnerController;
 
-	uint8 InMove : 1;
+	uint8 bInMove : 1;
 
-	uint8 InShow : 1;
+	uint8 bInShow : 1;
+
+	uint8 bCanUpdate : 1;
+
+	/**检测轨迹的开始，用于检测是否触发Locker*/
+	uint8 bStartTraceLine : 1;
+
+	/**检测线上的点*/
+	FVector2D StartPoint;
 
 	/**Locker正常显示时相对于Pawn的位置*/
 	FVector RelativeToPawn_Show;
 
 	/**Locker隐藏时相对于Pawn的位置*/
 	FVector RelativeToPawn_Hide;
+
+	/**触发Touch事件后Locker中心离触摸点的距离*/
+	FVector TouchOffset;      
+
+	/**当前触摸的Index，为了从Controller获取触摸点位置*/
+	ETouchIndex::Type FingerIndex;
 
 public:
 	float LockerLength;
