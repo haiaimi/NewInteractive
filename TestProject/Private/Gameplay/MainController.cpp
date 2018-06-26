@@ -39,6 +39,8 @@ AMainController::AMainController()
 	InputHandle = nullptr;
 	MaterialIndex = 0;    //默认材质目录
 	bEnableMouseOverEvents = true;    //启用鼠标覆盖事件检测
+	bEnableTouchEvents = true;   //启用触摸事件
+	bEnableTouchOverEvents = true;
 	bShowMouseCursor = true;
 }
 
@@ -100,6 +102,13 @@ void AMainController::BeginPlay()
 			CurLocker->SetActorRelativeLocation(CurLocker->GetRelativeLocationToPawn_Hide());
 			CurLocker->SetVisibility(true);
 			CurLocker->Switch();
+
+			if (InputHandle)
+			{
+				InputHandle->OnePointEvent[IE_Pressed].BindUObject(CurLocker, &ALocker::StartOpenLocker);
+				InputHandle->OnePointEvent[IE_Released].BindUObject(CurLocker, &ALocker::EndOpenLocker);
+				//InputHandle->OnePointEvent[IE_Repeat].BindUObject(CurLocker, &ALocker::UpdateMove);
+			}
 		}
 	});
 	GetWorldTimerManager().SetTimer(SpawnLockerHandle, TimerDelegate, 0.1f, false);
@@ -139,6 +148,9 @@ void AMainController::SetupInputComponent()
 void AMainController::ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)
 {
 	Super::ProcessPlayerInput(DeltaTime, bGamePaused);
+
+	if (InputHandle)
+		InputHandle->UpdateInputStates(DeltaTime);
 }
 
 void AMainController::ToggleTableMaterial()
