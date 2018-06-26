@@ -35,21 +35,30 @@ void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 
 	if (CurrentTouchState)
 	{
-		if (PreTouched)
-			OnePointEvent[IE_Repeat].ExecuteIfBound(TouchPoint, 0.f);
-
 		if (!PreTouched)
-			OnePointEvent[IE_Pressed].ExecuteIfBound(TouchPoint, 0.f);
+		{
+			DownTime = 0.f;
+			OnePointEvent[IE_Pressed].ExecuteIfBound(TouchPoint, DownTime);
+		}
+
+		if (PreTouched)
+		{
+			DownTime += DeltaTime;
+			OnePointEvent[IE_Repeat].ExecuteIfBound(TouchPoint, DownTime);
+		}
 	}
 	else
 	{
 		if (PreTouched)
-			OnePointEvent[IE_Released].ExecuteIfBound(TouchPoint, 0.f);
+		{
+			OnePointEvent[IE_Released].ExecuteIfBound(TouchPoint, DownTime);
+			DownTime = 0.f;
+		}
 	}
 	PreTouched = CurrentTouchState;
 }
 
 void UCustomTouchInput::ProcessKeyStates(float DeltaTime)
 {
-
+	
 }
