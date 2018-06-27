@@ -232,7 +232,7 @@ void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touc
 			
 			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();	
 			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
-			FVector RelativeTouchPoint = FMath::Lerp<FVector>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*(0.2f - TouchPos.Y / ScreenSize.Y));            //计算触摸的相对位置
+			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((0.2f - TouchPos.Y / ScreenSize.Y) / 0.2f));            //计算触摸的相对位置
 			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // 计算触摸点到Locker的相对位置
 
 			UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
@@ -249,17 +249,19 @@ void ALocker::UpdateMove()
 		{
 			FVector2D ScreenSize;
 
-			float ScreenPrecent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();
+			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();
 			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
+			float MaxPercent = 0.2f + 0.2f * ((LockerWidth / 2) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size()) / ScreenPercent;
+			//TestProjectHelper::Debug_LogMessage(FString::Printf(TEXT("MaxPercent: %f"), MaxPercent));
 			float ScreenPos_X = (0.2f - TouchPos.Y / ScreenSize.Y) / 0.2f;
 
-			if (ScreenPos_X < 0.f)     //触摸点超出最大显示位置
+			if ((TouchPos.Y / ScreenSize.Y) > MaxPercent)
 			{
 				SetActorRelativeLocation(RelativeToPawn_Show);
 			}
 			else
 			{
-				FVector RelativeTouchPoint = FMath::Lerp<FVector>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPrecent * ScreenPos_X);            //计算触摸的相对位置
+				FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent * ScreenPos_X);            //计算触摸的相对位置
 				SetActorRelativeLocation(RelativeTouchPoint - TouchOffset);
 			}
 		}
