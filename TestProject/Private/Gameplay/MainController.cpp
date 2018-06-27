@@ -108,6 +108,8 @@ void AMainController::BeginPlay()
 				InputHandle->OnePointEvent[IE_Pressed].BindUObject(CurLocker, &ALocker::StartOpenLocker);
 				InputHandle->OnePointEvent[IE_Released].BindUObject(CurLocker, &ALocker::EndOpenLocker);
 				//InputHandle->OnePointEvent[IE_Repeat].BindUObject(CurLocker, &ALocker::UpdateMove);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed, CurLocker, &ALocker::StartOpenLocker);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, CurLocker, &ALocker::EndOpenLocker);
 			}
 		}
 	});
@@ -130,9 +132,6 @@ void AMainController::SetupInputComponent()
 
 	if (InputHandle)
 	{
-		InputHandle->OnePointEvent[IE_Pressed].BindUObject(this, &AMainController::OnePointPressed);
-		InputHandle->OnePointEvent[IE_Released].BindUObject(this, &AMainController::OnePointReleased);
-		InputHandle->OnePointEvent[IE_Repeat].BindUObject(this, &AMainController::OnePointRepeat);
 	}
 
 	if (InputComponent)
@@ -147,10 +146,10 @@ void AMainController::SetupInputComponent()
 
 void AMainController::ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)
 {
-	Super::ProcessPlayerInput(DeltaTime, bGamePaused);
-
-	if (InputHandle)
+	if (InputHandle && PlayerInput)
 		InputHandle->UpdateInputStates(DeltaTime);
+
+	Super::ProcessPlayerInput(DeltaTime, bGamePaused);
 }
 
 void AMainController::ToggleTableMaterial()
