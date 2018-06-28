@@ -29,3 +29,8 @@ void AGroundSpectatorPawn::SetupPlayerInputComponent(UInputComponent* InInputCom
 
 }
 
+UGroundCameraComponent* AGroundSpectatorPawn::GetGroundCameraComponent() const
+{
+	return SpectatorCamera;
+}
+

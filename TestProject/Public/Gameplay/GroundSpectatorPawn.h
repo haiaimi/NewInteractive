@@ -22,6 +22,8 @@ public:
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* InInputComponent)override;
 
+	class UGroundCameraComponent* GetGroundCameraComponent()const;
+
 private:
 	/**用于观察的相机*/
 	class UGroundCameraComponent* SpectatorCamera;
