@@ -111,6 +111,9 @@ void AMainController::BeginPlay()
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::DragLandscapePressed);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::DragLandscapeReleased);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::DragLandscapeUpdate);
+				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Pressed, this, &AMainController::OnPinchStart);
+				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Released, this, &AMainController::OnPinchEnd);
+				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Repeat, this, &AMainController::OnPinchUpdate);
 			}
 		}
 	});
@@ -326,6 +329,21 @@ void AMainController::DragLandscapeUpdate(const FVector2D& Point, float DownTime
 	{
 		GetGroundCamera()->UpdateSwipe(Point, DownTime);
 	}
+}
+
+void AMainController::OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
+{
+
+}
+
+void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
+{
+
+}
+
+void AMainController::OnPinchEnd(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
+{
+
 }
 
 bool AMainController::CanDragLanscape()

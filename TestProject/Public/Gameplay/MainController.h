@@ -52,6 +52,12 @@ public:
 
 	void DragLandscapeUpdate(const FVector2D& Point, float DownTime);
 
+	void OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime);
+
+	void OnPinchUpdate(const FVector2D& Point1, const FVector2D& Point2, float DownTime);
+
+	void OnPinchEnd(const FVector2D& Point1, const FVector2D& Point2, float DownTime);
+
 	/**判断当前状态是否可以拖拽地形，当用户在拖拽物体和控制UI时不可以拖拽*/
 	bool CanDragLanscape();
 

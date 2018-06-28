@@ -19,7 +19,7 @@ DECLARE_DELEGATE_ThreeParams(FTwoPointInputEvent, const FVector2D&, const FVecto
 	Handler->ActionBindings1P[Idx].ActionDelegate.BindUObject(UserObject, Delegate); \
 }
 
-#define BIND_2P_ACTION(Handler, ActionKey, ActionState, Delegate)  \
+#define BIND_2P_ACTION(Handler, ActionKey, ActionState, UserObject, Delegate)  \
 { \
 	int32 Idx = Handler->ActionBindings1P.AddZeroed(); \
 	Handler->ActionBindings1P[Idx].Key = ActionKey; \
