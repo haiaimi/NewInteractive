@@ -29,7 +29,28 @@ public:
 	/**获取玩家Controller*/
 	APlayerController* GetPlayerController();
 
+	void StartSwipe(const FVector2D& InPoint, float DownTime);
+
+	void UpdateSwipe(const FVector2D& InPoint, float DownTime);
+
+	void EndSwipe(const FVector2D& InPoint, float DownTime);
+
 public:
 	/**摄像机观察的方向*/
 	FRotator LookRotation;    
+
+private:
+	/**该点就是中心点（就是手指指向的世界位置），后续更新的点都围绕这个点*/
+	FVector StartSwipePos;
+
+	///下面是拖拽阻尼效果的全局变量
+	FVector DecelerateSpeed;
+
+	/**用来记录触摸经过的轨迹*/
+	TArray<FVector> TracePoints;     
+
+	//最终更新位置的时间
+	float LastUpdateTime;
+
+	uint8 bDecelerate : 1;
 };
