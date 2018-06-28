@@ -46,11 +46,19 @@ public:
 
 	void LoadLandscape(FName const LevelName);
 
-	void OnePointPressed(const FVector2D& Point, float DownTime);
+	void DragLandscapePressed(const FVector2D& Point, float DownTime);
 
-	void OnePointReleased(const FVector2D& Point, float DownTime);
+	void DragLandscapeReleased(const FVector2D& Point, float DownTime);
 
-	void OnePointRepeat(const FVector2D& Point, float DownTime);
+	void DragLandscapeUpdate(const FVector2D& Point, float DownTime);
+
+	/**判断当前状态是否可以拖拽地形，当用户在拖拽物体和控制UI时不可以拖拽*/
+	bool CanDragLanscape();
+
+private:
+	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
+
+	class UGroundCameraComponent* GetGroundCamera()const;
 
 private:
 	/**用于桌面的材质库*/
@@ -77,6 +85,7 @@ private:
 	/**生成Locker的定时器*/
 	FTimerHandle SpawnLockerHandle;
 
+	UPROPERTY()
 	class UCustomTouchInput* InputHandle;
 
 };

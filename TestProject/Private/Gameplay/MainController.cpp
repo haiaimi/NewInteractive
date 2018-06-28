@@ -17,6 +17,7 @@
 #include "SlateApplication.h"
 #include "TimerManager.h"
 #include "Gameplay/CustomTouchInput.h"
+#include "GroundSpectatorPawn.h"
 
 
 AMainController::AMainController()
@@ -56,7 +57,7 @@ void AMainController::BeginPlay()
 	GetLocalPlayer()->ViewportClient->SetMouseLockMode(EMouseLockMode::LockAlways);
 
 	//GetPawn()->SetActorHiddenInGame(true);
-	
+
 	//在视口前方设置一个桌面	
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -74,17 +75,17 @@ void AMainController::BeginPlay()
 	const FVector LockerSpawnLocation = ViewLocation + TableX2D * 170.f + LookRotation.Vector() * 530.f;
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.Owner = this;
-	
-	ATable* SpawnedTable = GetWorld()->SpawnActor<ATable>(TableSapwnLoaction, FRotator::ZeroRotator, SpawnParam);
+
+	//ATable* SpawnedTable = GetWorld()->SpawnActor<ATable>(TableSapwnLoaction, FRotator::ZeroRotator, SpawnParam);
 	ALocker* SpawnedLocker = GetWorld()->SpawnActor<ALocker>(LockerSpawnLocation, FRotator::ZeroRotator, SpawnParam);
 
-	if (SpawnedTable)
-	{
-		CurTable = SpawnedTable;
-		if (GetPawn())
-			CurTable->AttachToActor(GetPawn(), FAttachmentTransformRules::KeepWorldTransform);       //绑定到Pawn中
-	}
-	
+	//if (SpawnedTable)
+	//{
+	//	CurTable = SpawnedTable;
+	//	if (GetPawn())
+	//		CurTable->AttachToActor(GetPawn(), FAttachmentTransformRules::KeepWorldTransform);       //绑定到Pawn中
+	//}
+
 	if (SpawnedLocker)
 	{
 		CurLocker = SpawnedLocker;
@@ -94,7 +95,7 @@ void AMainController::BeginPlay()
 	}
 
 	FTimerDelegate TimerDelegate;
-	TimerDelegate.BindLambda([&]() 
+	TimerDelegate.BindLambda([&]()
 	{
 		if (CurLocker)
 		{
@@ -105,15 +106,17 @@ void AMainController::BeginPlay()
 
 			if (InputHandle)
 			{
-				InputHandle->OnePointEvent[IE_Pressed].BindUObject(CurLocker, &ALocker::StartOpenLocker);
-				InputHandle->OnePointEvent[IE_Released].BindUObject(CurLocker, &ALocker::EndOpenLocker);
-				//InputHandle->OnePointEvent[IE_Repeat].BindUObject(CurLocker, &ALocker::UpdateMove);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed, CurLocker, &ALocker::StartOpenLocker);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, CurLocker, &ALocker::EndOpenLocker);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::DragLandscapePressed);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::DragLandscapeReleased);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::DragLandscapeUpdate);
 			}
 		}
 	});
 	GetWorldTimerManager().SetTimer(SpawnLockerHandle, TimerDelegate, 0.1f, false);
+
+
 }
 
 void AMainController::Tick(float DeltaSeconds)
@@ -129,10 +132,6 @@ void AMainController::Tick(float DeltaSeconds)
 void AMainController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
-	if (InputHandle)
-	{
-	}
 
 	if (InputComponent)
 	{
@@ -175,7 +174,7 @@ void AMainController::DragSomeThing()
 	if (HitResult.GetActor())
 	{
 		HitActor = Cast<AInventoryActor>(HitResult.GetActor());
-		if (HitActor && CurTable)
+		if (HitActor)
 		{
 			//TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
 			CurDragThing = HitActor;
@@ -200,7 +199,6 @@ void AMainController::DragSomeThing()
 			}
 		}
 	}
-	
 }
 
 void AMainController::StopDrag()
@@ -306,23 +304,60 @@ void AMainController::LoadLandscape(FName const LevelName)
 	}
 }
 
-void AMainController::OnePointPressed(const FVector2D& Point, float DownTime)
+void AMainController::DragLandscapePressed(const FVector2D& Point, float DownTime)
 {
-	if (GEngine)
+	if (GetGroundCamera() != nullptr)
 	{
-		FVector2D ScreenSize;
-		GEngine->GameViewport->GetViewportSize(ScreenSize);
-
-
+		GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
 }
 
-void AMainController::OnePointReleased(const FVector2D& Point, float DownTime)
+void AMainController::DragLandscapeReleased(const FVector2D& Point, float DownTime)
 {
-
+	if (GetGroundCamera() != nullptr)
+	{
+		GetGroundCamera()->EndSwipe(Point, DownTime);
+	}
 }
 
-void AMainController::OnePointRepeat(const FVector2D& Point, float DownTime)
+void AMainController::DragLandscapeUpdate(const FVector2D& Point, float DownTime)
 {
+	if (GetGroundCamera() != nullptr)
+	{
+		GetGroundCamera()->UpdateSwipe(Point, DownTime);
+	}
+}
 
+bool AMainController::CanDragLanscape()
+{
+	bool bCanDrag = true;
+	// 当用户在拖拽物体时
+	if (CurDragThing)
+		bCanDrag = false;
+
+	//用户在UI内时
+	if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
+	{
+		if (CurHUD->IsInventoryWidgetValid())
+		{
+			if (DoesCursorInMenu() && CurHUD->IsMenuShow())
+				bCanDrag = false;
+		}
+	}
+
+	return bCanDrag;
+}
+
+class AGroundSpectatorPawn* AMainController::GetGroundSpectatorPawn() const
+{
+	return Cast<AGroundSpectatorPawn>(GetPawn());
+}
+
+class UGroundCameraComponent* AMainController::GetGroundCamera() const
+{
+	UGroundCameraComponent* CameraComponent = nullptr;
+	if (GetGroundSpectatorPawn() != nullptr)
+		CameraComponent = GetGroundSpectatorPawn()->GetGroundCameraComponent();
+
+	return CameraComponent;
 }
