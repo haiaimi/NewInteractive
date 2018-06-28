@@ -105,9 +105,6 @@ public:
 	TArray<FActionBinding2P> ActionBindings2P;
 
 private:
-	UPROPERTY()
-	class AMainController * OwnerController;
-
 	/**用于存储当前屏幕上触摸组合状态*/
 	TMap<EGameTouchKey::Type, FSimpleKeyState> KeyStateMap;
 

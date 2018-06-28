@@ -8,7 +8,6 @@
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 	,PreTouched(false)
-	,OwnerController(nullptr)
 	,Touch0DownTime(0.f)
 {
 
@@ -22,8 +21,9 @@ void UCustomTouchInput::UpdateInputStates(float DeltaTime)
 
 void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 {
+	if (!GetOuter())return;
 	AMainController* Controller = Cast<AMainController>(GetOuter());
-
+	
 	uint32 CurrentTouchState = 0;
 	for (int32 i = 0; i < ARRAY_COUNT(Controller->PlayerInput->Touches); i++)
 	{
