@@ -150,7 +150,6 @@ void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector Curso
 		AddedActor->bInLocker = true;       //该物体已在储物柜中
 		AddedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);   //把仓库物体附着在储物柜上
 		FVector DestLocation(LockerCenter.X, LockerCenter.Y - LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2, LockerCenter.Z + AddedActor->GetHeight() / 2);
-		//AddedActor->SetActorLocation(DestLocation);  //设置仓库物体的具体位置
 		AddedActor->bIsInMove = true;
 		AddedActor->DestLocation = DestLocation;   //设置新的目标位置
 	}
