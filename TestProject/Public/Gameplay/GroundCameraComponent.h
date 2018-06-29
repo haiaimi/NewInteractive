@@ -35,6 +35,12 @@ public:
 
 	void EndSwipe(const FVector2D& InPoint, float DownTime);
 
+	void OnPinchStart(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime);
+
+	void OnPinchUpdate(class UCustomTouchInput* InputHandle, const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime);
+
+	void OnPinchEnd(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime);
+
 public:
 	/**摄像机观察的方向*/
 	FRotator LookRotation;    
@@ -53,4 +59,13 @@ private:
 	float LastUpdateTime;
 
 	uint8 bDecelerate : 1;
+
+	///下面是Pinch缩放相关
+	//当前整体缩放状态
+	float ZoomAlpha;
+
+	//进行缩放操作时的比例
+	float InitialPinchAlpha;
+
+	uint8 bInPinch : 1;
 };

@@ -4,26 +4,36 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "TestProjectHelper.h"
+#include "CustomTouchInput.h"
 
 static const float GlobalDetectTime = 0.1f;
+static const float ZoomHeight = 20000.f;      //滚动的高度
+static const float BaseHeight = 20000.f;
 
 UGroundCameraComponent::UGroundCameraComponent()
 {
 	LookRotation = FRotator(-70.f, 0.f, 0.f);      //默认角度
 	LastUpdateTime = 0.f;
 	bDecelerate = false;
+	InitialPinchAlpha = 0.f;
+	ZoomAlpha = 0.5f;
+	bInPinch = false;
 }
 
 void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
 {
 	static float CurSpeedScale = 1.f;
-	APlayerController* Controller = GetPlayerController();
+	const APlayerController* Controller = GetPlayerController();
+
 	if (Controller)
 	{
+		FVector PawnLocation = GetOwner()->GetActorLocation();
+		PawnLocation.Z = BaseHeight;
 		if (bDecelerate)
 		{
 			float NewSpeedScale = FMath::FInterpTo(CurSpeedScale, 0.f, DeltaTime, 3.f);
-			GetOwner()->SetActorLocation(GetOwner()->GetActorLocation() + DecelerateSpeed * NewSpeedScale * DeltaTime);
+			PawnLocation += DecelerateSpeed * NewSpeedScale * DeltaTime;
+			//GetOwner()->SetActorLocation(GetOwner()->GetActorLocation() + DecelerateSpeed * NewSpeedScale * DeltaTime);
 			CurSpeedScale = NewSpeedScale;
 
 			if (NewSpeedScale <= 0.01f)
@@ -34,6 +44,8 @@ void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& De
 		else
 			CurSpeedScale = 1.f;
 
+		PawnLocation += FVector::UpVector * ZoomHeight * ZoomAlpha;
+		GetOwner()->SetActorLocation(PawnLocation);
 		DesiredView.Rotation = LookRotation;   //
 		DesiredView.Location = Controller->GetFocalLocation();
 	}
@@ -90,7 +102,7 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 	AMainController* MyController = Cast<AMainController>(Controller);
 	LastUpdateTime = DownTime;
 
-	if (Controller && MyController && MyController->CanDragLanscape())
+	if (Controller && MyController && MyController->CanDragLanscape() &&!bInPinch)
 	{
 		FHitResult HitResult;
 		if (Controller->GetHitResultAtScreenPosition(InPoint, ECollisionChannel::ECC_WorldDynamic, true, HitResult))
@@ -116,9 +128,19 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 				TracePoints.RemoveAt(0);
 			}
 			
-			
-			//DecelerateSpeed= DeltaPos / (DownTime - PreDownTime);     //计算最终移动速度
 			PreDownTime = DownTime;
+		}
+	}
+
+	if (bInPinch)
+	{
+		if (Controller)
+		{
+			FHitResult HitResult;
+			if (Controller->GetHitResultAtScreenPosition(InPoint, ECollisionChannel::ECC_WorldDynamic, true, HitResult))
+			{
+				StartSwipePos = HitResult.ImpactPoint;
+			}
 		}
 	}
 }
@@ -139,4 +161,25 @@ void UGroundCameraComponent::EndSwipe(const FVector2D& InPoint, float DownTime)
 		DecelerateSpeed = DeclerateVec / GlobalDetectTime;
 
 	TracePoints.Empty();   //清空数组内容
+}
+
+void UGroundCameraComponent::OnPinchStart(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime)
+{
+	InitialPinchAlpha = ZoomAlpha;
+	bInPinch = true;
+}
+
+void UGroundCameraComponent::OnPinchUpdate(UCustomTouchInput* InputHandle, const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime)
+{
+	FVector2D* const Anchors = InputHandle->GetTouchAnchors();
+	const float AnchorDistance = (Anchors[0] - Anchors[1]).Size();
+	const float CurrentDistance = (InPoint2 - InPoint1).Size();
+	const float PinchDelta = AnchorDistance - CurrentDistance;
+	
+	ZoomAlpha = FMath::Clamp(InitialPinchAlpha + PinchDelta * 0.002f, 0.f, 1.f);
+}
+
+void UGroundCameraComponent::OnPinchEnd(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime)
+{
+	bInPinch = false;
 }
