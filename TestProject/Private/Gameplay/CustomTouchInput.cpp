@@ -7,8 +7,10 @@
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
-	,PreTouched(false)
+	, PreTouchedState(0)
 	,Touch0DownTime(0.f)
+	, TwoPointDownTime(0.f)
+	, bTwoPointTouched(false)
 {
 
 }
@@ -17,6 +19,11 @@ void UCustomTouchInput::UpdateInputStates(float DeltaTime)
 {
 	UpdateGameKeys(DeltaTime);
 	ProcessKeyStates(DeltaTime);
+}
+
+FVector2D*const UCustomTouchInput::GetTouchAnchors()
+{
+	return TouchAnchors;
 }
 
 void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
@@ -36,7 +43,8 @@ void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 	FVector2D LocalPosition1 = FVector2D(Controller->PlayerInput->Touches[0]);
 	FVector2D LocalPosition2 = FVector2D(Controller->PlayerInput->Touches[1]);
 
-	DetectOnePointActions(CurrentTouchState & 1, PreTouched & 1, DeltaTime, LocalPosition1, Touch0DownTime);
+	DetectOnePointActions(CurrentTouchState & 1, PreTouchedState & 1, DeltaTime, LocalPosition1, Touch0DownTime);
+	DetectTwoPointActions((CurrentTouchState & 1) && (CurrentTouchState & 2), (PreTouchedState & 1) && (PreTouchedState & 2), DeltaTime, LocalPosition1, LocalPosition2);
 
 	//if (OwnerController && OwnerController->PlayerInput->Touches[0].Z != 0)
 	//{
@@ -68,7 +76,7 @@ void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 	//		DownTime = 0.f;
 	//	}
 	//}
-	PreTouched = CurrentTouchState;
+	PreTouchedState = CurrentTouchState;
 }
 
 void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition, float& DownTime)
@@ -94,7 +102,7 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 			SwipeState.DownTime = DownTime;
 		}
 
-		DownTime += DeltaTime;
+		DownTime += DeltaTime;	
 	}
 	else
 	{
@@ -106,6 +114,50 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 				SwipeState.Events[IE_Released]++;    //此时Swipe已经结束
 				SwipeState.Position1 = CurrentPosition;
 				SwipeState.DownTime = DownTime;
+			}
+		}
+	}
+}
+
+void UCustomTouchInput::DetectTwoPointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition1, const FVector2D& CurrentPosition2)
+{
+	bTwoPointTouched = bCurrentState;
+	if (bCurrentState)
+	{
+		if (!bPrevState)
+		{
+			TwoPointDownTime = 0.f;
+			TouchAnchors[0] = CurrentPosition1;
+			TouchAnchors[1] = CurrentPosition2;
+			FSimpleKeyState& PinchState = KeyStateMap.FindOrAdd(EGameTouchKey::Pinch);
+			PinchState.Events[IE_Pressed]++;
+			PinchState.Position1 = CurrentPosition1;
+			PinchState.Position2 = CurrentPosition2;
+			PinchState.DownTime = TwoPointDownTime;
+		}
+
+		FSimpleKeyState& PinchState = KeyStateMap.FindOrAdd(EGameTouchKey::Pinch);
+		if (PinchState.bDown)
+		{
+			PinchState.Events[IE_Repeat]++;    //如果该触摸状态按下就开始进入Update状态
+			PinchState.Position1 = CurrentPosition1;
+			PinchState.Position2 = CurrentPosition2;
+			PinchState.DownTime = TwoPointDownTime;
+		}
+
+		TwoPointDownTime += DeltaTime;
+	}
+	else
+	{
+		if (bPrevState)
+		{
+			FSimpleKeyState& PinchState = KeyStateMap.FindOrAdd(EGameTouchKey::Pinch);
+			if (PinchState.bDown)
+			{
+				PinchState.Events[IE_Released]++;
+				PinchState.Position1 = CurrentPosition1;
+				PinchState.Position2 = CurrentPosition2;
+				PinchState.DownTime = TwoPointDownTime;
 			}
 		}
 	}

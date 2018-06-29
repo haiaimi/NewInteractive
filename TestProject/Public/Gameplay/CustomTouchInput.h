@@ -21,10 +21,10 @@ DECLARE_DELEGATE_ThreeParams(FTwoPointInputEvent, const FVector2D&, const FVecto
 
 #define BIND_2P_ACTION(Handler, ActionKey, ActionState, UserObject, Delegate)  \
 { \
-	int32 Idx = Handler->ActionBindings1P.AddZeroed(); \
-	Handler->ActionBindings1P[Idx].Key = ActionKey; \
-	Handler->ActionBindings1P[Idx].KeyState = ActionState; \
-	Handler->ActionBindings1P[Idx].ActionDelegate.BindUObject(UserObject, Delegate); \
+	int32 Idx = Handler->ActionBindings2P.AddZeroed(); \
+	Handler->ActionBindings2P[Idx].Key = ActionKey; \
+	Handler->ActionBindings2P[Idx].KeyState = ActionState; \
+	Handler->ActionBindings2P[Idx].ActionDelegate.BindUObject(UserObject, Delegate); \
 }
 
 /**单指触控输入对应的信息*/
@@ -87,6 +87,8 @@ public:
 
 	/**更新输入状态*/
 	void UpdateInputStates(float DeltaTime);
+
+	FVector2D*const GetTouchAnchors();
 	
 private:
 	/**更新游戏触摸输入状态*/
@@ -96,6 +98,7 @@ private:
 
 	/**检测单触摸点按下状态*/
 	void DetectOnePointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition, float& DownTime);
+	void DetectTwoPointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition1, const FVector2D& CurrentPosition2);
 
 public:
 	// 用于单指按下三个状态的代理，Pressed，Released，Repeat
@@ -109,12 +112,18 @@ private:
 	TMap<EGameTouchKey::Type, FSimpleKeyState> KeyStateMap;
 
 	/**上一次更新是否点击了屏幕*/
-	bool PreTouched;
+	uint32 PreTouchedState;
 
 	/**当前按键状态*/
 	EInputEvent CurKeyEvent; 
 
+	FVector2D TouchAnchors[2];
+
 	float Touch0DownTime;
+
+	float TwoPointDownTime;
+
+	uint8 bTwoPointTouched : 1;
 
 	float DownTime;    //点击时间
 };
