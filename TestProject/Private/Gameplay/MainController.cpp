@@ -274,6 +274,7 @@ void AMainController::SpawnInventoryActors(UClass* SpawnedActor)
 		TestProjectHelper::DeprojectScreenToWorld_Cursor(this, WorldPos, WorldDir);
 		FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
 		CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform));
+		CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
 	}
 }
 
@@ -333,17 +334,26 @@ void AMainController::DragLandscapeUpdate(const FVector2D& Point, float DownTime
 
 void AMainController::OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
 {
-
+	if (GetGroundCamera() != nullptr)
+	{
+		GetGroundCamera()->OnPinchStart(Point1, Point2, DownTime);
+	}
 }
 
 void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
 {
-
+	if (GetGroundCamera() != nullptr)
+	{
+		GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
+	}
 }
 
 void AMainController::OnPinchEnd(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
 {
-
+	if (GetGroundCamera() != nullptr)
+	{
+		GetGroundCamera()->OnPinchEnd(Point1, Point2, DownTime);
+	}
 }
 
 bool AMainController::CanDragLanscape()
