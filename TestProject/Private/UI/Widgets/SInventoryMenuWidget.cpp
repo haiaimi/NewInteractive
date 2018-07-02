@@ -131,7 +131,6 @@ void SInventoryMenuWidget::OnPressed()
 	if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
 		IsInUI = true;
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, TEXT("Button Down"));
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		OwnerController->DragSomeThing();
@@ -151,7 +150,6 @@ void SInventoryMenuWidget::LoadLandscape()
 {
 	if (OwnerController.IsValid())
 	{
-		TestProjectHelper::Debug_ScreenMessage(TEXT("Load Landscape"));
 		OwnerController->LoadLandscape(TEXT("BattleField"));
 	}
 }
@@ -161,7 +159,6 @@ FReply SInventoryMenuWidget::OnClicked()
 	if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
 		IsInUI = true;
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, TEXT("Button Down"));
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		OwnerController->DragSomeThing();
@@ -169,12 +166,11 @@ FReply SInventoryMenuWidget::OnClicked()
 		return FReply::Handled();
 	}
 
-	return FReply::Unhandled();
+	return FReply::Handled();
 }
 
 FReply SInventoryMenuWidget::OnEmptyMouseButtonDown(const FGeometry&, const FPointerEvent&)
 {
-	TestProjectHelper::Debug_ScreenMessage(TEXT("Inventory UI Trigger"));
 	return FReply::Handled();
 }
 
