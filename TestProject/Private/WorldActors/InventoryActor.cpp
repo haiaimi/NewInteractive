@@ -42,7 +42,8 @@ void AInventoryActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	OriginLocation = GetActorLocation();
+	OriginLocation = GetRelativeLocation();
+	TestProjectHelper::Debug_ScreenMessage(GetRelativeLocation().ToString());
 }
 
 // Called every frame
@@ -54,7 +55,6 @@ void AInventoryActor::Tick(float DeltaTime)
 	{
 		FVector2D MousePosition;
 		OwnerController->GetMousePosition(MousePosition.X, MousePosition.Y);
-		//TestProjectHelper::Debug_ScreenMessage(MousePosition.ToString());
 		FVector WorldPosition, WorldDirection;
 		TestProjectHelper::DeprojectScreenToWorld_Cursor(OwnerController, WorldPosition, WorldDirection);      //获取鼠标所对应的射线
 		
@@ -115,16 +115,31 @@ void AInventoryActor::StopMoveWithCursor()
 	OwnerController = nullptr;
 }
 
+FVector AInventoryActor::GetRelativeLocation()
+{
+	FVector RelativeLocation(ForceInit);
+
+	if (GetAttachParentActor())
+	{
+		RelativeLocation = GetActorLocation() - GetAttachParentActor()->GetActorLocation();
+		//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Inventory Location: %s, LockerLocation: %s, DestLocation: %s"), *GetActorLocation().ToString(), *GetAttachParentActor()->GetActorLocation().ToString(), *DestLocation.ToString()));
+	}
+
+	RelativeLocation.Y /= 1.5f;
+	return RelativeLocation;
+}
+
 void AInventoryActor::MoveTick(float DeltaTime)
 {
 	if (bIsInMove)  //此时物体需要移动
 	{
-		FVector NewLocation = FMath::VInterpTo(GetActorLocation(), DestLocation, DeltaTime, 10.f);
-		SetActorLocation(NewLocation);
-
+		FVector NewLocation = FMath::VInterpTo(GetRelativeLocation(), DestLocation, DeltaTime, 10.f);
+		SetActorRelativeLocation(NewLocation);
+		CurRelativeLoc = NewLocation;
+		
 		if ((NewLocation - DestLocation).Size() < 0.5f)
 		{
-			SetActorLocation(DestLocation);
+			SetActorRelativeLocation(DestLocation);
 			bIsInMove = false;
 			OriginLocation = DestLocation;
 		}

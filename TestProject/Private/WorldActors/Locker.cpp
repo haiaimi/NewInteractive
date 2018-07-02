@@ -12,7 +12,7 @@
 #include "GameFramework/PlayerInput.h"
 #include "Engine/LocalPlayer.h"
 
-static const FVector2D LockerShowPos(0.5f, 0.2f);     //显示位置
+static const FVector2D LockerShowPos(0.5f, 0.15f);     //显示位置
 static const FVector2D LockerHidePos(0.5f, 0.0f);      //隐藏位置
 
 // Sets default values
@@ -45,6 +45,7 @@ ALocker::ALocker()
 		FVector LockerBound = LockerMeshComponent->Bounds.BoxExtent;
 		LockerMeshComponent->SetRelativeLocation(FVector(-LockerBound.X, -LockerBound.Y, 0.f));
 		SetActorScale3D(FVector(0.4f, 1.5f, 1.f));
+		//LockerMeshComponent->SetWorldScale3D(FVector(0.4f, 1.5f, 1.f));
 		LockerLength = LockerBound.Y * 2.f * 1.5f;
 		LockerWidth = LockerBound.X * 2.f * 0.4f;
 
@@ -65,7 +66,6 @@ ALocker::ALocker()
 	bInShow = false;       //默认是显示的
 	bCanUpdate = false;
 	bStartTraceLine = false;
-	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Locker Length: %f, Locker Width: %f"), LockerLength, LockerWidth));
 
 	LockerMeshComponent->OnInputTouchBegin.AddDynamic(this, &ALocker::BeginMove);
 	LockerMeshComponent->OnInputTouchEnd.AddDynamic(this, &ALocker::EndMove);
@@ -149,9 +149,12 @@ void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector Curso
 	{
 		AddedActor->bInLocker = true;       //该物体已在储物柜中
 		AddedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);   //把仓库物体附着在储物柜上
-		FVector DestLocation(LockerCenter.X, LockerCenter.Y - LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2, LockerCenter.Z + AddedActor->GetHeight() / 2);
+		FVector DestRelativeLocation(0.f, - LockerLength * 0.5f + ArrayIndex * PerGridWidth + PerGridWidth * 0.5f, AddedActor->GetHeight() * 0.5f);
+		TestProjectHelper::Debug_LogMessage(FString::Printf(TEXT("Locker Length: %f, PerGridWidth: %f, RelativeY: %f"), LockerLength, PerGridWidth, -LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2));
 		AddedActor->bIsInMove = true;
-		AddedActor->DestLocation = DestLocation;   //设置新的目标位置
+		DestRelativeLocation.Y /= 1.5f;
+		AddedActor->DestLocation = DestRelativeLocation;   //设置新的目标位置
+		AddedActor->CurRelativeLoc = AddedActor->GetActorLocation() - AddedActor->GetAttachParentActor()->GetActorLocation();
 	}
 	else
 	{
@@ -231,7 +234,7 @@ void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touc
 			
 			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();	
 			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
-			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((0.2f - TouchPos.Y / ScreenSize.Y) / 0.2f));            //计算触摸的相对位置
+			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((LockerShowPos.Y - TouchPos.Y / ScreenSize.Y) / LockerShowPos.Y));            //计算触摸的相对位置
 			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // 计算触摸点到Locker的相对位置
 
 			UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
@@ -250,9 +253,9 @@ void ALocker::UpdateMove()
 
 			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();
 			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
-			float MaxPercent = 0.2f + 0.2f * ((LockerWidth / 2) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size()) / ScreenPercent;
+			float MaxPercent = LockerShowPos.Y + LockerShowPos.Y * ((LockerWidth / 2) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size()) / ScreenPercent;
 			//TestProjectHelper::Debug_LogMessage(FString::Printf(TEXT("MaxPercent: %f"), MaxPercent));
-			float ScreenPos_X = (0.2f - TouchPos.Y / ScreenSize.Y) / 0.2f;
+			float ScreenPos_X = (LockerShowPos.Y - TouchPos.Y / ScreenSize.Y) / LockerShowPos.Y;
 
 			if ((TouchPos.Y / ScreenSize.Y) > MaxPercent)
 			{
@@ -300,7 +303,7 @@ void ALocker::StartOpenLocker(const FVector2D& Point, float DownTime)
 		FVector2D ScreenSize;
 		OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
 
-		if (Point.X / ScreenSize.X > 0.2f && Point.X / ScreenSize.X < 0.8f && Point.Y / ScreenSize.Y < 0.2f)       //响应Locker触发的区域
+		if (Point.X / ScreenSize.X > 0.2f && Point.X / ScreenSize.X < 0.8f && Point.Y / ScreenSize.Y < LockerShowPos.Y)       //响应Locker触发的区域
 		{
 			bStartTraceLine = true;
 			StartPoint = Point;

@@ -220,12 +220,12 @@ void AMainController::StopDrag()
 		{
 			if (CurDragThing->bInLocker)
 			{
-				AimLocker->RemoveInventoryThing(CurDragThing);
+				AimLocker->RemoveInventoryThing(CurDragThing);        //
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
 			}
 			else
 			{
-				TestProjectHelper::Debug_ScreenMessage(TEXT("Catch Locker"));
+				//TestProjectHelper::Debug_ScreenMessage(TEXT("Catch Locker"));
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
 			}
 		}
@@ -253,7 +253,7 @@ void AMainController::StopDrag()
 								OwnerLocker->RemoveInventoryThing(CurDragThing);
 								OwnerLocker->StopCastLight();
 							}
-							CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+							//CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 						}
 					}
 				}

@@ -42,6 +42,9 @@ public:
 
 	void StopMoveWithCursor();
 
+	/**获取物体相对于父物体的位置*/
+	FVector GetRelativeLocation(); 
+
 private:
 	/**物体移动，有过渡效果，使其看起来不那么突兀*/
 	void MoveTick(float DeltaTime);
@@ -53,6 +56,8 @@ public:
 	/**基础场景，为场景的根*/
 	UPROPERTY()
 	class USceneComponent* BaseScene;
+
+	FVector CurRelativeLoc = FVector::ZeroVector;
 
 	/**物体高度*/
 	float Height;
