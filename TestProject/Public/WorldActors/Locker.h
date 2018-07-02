@@ -61,6 +61,9 @@ public:
 
 	void EndOpenLocker(const FVector2D& Point, float DownTime);
 
+	/**获取在Locker外的InventoryActor*/
+	TArray<class AInventoryActor*>& GetInventoryActorOutside();
+
 private:
 	FVector GetRelativeLocationToPawn();
 

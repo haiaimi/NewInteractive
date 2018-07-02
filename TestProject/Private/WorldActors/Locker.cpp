@@ -11,9 +11,12 @@
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
 #include "Engine/LocalPlayer.h"
+#include "WorldActors/InventoryActor.h"
+#include "Array.h"
 
 static const FVector2D LockerShowPos(0.5f, 0.15f);     //显示位置
 static const FVector2D LockerHidePos(0.5f, 0.0f);      //隐藏位置
+TArray<class AInventoryActor*> OutsideActors;
 
 // Sets default values
 ALocker::ALocker()
@@ -112,9 +115,14 @@ void ALocker::Tick(float DeltaTime)
 		{
 			SetActorRelativeLocation(DestRelPos);
 			bInMove = false;
+
+			TArray<class AInventoryActor*>& FindResult = GetInventoryActorOutside();
+			for (auto Iter : FindResult)
+			{
+				Iter->SetActorHiddenInGame(!bInShow);
+			}
 		}
 	}
-
 	UpdateMove();
 }
 
@@ -327,6 +335,27 @@ void ALocker::EndOpenLocker(const FVector2D& Point, float DownTime)
 			bInShow = true;
 		}
 	}
+}
+
+TArray<class AInventoryActor*>& ALocker::GetInventoryActorOutside()
+{
+	OutsideActors.Empty();
+	TArray<USceneComponent*> ChildComponents;
+	GetDefaultAttachComponent()->GetChildrenComponents(true, ChildComponents);
+
+	for (USceneComponent* Iter : ChildComponents)
+	{
+		if (Iter->GetOwner()->IsA(AInventoryActor::StaticClass()))
+		{
+			AInventoryActor* Temp = Cast<AInventoryActor>(Iter->GetOwner());
+
+			// 当在仓库数组中找不到对应的Actors时就增加
+			if (!LockerContent.Find(Temp))
+				OutsideActors.Add(Temp);
+		}
+	}
+
+	return OutsideActors;
 }
 
 FVector ALocker::GetRelativeLocationToPawn()
