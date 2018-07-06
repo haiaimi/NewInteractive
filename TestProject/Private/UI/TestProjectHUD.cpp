@@ -6,11 +6,13 @@
 #include "TestProjectHelper.h"
 #include "Gameplay/MainController.h"
 #include "Widgets/SInventoryMenuWidget.h"
+#include "DrawDebugHelpers.h"
 
 
 ATestProjectHUD::ATestProjectHUD()
+	:bDrawDebugLine(false)
 {
-	
+
 }
 
 void ATestProjectHUD::DrawHUD()
@@ -35,7 +37,6 @@ void ATestProjectHUD::DrawHUD()
 				InventoryWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
 				FSlateApplication::Get().SetKeyboardFocus(InventoryWidget.ToSharedRef());
 			}
-				
 		}
 	}
 
@@ -44,6 +45,13 @@ void ATestProjectHUD::DrawHUD()
 		if (InventoryWidget->IsHovered())
 			TestProjectHelper::Debug_ScreenMessage(TEXT("Hovered"));
 	}*/
+	if (bDrawDebugLine)
+	{
+		DrawDebugCanvas2DCircle(Canvas, TouchPoints[0], 50.f, 100, FLinearColor::Blue);
+		DrawDebugCanvas2DCircle(Canvas, TouchPoints[1], 50.f, 100, FLinearColor::Blue);
+
+		DrawDebugCanvas2DLine(Canvas, TouchPoints[0], TouchPoints[1], FLinearColor::Red);
+	}
 }
 
 bool ATestProjectHUD::IsInUI()
@@ -72,4 +80,11 @@ void ATestProjectHUD::ShowMenu(bool bShouldShow)
 	{
 		InventoryWidget->PlayOrClosePlayMenuAnim(bShouldShow);
 	}
+}
+
+void ATestProjectHUD::DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Point1, const FVector2D& Point2)
+{
+	bDrawDebugLine = bDrawDebug;
+	TouchPoints[0] = Point1;
+	TouchPoints[1] = Point2;
 }

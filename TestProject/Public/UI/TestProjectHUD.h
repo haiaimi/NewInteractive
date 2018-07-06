@@ -30,6 +30,13 @@ public:
 	/**显示菜单*/
 	void ShowMenu(bool ShouldShow);
 
+	void DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Point1, const FVector2D& Point2);
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
+
+	///下面的变量是Debug所需要的
+	uint8 bDrawDebugLine : 1;
+
+	FVector2D TouchPoints[2];
 };
