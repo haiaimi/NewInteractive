@@ -9,10 +9,11 @@
 static const float GlobalDetectTime = 0.1f;
 static const float ZoomHeight = 20000.f;      //滚动的高度
 static const float BaseHeight = 20000.f;
+static const FRotator CamDefaultRotation = FRotator(-70.f, 0.f, 0.f);    //默认摄像机角度
 
 UGroundCameraComponent::UGroundCameraComponent()
 {
-	LookRotation = FRotator(-70.f, 0.f, 0.f);      //默认角度
+	LookRotation = CamDefaultRotation;
 	LastUpdateTime = 0.f;
 	bDecelerate = false;
 	InitialPinchAlpha = 0.f;

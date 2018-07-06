@@ -9,7 +9,6 @@
 #include "Locker.h"
 #include "Engine/Engine.h"
 
-
 // Sets default values
 AInventoryActor::AInventoryActor()
 {
@@ -27,8 +26,8 @@ AInventoryActor::AInventoryActor()
 		ActorMesh->SetCollisionResponseToChannel(COLLISION_LOCKERRAY, ECollisionResponse::ECR_Ignore);
 		ActorMesh->SetCollisionResponseToChannel(COLLISION_INVENTORYRAY, ECollisionResponse::ECR_Block);
 		ActorMesh->SetupAttachment(RootComponent);
-		ActorMesh->OnBeginCursorOver.AddDynamic(this, &AInventoryActor::BeginCursorOver);
-		ActorMesh->OnEndCursorOver.AddDynamic(this, &AInventoryActor::EndCursorOver);
+		//ActorMesh->OnBeginCursorOver.AddDynamic(this, &AInventoryActor::BeginCursorOver);
+		//ActorMesh->OnEndCursorOver.AddDynamic(this, &AInventoryActor::EndCursorOver);
 	}
 
 	OwnerController = nullptr;
@@ -63,6 +62,12 @@ void AInventoryActor::Tick(float DeltaTime)
 	}
 
 	MoveTick(DeltaTime);
+
+	// 测试四元数旋转
+	/*FVector CamDir = FRotator(-70.f, 0.f, 0.f).Vector();
+	FQuat Rot(CamDir, 10.f * DeltaTime);
+
+	AddActorWorldRotation(Rot);*/
 }
 
 void AInventoryActor::PostInitializeComponents()
@@ -96,6 +101,7 @@ void AInventoryActor::EndCursorOver(UPrimitiveComponent* TouchedComponent)
 float AInventoryActor::GetHeight()
 {
 	return Height;
+	
 }
 
 void AInventoryActor::StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne)
