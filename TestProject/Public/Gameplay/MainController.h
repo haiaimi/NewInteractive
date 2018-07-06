@@ -67,6 +67,13 @@ private:
 	class UGroundCameraComponent* GetGroundCamera()const;
 
 private:
+	/**Pinch操作的组件*/
+	class UTCPinchComponent* PinchComponent;
+
+	/** Pinch组件当前直接控制的Actor*/
+	UPROPERTY()
+	AActor* TargetActor;
+
 	/**用于桌面的材质库*/
 	UPROPERTY()
 	TArray<UMaterialInterface*> MaterialInventory;

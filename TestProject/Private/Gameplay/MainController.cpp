@@ -18,12 +18,23 @@
 #include "TimerManager.h"
 #include "Gameplay/CustomTouchInput.h"
 #include "GroundSpectatorPawn.h"
+#include "TCPinchComponent.h"
 
 
 AMainController::AMainController()
+	:TargetActor(nullptr),
+	CurDragThing(nullptr),
+	CurLocker(nullptr),
+	CurMenuSpawnThing(nullptr),
+	CurTable(nullptr),
+	InputHandle(nullptr),
+	MaterialIndex(0),
+	PinchComponent(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;      //Controller每帧更新
 	MaterialInventory.Reset();
+
+	PinchComponent = CreateDefaultSubobject<UTCPinchComponent>(TEXT("PinchComponent"));    //创建Pinch触控操作组件
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_1(TEXT("/Game/StarterContent/Materials/M_Wood_Pine"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_2(TEXT("/Game/StarterContent/Materials/M_Wood_Oak"));
@@ -33,12 +44,6 @@ AMainController::AMainController()
 	if (Material_2.Succeeded())MaterialInventory.Add(Material_2.Object);
 	if (Material_3.Succeeded())MaterialInventory.Add(Material_3.Object);
 
-	CurTable = nullptr;
-	CurLocker = nullptr;
-	CurDragThing = nullptr;
-	CurMenuSpawnThing = nullptr;
-	InputHandle = nullptr;
-	MaterialIndex = 0;    //默认材质目录
 	bEnableMouseOverEvents = true;    //启用鼠标覆盖事件检测
 	bEnableTouchEvents = true;   //启用触摸事件
 	bEnableTouchOverEvents = true;
@@ -181,6 +186,7 @@ void AMainController::DragSomeThing()
 		{
 			//TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
 			CurDragThing = HitActor;
+			TargetActor = CurDragThing;
 			const FVector Offset = CurDragThing->GetActorLocation() - HitResult.ImpactPoint;   //鼠标指针相对于物体的位置
 			const FPlane MovePlane(HitResult.ImpactPoint, FRotationMatrix(CurDragThing->GetActorRotation()).GetUnitAxis(EAxis::Z));   //获取鼠标与物体撞击点的平面
 			CurDragThing->StartMoveWithCursor(this, Offset, MovePlane);
@@ -338,6 +344,13 @@ void AMainController::OnPinchStart(const FVector2D& Point1, const FVector2D& Poi
 	{
 		GetGroundCamera()->OnPinchStart(Point1, Point2, DownTime);
 	}
+
+	if (PinchComponent != nullptr && TargetActor != nullptr)
+	{
+		FRotator LookRotation = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation;
+		PinchComponent->SetCameraDirection(LookRotation); //设置摄像机的方向
+		PinchComponent->OnPinchPressed(TargetActor, Point1, Point2);
+	}
 }
 
 void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
@@ -346,6 +359,17 @@ void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Po
 	{
 		GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
 	}
+
+	if (PinchComponent != nullptr && TargetActor != nullptr)
+	{
+		PinchComponent->OnPinchUpdated(TargetActor, Point1, Point2);
+		/*如果有需要可以在这里更新摄像机的方向*/
+
+		if (ATestProjectHUD* MyHUD = Cast<ATestProjectHUD>(GetHUD()))
+		{
+			MyHUD->DrawCustomDebugLine(true, Point1, Point2);
+		}
+	}
 }
 
 void AMainController::OnPinchEnd(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
@@ -353,6 +377,16 @@ void AMainController::OnPinchEnd(const FVector2D& Point1, const FVector2D& Point
 	if (GetGroundCamera() != nullptr)
 	{
 		GetGroundCamera()->OnPinchEnd(Point1, Point2, DownTime);
+	}
+
+	if (PinchComponent != nullptr && TargetActor != nullptr)
+	{
+		PinchComponent->OnPinchReleased(TargetActor, Point1, Point2);
+
+		if (ATestProjectHUD* MyHUD = Cast<ATestProjectHUD>(GetHUD()))
+		{
+			MyHUD->DrawCustomDebugLine(false, Point1, Point2);
+		}
 	}
 }
 
