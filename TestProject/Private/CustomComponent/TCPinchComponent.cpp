@@ -3,6 +3,8 @@
 #include "TCPinchComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
+#include "CollisionQueryParams.h"
+#include "Engine/World.h"
 #include "TestProjectHelper.h"
 
 
@@ -58,9 +60,35 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	float CurLength, CurAngle;
 	FVector2D CurCenterPos;
 	GetLengthAndAngle(CurLength, CurAngle, CurCenterPos);
+	const float ChangedScale = CurLength / InitialLength;   //相对于初始化时的尺寸变化比例
+	const FVector TempScale = TargetActor->GetActorScale3D();   //当前Actor大小状态
+	const FVector CurScale = InitialScale * ChangedScale;
 
-	float ChangedScale = CurLength / InitialLength;   //相对于初始化时的尺寸变化比例
-	TargetActor->SetActorScale3D(InitialScale*ChangedScale);
+	if (CurScale.X < 5.f && CurScale.Y < 5.f && CurScale.Z < 5.f && CurScale.X > 0.5f && CurScale.Y > 0.5f && CurScale.Z > 0.5f)
+		TargetActor->SetActorScale3D(CurScale);
+	else
+		TargetActor->SetActorScale3D(TempScale);
+	
+	TestProjectHelper::Debug_ScreenMessage(InitialScale.ToString());
+	TestProjectHelper::Debug_ScreenMessage(TargetActor->GetActorScale3D().ToString());
+	//检测缩放时的碰撞
+	TArray<FOverlapResult> Result;
+	if (GetWorld())
+	{
+		FVector ActorCenter, ActorExtent;
+		TargetActor->GetActorBounds(false, ActorCenter, ActorExtent);
+		GetWorld()->OverlapMultiByObjectType(Result, ActorCenter, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllStaticObjects), FCollisionShape::MakeBox(ActorExtent));
+	}
+
+	for (FOverlapResult& result : Result)
+	{
+		if (result.Component.IsValid()) //如果遇到碰撞，就恢复上一级的scale
+		{
+			//TestProjectHelper::Debug_ScreenMessage(TEXT("Overlap!"));
+			TargetActor->SetActorScale3D(TempScale);
+			break;
+		}
+	}
 
 	//更新TargetActor的位置
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()))
@@ -69,7 +97,7 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 		const FPlane TargetActorPlane(TargetActor->GetActorLocation(), -CameraRotation.Vector());          //TargetActor所在平面，朝向摄像机
 		PlayerController->DeprojectScreenPositionToWorld(CurCenterPos.X, CurCenterPos.Y, WorldPos, WorldDir);
 		const FVector IntersectPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, TargetActorPlane);  //计算相交的位置
-		TargetActor->SetActorLocation(IntersectPos + OffsetPos);
+		TargetActor->SetActorLocation(IntersectPos + OffsetPos, true);    //注意遇到碰撞时要阻碍移动
 	}
 
 	//这里使用四元数进行旋转，因为要围绕任意轴旋转 
@@ -83,7 +111,7 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 
 void UTCPinchComponent::OnPinchReleased(AActor* TargetActor, const FVector2D Point1, const FVector2D Point2)
 {
-
+	 
 }
 
 float UTCPinchComponent::ComputeAngleSub(float Angle1, float Angle2)
