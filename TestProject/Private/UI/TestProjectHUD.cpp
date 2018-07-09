@@ -45,12 +45,21 @@ void ATestProjectHUD::DrawHUD()
 		if (InventoryWidget->IsHovered())
 			TestProjectHelper::Debug_ScreenMessage(TEXT("Hovered"));
 	}*/
+
+	// 绘制debug线
 	if (bDrawDebugLine)
 	{
 		DrawDebugCanvas2DCircle(Canvas, TouchPoints[0], 50.f, 100, FLinearColor::Blue);
 		DrawDebugCanvas2DCircle(Canvas, TouchPoints[1], 50.f, 100, FLinearColor::Blue);
-
 		DrawDebugCanvas2DLine(Canvas, TouchPoints[0], TouchPoints[1], FLinearColor::Red);
+
+		FVector2D TwoPointCenter = (TouchPoints[0] + TouchPoints[1]) / 2;   //两个触摸点的中心点位置
+		//下面是两个中心点线的方向
+		const static FVector2D LineVec1(1.f, 1.f);
+		const static FVector2D LineVec2(1.f, -1.f);
+
+		DrawDebugCanvas2DLine(Canvas, TwoPointCenter - LineVec1 * 25, TwoPointCenter + LineVec1 * 25, FLinearColor::Blue);
+		DrawDebugCanvas2DLine(Canvas, TwoPointCenter - LineVec2 * 25, TwoPointCenter + LineVec2 * 25, FLinearColor::Blue);
 	}
 }
 
