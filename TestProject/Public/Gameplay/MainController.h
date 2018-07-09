@@ -46,11 +46,15 @@ public:
 
 	void LoadLandscape(FName const LevelName);
 
-	void DragLandscapePressed(const FVector2D& Point, float DownTime);
+	void OnSwipePressed(const FVector2D& Point, float DownTime);
 
-	void DragLandscapeReleased(const FVector2D& Point, float DownTime);
+	void OnSwipeReleased(const FVector2D& Point, float DownTime);
 
-	void DragLandscapeUpdate(const FVector2D& Point, float DownTime);
+	void OnSwipeUpdate(const FVector2D& Point, float DownTime);
+
+	void TapPressed(const FVector2D& Point, float DownTime);
+
+	void DoubleTapPressed(const FVector2D& Point, float DownTime);
 
 	void OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime);
 
@@ -69,6 +73,9 @@ private:
 private:
 	/**Pinch操作的组件*/
 	class UTCPinchComponent* PinchComponent;
+
+	/**Tap相关操作的组件*/
+	class UTCTapComponent* TapComponent;
 
 	/** Pinch组件当前直接控制的Actor*/
 	UPROPERTY()

@@ -19,6 +19,7 @@
 #include "Gameplay/CustomTouchInput.h"
 #include "GroundSpectatorPawn.h"
 #include "TCPinchComponent.h"
+#include "TCTapComponent.h"
 
 
 AMainController::AMainController()
@@ -35,6 +36,7 @@ AMainController::AMainController()
 	MaterialInventory.Reset();
 
 	PinchComponent = CreateDefaultSubobject<UTCPinchComponent>(TEXT("PinchComponent"));    //创建Pinch触控操作组件
+	TapComponent = CreateDefaultSubobject<UTCTapComponent>(TEXT("TapComponent"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_1(TEXT("/Game/StarterContent/Materials/M_Wood_Pine"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_2(TEXT("/Game/StarterContent/Materials/M_Wood_Oak"));
@@ -113,9 +115,11 @@ void AMainController::BeginPlay()
 			{
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed, CurLocker, &ALocker::StartOpenLocker);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, CurLocker, &ALocker::EndOpenLocker);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::DragLandscapePressed);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::DragLandscapeReleased);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::DragLandscapeUpdate);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::OnSwipePressed);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::OnSwipeReleased);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::OnSwipeUpdate);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Tap, IE_Pressed, this, &AMainController::TapPressed);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::DoubleTap, IE_Pressed, this, &AMainController::DoubleTapPressed);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Pressed, this, &AMainController::OnPinchStart);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Released, this, &AMainController::OnPinchEnd);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Repeat, this, &AMainController::OnPinchUpdate);
@@ -123,8 +127,6 @@ void AMainController::BeginPlay()
 		}
 	});
 	GetWorldTimerManager().SetTimer(SpawnLockerHandle, TimerDelegate, 0.1f, false);
-
-
 }
 
 void AMainController::Tick(float DeltaSeconds)
@@ -189,7 +191,7 @@ void AMainController::DragSomeThing()
 			TargetActor = CurDragThing;
 			const FVector Offset = CurDragThing->GetActorLocation() - HitResult.ImpactPoint;   //鼠标指针相对于物体的位置
 			const FPlane MovePlane(HitResult.ImpactPoint, FRotationMatrix(CurDragThing->GetActorRotation()).GetUnitAxis(EAxis::Z));   //获取鼠标与物体撞击点的平面
-			CurDragThing->StartMoveWithCursor(this, Offset, MovePlane);
+			//CurDragThing->StartMoveWithCursor(this, Offset, MovePlane);
 		}
 	}
 
@@ -314,28 +316,53 @@ void AMainController::LoadLandscape(FName const LevelName)
 	}
 }
 
-void AMainController::DragLandscapePressed(const FVector2D& Point, float DownTime)
+void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
 		GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
+
+	if (TapComponent)
+	{
+		TapComponent->OnRotateTapPressed(Point, DownTime);
+	}
 }
 
-void AMainController::DragLandscapeReleased(const FVector2D& Point, float DownTime)
+void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
 		GetGroundCamera()->EndSwipe(Point, DownTime);
 	}
+
+	if (TapComponent)
+	{
+		TapComponent->OnRotateTapReleased(Point, DownTime);
+	}
 }
 
-void AMainController::DragLandscapeUpdate(const FVector2D& Point, float DownTime)
+void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->UpdateSwipe(Point, DownTime);
+		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
 	}
+
+	if (TapComponent)
+	{
+		TapComponent->OnRotateTapUpdated(Point, DownTime);
+	}
+}
+
+void AMainController::TapPressed(const FVector2D& Point, float DownTime)
+{
+	TestProjectHelper::Debug_ScreenMessage(TEXT("Tap"));
+}
+
+void AMainController::DoubleTapPressed(const FVector2D& Point, float DownTime)
+{
+	TestProjectHelper::Debug_ScreenMessage(TEXT("Double Tap"));
 }
 
 void AMainController::OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime)
@@ -357,7 +384,7 @@ void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Po
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
+	//	GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
 	}
 
 	if (PinchComponent != nullptr && TargetActor != nullptr)
