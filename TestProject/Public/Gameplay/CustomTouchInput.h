@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "TestProject.h"
 #include "CustomTouchInput.generated.h"
 
 DECLARE_DELEGATE_TwoParams(FOnePointInputEvent, const FVector2D&, float);
@@ -25,6 +24,19 @@ DECLARE_DELEGATE_ThreeParams(FTwoPointInputEvent, const FVector2D&, const FVecto
 	Handler->ActionBindings2P[Idx].Key = ActionKey; \
 	Handler->ActionBindings2P[Idx].KeyState = ActionState; \
 	Handler->ActionBindings2P[Idx].ActionDelegate.BindUObject(UserObject, Delegate); \
+}
+
+/**触摸输入的类型*/
+namespace EGameTouchKey
+{
+	enum Type
+	{
+		Tap,       //单击
+		DoubleTap, //双击
+		Hold,	   //长按
+		Swipe,     //拖拽
+		Pinch,     //双指缩放
+	};
 }
 
 /**单指触控输入对应的信息*/
@@ -126,4 +138,6 @@ private:
 	uint8 bTwoPointTouched : 1;
 
 	float DownTime;    //点击时间
+
+	float TouchInterval;  //单击屏幕事件间隔
 };
