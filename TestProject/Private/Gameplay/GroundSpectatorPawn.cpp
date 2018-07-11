@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Gameplay/GroundSpectatorPawn.h"
 #include "Gameplay/GroundCameraComponent.h"
@@ -8,9 +8,9 @@
 
 
 AGroundSpectatorPawn::AGroundSpectatorPawn(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGroundSpectatorPawnMovement>(Super::MovementComponentName))       //Ê¹ÓÃ×Ô¶¨ÒåµÄMoveComponent
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGroundSpectatorPawnMovement>(Super::MovementComponentName))       //ä½¿ç”¨è‡ªå®šä¹‰çš„MoveComponent
 {
-	GetCollisionComponent()->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);     //ºöÂÔËùÓÐÅö×²
+	GetCollisionComponent()->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);     //å¿½ç•¥æ‰€æœ‰ç¢°æ’ž
 	SpectatorCamera = ObjectInitializer.CreateDefaultSubobject<UGroundCameraComponent>(this, TEXT("SpectatorCamera"));
 }
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "InventoryActor.generated.h"
 
 /**
- * ¸ÃÀàÊÇ²Ö¿âÖĞÎïÌåµÄ»ùÀà£¬Ö»°üº¬»ù±¾¹¦ÄÜ£¬¸ºÔğ»ù±¾µÄ³¡¾°ÏÔÊ¾£¬ÆäËûÏêÏ¸Âß¼­ÔÚ×ÓÀàÖĞ
+ * è¯¥ç±»æ˜¯ä»“åº“ä¸­ç‰©ä½“çš„åŸºç±»ï¼ŒåªåŒ…å«åŸºæœ¬åŠŸèƒ½ï¼Œè´Ÿè´£åŸºæœ¬çš„åœºæ™¯æ˜¾ç¤ºï¼Œå…¶ä»–è¯¦ç»†é€»è¾‘åœ¨å­ç±»ä¸­
  */
 UCLASS()
 class TESTPROJECT_API AInventoryActor : public AActor
@@ -34,43 +34,43 @@ public:
 	UFUNCTION()
 	virtual void EndCursorOver(UPrimitiveComponent* TouchedComponent);
 
-	/**»ñÈ¡ÎïÌåµÄ¸ß¶È*/
+	/**è·å–ç‰©ä½“çš„é«˜åº¦*/
 	virtual float GetHeight();
 
-	/**¸úËæÊó±êÒÆ¶¯*/
+	/**è·Ÿéšé¼ æ ‡ç§»åŠ¨*/
 	void StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne);
 
 	void StopMoveWithCursor();
 
-	/**»ñÈ¡ÎïÌåÏà¶ÔÓÚ¸¸ÎïÌåµÄÎ»ÖÃ*/
+	/**è·å–ç‰©ä½“ç›¸å¯¹äºçˆ¶ç‰©ä½“çš„ä½ç½®*/
 	FVector GetRelativeLocation(); 
 
 private:
-	/**ÎïÌåÒÆ¶¯£¬ÓĞ¹ı¶ÉĞ§¹û£¬Ê¹Æä¿´ÆğÀ´²»ÄÇÃ´Í»Ø£*/
+	/**ç‰©ä½“ç§»åŠ¨ï¼Œæœ‰è¿‡æ¸¡æ•ˆæœï¼Œä½¿å…¶çœ‹èµ·æ¥ä¸é‚£ä¹ˆçªå…€*/
 	void MoveTick(float DeltaTime);
 
 public:
 	UPROPERTY()
 	class UStaticMeshComponent* ActorMesh;
 
-	/**»ù´¡³¡¾°£¬Îª³¡¾°µÄ¸ù*/
+	/**åŸºç¡€åœºæ™¯ï¼Œä¸ºåœºæ™¯çš„æ ¹*/
 	UPROPERTY()
 	class USceneComponent* BaseScene;
 
 	FVector CurRelativeLoc = FVector::ZeroVector;
 
-	/**ÎïÌå¸ß¶È*/
+	/**ç‰©ä½“é«˜åº¦*/
 	float Height;
 
-	/**¸ÃÎïÌåÊÇ·ñÔÚ´¢Îï¹ñÖĞ*/
+	/**è¯¥ç‰©ä½“æ˜¯å¦åœ¨å‚¨ç‰©æŸœä¸­*/
 	int32 bInLocker : 1;
 
 	uint32 bIsInMove : 1;
 
-	/**ÎïÌåµÄÍ£ÁôÎ»ÖÃ*/
+	/**ç‰©ä½“çš„åœç•™ä½ç½®*/
 	FVector OriginLocation;
 
-	/**Ä¿±êµØµã*/
+	/**ç›®æ ‡åœ°ç‚¹*/
 	FVector DestLocation;
 
 private:
@@ -78,10 +78,10 @@ private:
 
 	FVector RelativeRot;
 
-	/**¿ØÖÆ¸ÃÎïÌåµÄController*/
+	/**æ§åˆ¶è¯¥ç‰©ä½“çš„Controller*/
 	class AMainController* OwnerController;
 
-	/**ÎïÌåÒÆ¶¯µÄÆ½Ãæ£¬ÒòÎªÒª¸ù¾İÊó±êÎ»ÖÃÒÆ¶¯£¬ËùÒÔÄ¿Ç°Ö»Ê¹ÓÃ¶şÎ¬Æ½ÃæµÄÒÆ¶¯*/
+	/**ç‰©ä½“ç§»åŠ¨çš„å¹³é¢ï¼Œå› ä¸ºè¦æ ¹æ®é¼ æ ‡ä½ç½®ç§»åŠ¨ï¼Œæ‰€ä»¥ç›®å‰åªä½¿ç”¨äºŒç»´å¹³é¢çš„ç§»åŠ¨*/
 	FPlane MovePlane;
 
 	FVector Offset;

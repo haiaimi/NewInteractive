@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -30,15 +30,15 @@ public:
 
 	FReply OnClicked();
 
-	/**ÓÃÓÚ´¥·¢Inventory²Ëµ¥*/
+	/**ç”¨äºè§¦å‘Inventoryèœå•*/
 	FReply OnEmptyMouseButtonDown(const FGeometry&, const FPointerEvent&);
 
 	void OnTextCommitted(const FText& ChangedText, ETextCommit::Type CommitType);
 
-	/**³õÊ¼»¯¶¯»­*/
+	/**åˆå§‹åŒ–åŠ¨ç”»*/
 	void SetupAnimation();
 
-	/**»ñÈ¡¶¯»­²¥·ÅÊ±µÄMenuÆ«ÒÆ*/
+	/**è·å–åŠ¨ç”»æ’­æ”¾æ—¶çš„Menuåç§»*/
 	FMargin GetMenuOffset()const;
 
 	void PlayOrClosePlayMenuAnim(bool bShow);
@@ -46,16 +46,16 @@ public:
 public:
 	TWeakObjectPtr<AMainController> OwnerController;
 
-	/**Íæ¼Òµ±Ç°Êó±êÊÇ·ñÔÚUIÄÚ*/
+	/**ç©å®¶å½“å‰é¼ æ ‡æ˜¯å¦åœ¨UIå†…*/
 	uint32 IsInUI : 1;
 
-	/**ÊÇ·ñÏÔÊ¾Inventory Menu*/
+	/**æ˜¯å¦æ˜¾ç¤ºInventory Menu*/
 	uint32 bShowMenu : 1;
 
-	/**ÓÃÓÚMenu½çÃæ½¥ÈëµÄ¶¯»­*/
+	/**ç”¨äºMenuç•Œé¢æ¸å…¥çš„åŠ¨ç”»*/
 	FCurveHandle InventoryMenuIn;
 
-	/**¶¯»­ĞòÁĞ*/
+	/**åŠ¨ç”»åºåˆ—*/
 	FCurveSequence InventoryMenuAnimation;
 
 	TSharedPtr<SEditableText> EditableText;

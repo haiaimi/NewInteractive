@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TCPinchComponent.h"
 #include "GameFramework/Actor.h"
@@ -15,7 +15,7 @@ UTCPinchComponent::UTCPinchComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;  //²»ĞèÒª¼°Ê±¸üĞÂ
+	PrimaryComponentTick.bCanEverTick = false;  //ä¸éœ€è¦åŠæ—¶æ›´æ–°
 }
 
 // Called when the game starts
@@ -35,7 +35,7 @@ void UTCPinchComponent::OnPinchPressed(class AActor* TargetActor, const FVector2
 	TouchPoints[0] = Point1;
 	TouchPoints[1] = Point2;
 
-	//»ñÈ¡TargetActorµÄ¿Õ¼äÊôĞÔ
+	//è·å–TargetActorçš„ç©ºé—´å±æ€§
 	InitialPosition = TargetActor->GetActorLocation();
 	InitialScale = TargetActor->GetActorScale3D();
 	InitialRotation = TargetActor->GetActorRotation();
@@ -45,10 +45,10 @@ void UTCPinchComponent::OnPinchPressed(class AActor* TargetActor, const FVector2
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()))
 	{
 		FVector WorldPos, WorldDir;
-		const FPlane TargetActorPlane(TargetActor->GetActorLocation(), -CameraRotation.Vector());          //TargetActorËùÔÚÆ½Ãæ£¬³¯ÏòÉãÏñ»ú
+		const FPlane TargetActorPlane(TargetActor->GetActorLocation(), -CameraRotation.Vector());          //TargetActoræ‰€åœ¨å¹³é¢ï¼Œæœå‘æ‘„åƒæœº
 		PlayerController->DeprojectScreenPositionToWorld(InitialCenterPos.X, InitialCenterPos.Y, WorldPos, WorldDir);
-		const FVector IntersectPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, TargetActorPlane);  //¼ÆËãÏà½»µÄÎ»ÖÃ
-		OffsetPos = TargetActor->GetActorLocation() - IntersectPos;     //µÃ³öÆ«ÒÆÁ¿
+		const FVector IntersectPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, TargetActorPlane);  //è®¡ç®—ç›¸äº¤çš„ä½ç½®
+		OffsetPos = TargetActor->GetActorLocation() - IntersectPos;     //å¾—å‡ºåç§»é‡
 	}
 }
 
@@ -60,8 +60,8 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	float CurLength, CurAngle;
 	FVector2D CurCenterPos;
 	GetLengthAndAngle(CurLength, CurAngle, CurCenterPos);
-	const float ChangedScale = CurLength / InitialLength;   //Ïà¶ÔÓÚ³õÊ¼»¯Ê±µÄ³ß´ç±ä»¯±ÈÀı
-	const FVector TempScale = TargetActor->GetActorScale3D();   //µ±Ç°Actor´óĞ¡×´Ì¬
+	const float ChangedScale = CurLength / InitialLength;   //ç›¸å¯¹äºåˆå§‹åŒ–æ—¶çš„å°ºå¯¸å˜åŒ–æ¯”ä¾‹
+	const FVector TempScale = TargetActor->GetActorScale3D();   //å½“å‰Actorå¤§å°çŠ¶æ€
 	const FVector CurScale = InitialScale * ChangedScale;
 
 	if (CurScale.X < 5.f && CurScale.Y < 5.f && CurScale.Z < 5.f && CurScale.X > 0.5f && CurScale.Y > 0.5f && CurScale.Z > 0.5f)
@@ -71,7 +71,7 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	
 	TestProjectHelper::Debug_ScreenMessage(InitialScale.ToString());
 	TestProjectHelper::Debug_ScreenMessage(TargetActor->GetActorScale3D().ToString());
-	//¼ì²âËõ·ÅÊ±µÄÅö×²
+	//æ£€æµ‹ç¼©æ”¾æ—¶çš„ç¢°æ’
 	TArray<FOverlapResult> Result;
 	if (GetWorld())
 	{
@@ -82,7 +82,7 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 
 	for (FOverlapResult& result : Result)
 	{
-		if (result.Component.IsValid()) //Èç¹ûÓöµ½Åö×²£¬¾Í»Ö¸´ÉÏÒ»¼¶µÄscale
+		if (result.Component.IsValid()) //å¦‚æœé‡åˆ°ç¢°æ’ï¼Œå°±æ¢å¤ä¸Šä¸€çº§çš„scale
 		{
 			//TestProjectHelper::Debug_ScreenMessage(TEXT("Overlap!"));
 			TargetActor->SetActorScale3D(TempScale);
@@ -90,17 +90,17 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 		}
 	}
 
-	//¸üĞÂTargetActorµÄÎ»ÖÃ
+	//æ›´æ–°TargetActorçš„ä½ç½®
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetOwner()))
 	{
 		FVector WorldPos, WorldDir;
-		const FPlane TargetActorPlane(TargetActor->GetActorLocation(), -CameraRotation.Vector());          //TargetActorËùÔÚÆ½Ãæ£¬³¯ÏòÉãÏñ»ú
+		const FPlane TargetActorPlane(TargetActor->GetActorLocation(), -CameraRotation.Vector());          //TargetActoræ‰€åœ¨å¹³é¢ï¼Œæœå‘æ‘„åƒæœº
 		PlayerController->DeprojectScreenPositionToWorld(CurCenterPos.X, CurCenterPos.Y, WorldPos, WorldDir);
-		const FVector IntersectPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, TargetActorPlane);  //¼ÆËãÏà½»µÄÎ»ÖÃ
-		TargetActor->SetActorLocation(IntersectPos + OffsetPos, true);    //×¢ÒâÓöµ½Åö×²Ê±Òª×è°­ÒÆ¶¯
+		const FVector IntersectPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, TargetActorPlane);  //è®¡ç®—ç›¸äº¤çš„ä½ç½®
+		TargetActor->SetActorLocation(IntersectPos + OffsetPos, true);    //æ³¨æ„é‡åˆ°ç¢°æ’æ—¶è¦é˜»ç¢ç§»åŠ¨
 	}
 
-	//ÕâÀïÊ¹ÓÃËÄÔªÊı½øĞĞĞı×ª£¬ÒòÎªÒªÎ§ÈÆÈÎÒâÖáĞı×ª 
+	//è¿™é‡Œä½¿ç”¨å››å…ƒæ•°è¿›è¡Œæ—‹è½¬ï¼Œå› ä¸ºè¦å›´ç»•ä»»æ„è½´æ—‹è½¬ 
 	const float SubAngle = -UTCPinchComponent::ComputeAngleSub(CurAngle, PreAngle);
 	FQuat AddedRotation(FRotator(-70.f, 0.f, 0.f).Vector(), FMath::DegreesToRadians(SubAngle));
 	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Sub Angle: %f"), -SubAngle));
@@ -135,7 +135,7 @@ void UTCPinchComponent::GetLengthAndAngle(float& Length, float& Angle, FVector2D
 	Length = (TouchPoints[0] - TouchPoints[1]).Size();
 	CenterPos = (TouchPoints[0] + TouchPoints[1]) / 2.f;
 
-	//ÏÂÃæ¾ÍÊÇ¼ÆËã½Ç¶È
+	//ä¸‹é¢å°±æ˜¯è®¡ç®—è§’åº¦
 	static const FVector2D ScreenLeftVector(0.f, 1.f);
 	static const FVector2D ScreenUpVector(1.f, 0.f);
 
@@ -143,7 +143,7 @@ void UTCPinchComponent::GetLengthAndAngle(float& Length, float& Angle, FVector2D
 	const float RotRadians = FMath::Acos(FVector2D::DotProduct(PointsVecNormalize, ScreenUpVector));
 	Angle = FMath::RadiansToDegrees(RotRadians);
 
-	//»ñÈ¡µ±Ç°½Ç¶È -180-180
+	//è·å–å½“å‰è§’åº¦ -180-180
 	if (FVector2D::DotProduct(PointsVecNormalize, ScreenLeftVector) <= 0)
 	{
 		Angle = 180.f - Angle;

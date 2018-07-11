@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,10 +24,10 @@ public:
 
 	bool IsInventoryWidgetValid();
 
-	/**²Ëµ¥ÊÇ·ñÔÚÏÔÊ¾×´Ì¬*/
+	/**èœå•æ˜¯å¦åœ¨æ˜¾ç¤ºçŠ¶æ€*/
 	bool IsMenuShow();
 
-	/**ÏÔÊ¾²Ëµ¥*/
+	/**æ˜¾ç¤ºèœå•*/
 	void ShowMenu(bool ShouldShow);
 
 	void DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Point1, const FVector2D& Point2);
@@ -35,7 +35,7 @@ public:
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
 
-	///ÏÂÃæµÄ±äÁ¿ÊÇDebugËùĞèÒªµÄ
+	///ä¸‹é¢çš„å˜é‡æ˜¯Debugæ‰€éœ€è¦çš„
 	uint8 bDrawDebugLine : 1;
 
 	FVector2D TouchPoints[2];

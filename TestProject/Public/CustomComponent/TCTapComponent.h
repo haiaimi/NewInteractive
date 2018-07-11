@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -35,7 +35,7 @@ public:
 private:
 	class AActor* TargetActor;
 
-	FVector2D AnchorPosition;  //°´ÏÂÈ¥µÄÎ»ÖÃ£¬ºóÃæµÄÎïÌåĞı×ª¾Í¸ù¾İÕâ¸öµã
+	FVector2D AnchorPosition;  //æŒ‰ä¸‹å»çš„ä½ç½®ï¼Œåé¢çš„ç‰©ä½“æ—‹è½¬å°±æ ¹æ®è¿™ä¸ªç‚¹
 
-	FRotator InitialRotation;  //°´ÏÂÈ¥Actor³õÊ¼»¯µÄ¶¨Ïò
+	FRotator InitialRotation;  //æŒ‰ä¸‹å»Actoråˆå§‹åŒ–çš„å®šå‘
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Locker.h"
 #include "Components/StaticMeshComponent.h"
@@ -14,8 +14,8 @@
 #include "WorldActors/InventoryActor.h"
 #include "Array.h"
 
-static const FVector2D LockerShowPos(0.5f, 0.15f);     //ÏÔÊ¾Î»ÖÃ
-static const FVector2D LockerHidePos(0.5f, 0.0f);      //Òş²ØÎ»ÖÃ
+static const FVector2D LockerShowPos(0.5f, 0.15f);     //æ˜¾ç¤ºä½ç½®
+static const FVector2D LockerHidePos(0.5f, 0.0f);      //éšè—ä½ç½®
 TArray<class AInventoryActor*> OutsideActors;
 
 // Sets default values
@@ -63,10 +63,10 @@ ALocker::ALocker()
 		}
 	}
 
-	LockerCapacity = 4;    //Ä¬ÈÏ´¢Îï¹ñµÄÈİÁ¿Îª4
+	LockerCapacity = 4;    //é»˜è®¤å‚¨ç‰©æŸœçš„å®¹é‡ä¸º4
 	OwnerController = nullptr;
 	bInMove = false;
-	bInShow = false;       //Ä¬ÈÏÊÇÏÔÊ¾µÄ
+	bInShow = false;       //é»˜è®¤æ˜¯æ˜¾ç¤ºçš„
 	bCanUpdate = false;
 	bStartTraceLine = false;
 
@@ -81,7 +81,7 @@ void ALocker::BeginPlay()
 	Super::BeginPlay();
 	
 	UpdateRelativePosToPawn(nullptr, 0);
-	LockerContent.SetNum(4);      //ÉèÖÃ´¢Îï¹ñµÄÈİÁ¿
+	LockerContent.SetNum(4);      //è®¾ç½®å‚¨ç‰©æŸœçš„å®¹é‡
 	if (GetOwner())
 	{
 		OwnerController = Cast<AMainController>(GetOwner());
@@ -104,7 +104,7 @@ void ALocker::Tick(float DeltaTime)
 		FVector NewRelativeLoc, DestRelPos;
 		DestRelPos = bInShow ? RelativeToPawn_Show : RelativeToPawn_Hide;
 
-		if (bInShow)       //Õ¹Ê¾×´Ì¬
+		if (bInShow)       //å±•ç¤ºçŠ¶æ€
 			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Show, DeltaTime, 5.f);
 		else
 			NewRelativeLoc = FMath::VInterpTo(GetRelativeLocationToPawn(), RelativeToPawn_Hide, DeltaTime, 5.f);
@@ -128,9 +128,9 @@ void ALocker::Tick(float DeltaTime)
 
 void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector CursorLastPoint)
 {
-	FVector LockerCenter = GetActorLocation();    //»ñÈ¡´¢Îï¹ñÖĞĞÄÎ»ÖÃ
-	const float CursorToLeftOffsetY = CursorLastPoint.Y - (LockerCenter.Y - LockerLength / 2);   //¹â±êµ½´¢Îï¹ñÖĞĞÄY·½ÏòµÄÆ«ÒÆ
-	const float PerGridWidth = LockerLength / LockerCapacity;    //´¢Îï¹ñÃ¿¸ö·½¸ñµÄ¿í¶È
+	FVector LockerCenter = GetActorLocation();    //è·å–å‚¨ç‰©æŸœä¸­å¿ƒä½ç½®
+	const float CursorToLeftOffsetY = CursorLastPoint.Y - (LockerCenter.Y - LockerLength / 2);   //å…‰æ ‡åˆ°å‚¨ç‰©æŸœä¸­å¿ƒYæ–¹å‘çš„åç§»
+	const float PerGridWidth = LockerLength / LockerCapacity;    //å‚¨ç‰©æŸœæ¯ä¸ªæ–¹æ ¼çš„å®½åº¦
 	int32 ArrayIndex = static_cast<int32>(CursorToLeftOffsetY / PerGridWidth);
 	bool bCanAddToLocker = false;
 
@@ -143,7 +143,7 @@ void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector Curso
 				bCanAddToLocker = true;
 				LockerContent[i] = AddedActor;
 				ArrayIndex = i;
-				break;  //½áÊøÑ­»·
+				break;  //ç»“æŸå¾ªç¯
 			}
 		}
 	}
@@ -155,13 +155,13 @@ void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector Curso
 
 	if (bCanAddToLocker)
 	{
-		AddedActor->bInLocker = true;       //¸ÃÎïÌåÒÑÔÚ´¢Îï¹ñÖĞ
-		AddedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);   //°Ñ²Ö¿âÎïÌå¸½×ÅÔÚ´¢Îï¹ñÉÏ
+		AddedActor->bInLocker = true;       //è¯¥ç‰©ä½“å·²åœ¨å‚¨ç‰©æŸœä¸­
+		AddedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);   //æŠŠä»“åº“ç‰©ä½“é™„ç€åœ¨å‚¨ç‰©æŸœä¸Š
 		FVector DestRelativeLocation(0.f, - LockerLength * 0.5f + ArrayIndex * PerGridWidth + PerGridWidth * 0.5f, AddedActor->GetHeight() * 0.5f);
 		TestProjectHelper::Debug_LogMessage(FString::Printf(TEXT("Locker Length: %f, PerGridWidth: %f, RelativeY: %f"), LockerLength, PerGridWidth, -LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2));
 		AddedActor->bIsInMove = true;
 		DestRelativeLocation.Y /= 1.5f;
-		AddedActor->DestLocation = DestRelativeLocation;   //ÉèÖÃĞÂµÄÄ¿±êÎ»ÖÃ
+		AddedActor->DestLocation = DestRelativeLocation;   //è®¾ç½®æ–°çš„ç›®æ ‡ä½ç½®
 		AddedActor->CurRelativeLoc = AddedActor->GetActorLocation() - AddedActor->GetAttachParentActor()->GetActorLocation();
 	}
 	else
@@ -179,7 +179,7 @@ void ALocker::RemoveInventoryThing(class AInventoryActor* RemovedActor)
 
 void ALocker::CastLight(class AInventoryActor* CastedActor)
 {
-	//»ñÈ¡3¸öÖáµÄ·½Ïò
+	//è·å–3ä¸ªè½´çš„æ–¹å‘
 	SpotLight->Intensity = 160.f;
 	SpotLight->UpdateComponentToWorld();
 	const FMatrix LockerRot = FRotationMatrix(GetActorRotation());
@@ -189,7 +189,7 @@ void ALocker::CastLight(class AInventoryActor* CastedActor)
 
 	int32 CastedActorIndex = LockerContent.Find(CastedActor);
 	const float PerGridWidth = 150.f;
-	float RelativeY = CastedActorIndex * PerGridWidth + 0.5f * PerGridWidth - (LockerLength * 0.5f);    //Y·½ÏòµÄÏà¶Ô¾àÀë
+	float RelativeY = CastedActorIndex * PerGridWidth + 0.5f * PerGridWidth - (LockerLength * 0.5f);    //Yæ–¹å‘çš„ç›¸å¯¹è·ç¦»
 
 	FVector RelativeLoc = FVector(0.f, RelativeY, 200.f);
 	SpotLight->SetWorldLocation(GetActorLocation() + DirY * RelativeLoc + DirZ * 200.f);
@@ -198,13 +198,13 @@ void ALocker::CastLight(class AInventoryActor* CastedActor)
 
 void ALocker::StopCastLight()
 {
-	SpotLight->SetWorldLocation(FVector(1000.f, 1000.f, 1000.f)); //°ÑµÆµ÷ÀëÊÓÇø
+	SpotLight->SetWorldLocation(FVector(1000.f, 1000.f, 1000.f)); //æŠŠç¯è°ƒç¦»è§†åŒº
 }
 
 void ALocker::Switch()
 {
 	bInMove = true;
-	bInShow += 1;     //ÇĞ»»Locker×´Ì¬
+	bInShow += 1;     //åˆ‡æ¢LockerçŠ¶æ€
 }
 
 void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
@@ -212,15 +212,15 @@ void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
 	if (OwnerController)
 	{
 		FVector WorldPos, WorldDir, DestPos;
-		FPlane LockerPlane(GetActorLocation(), FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::Z));       //LockerËùÔÚÆ½Ãæ
+		FPlane LockerPlane(GetActorLocation(), FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::Z));       //Lockeræ‰€åœ¨å¹³é¢
 
 		TestProjectHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerShowPos, WorldPos, WorldDir);
-		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);    //¼ÆËãÉäÏßÓëÆ½ÃæµÄ½»µã
-		RelativeToPawn_Show = IntersectionPos - OwnerController->GetFocalLocation();     //Ïà¶ÔÎ»ÖÃ
+		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);    //è®¡ç®—å°„çº¿ä¸å¹³é¢çš„äº¤ç‚¹
+		RelativeToPawn_Show = IntersectionPos - OwnerController->GetFocalLocation();     //ç›¸å¯¹ä½ç½®
 
 		TestProjectHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerHidePos, WorldPos, WorldDir);
 		IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);
-		RelativeToPawn_Hide = IntersectionPos + FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X)*(LockerWidth + 10.f) - OwnerController->GetFocalLocation();   //Òş²ØÏà¶ÔÎ»ÖÃ
+		RelativeToPawn_Hide = IntersectionPos + FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X)*(LockerWidth + 10.f) - OwnerController->GetFocalLocation();   //éšè—ç›¸å¯¹ä½ç½®
 	}
 }
 
@@ -242,8 +242,8 @@ void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touc
 			
 			float ScreenPercent = 1.f - (LockerWidth + 10.f) / (RelativeToPawn_Hide - RelativeToPawn_Show).Size();	
 			OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
-			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((LockerShowPos.Y - TouchPos.Y / ScreenSize.Y) / LockerShowPos.Y));            //¼ÆËã´¥ÃşµÄÏà¶ÔÎ»ÖÃ
-			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // ¼ÆËã´¥Ãşµãµ½LockerµÄÏà¶ÔÎ»ÖÃ
+			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((LockerShowPos.Y - TouchPos.Y / ScreenSize.Y) / LockerShowPos.Y));            //è®¡ç®—è§¦æ‘¸çš„ç›¸å¯¹ä½ç½®
+			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // è®¡ç®—è§¦æ‘¸ç‚¹åˆ°Lockerçš„ç›¸å¯¹ä½ç½®
 
 			UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
 		}
@@ -271,7 +271,7 @@ void ALocker::UpdateMove()
 			}
 			else
 			{
-				FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent * ScreenPos_X);            //¼ÆËã´¥ÃşµÄÏà¶ÔÎ»ÖÃ
+				FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent * ScreenPos_X);            //è®¡ç®—è§¦æ‘¸çš„ç›¸å¯¹ä½ç½®
 				SetActorRelativeLocation(RelativeTouchPoint - TouchOffset);
 			}
 		}
@@ -280,7 +280,7 @@ void ALocker::UpdateMove()
 
 void ALocker::EndMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent)
 {
-	bCanUpdate = false;   //½áÊøÒÆ¶¯
+	bCanUpdate = false;   //ç»“æŸç§»åŠ¨
 	TouchOffset = FVector::ZeroVector;
 	if (OwnerController)
 	{
@@ -290,7 +290,7 @@ void ALocker::EndMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touche
 		OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
 		float ScreenPos_X = TouchPos.Y / ScreenSize.Y;
 
-		//¸ù¾İ´¥ÃşÊÂ¼ş½áÊøµÄÎ»ÖÃÀ´ÅĞ¶ÏLockerµÄ¿ª¹Ø
+		//æ ¹æ®è§¦æ‘¸äº‹ä»¶ç»“æŸçš„ä½ç½®æ¥åˆ¤æ–­Lockerçš„å¼€å…³
 		if (ScreenPos_X > 0.15f)
 		{
 			bInMove = true;
@@ -311,7 +311,7 @@ void ALocker::StartOpenLocker(const FVector2D& Point, float DownTime)
 		FVector2D ScreenSize;
 		OwnerController->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
 
-		if (Point.X / ScreenSize.X > 0.2f && Point.X / ScreenSize.X < 0.8f && Point.Y / ScreenSize.Y < LockerShowPos.Y)       //ÏìÓ¦Locker´¥·¢µÄÇøÓò
+		if (Point.X / ScreenSize.X > 0.2f && Point.X / ScreenSize.X < 0.8f && Point.Y / ScreenSize.Y < LockerShowPos.Y)       //å“åº”Lockerè§¦å‘çš„åŒºåŸŸ
 		{
 			bStartTraceLine = true;
 			StartPoint = Point;
@@ -349,7 +349,7 @@ TArray<class AInventoryActor*>& ALocker::GetInventoryActorOutside()
 		{
 			AInventoryActor* Temp = Cast<AInventoryActor>(Iter->GetOwner());
 
-			// µ±ÔÚ²Ö¿âÊı×éÖĞÕÒ²»µ½¶ÔÓ¦µÄActorsÊ±¾ÍÔö¼Ó
+			// å½“åœ¨ä»“åº“æ•°ç»„ä¸­æ‰¾ä¸åˆ°å¯¹åº”çš„Actorsæ—¶å°±å¢åŠ 
 			if (!LockerContent.Find(Temp))
 				OutsideActors.Add(Temp);
 		}

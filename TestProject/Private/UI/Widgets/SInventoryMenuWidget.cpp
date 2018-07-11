@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SInventoryMenuWidget.h"
 #include "SlateOptMacros.h"
@@ -190,13 +190,13 @@ void SInventoryMenuWidget::SetupAnimation()
 	InventoryMenuAnimation = FCurveSequence();
 
 	InventoryMenuIn = InventoryMenuAnimation.AddCurve(StartSeconds, DurationSeconds, ECurveEaseFunction::CubicInOut);
-	InventoryMenuAnimation.Play(this->AsShared());  //ÏÈ´´½¨ÖÇÄÜÖ¸Õë£¬ÔÙ²¥·Å
+	InventoryMenuAnimation.Play(this->AsShared());  //å…ˆåˆ›å»ºæ™ºèƒ½æŒ‡é’ˆï¼Œå†æ’­æ”¾
 }
 
 FMargin SInventoryMenuWidget::GetMenuOffset()const
 {
 	FMargin Result;
-	static bool IsFirst = true;      //ÊÇ·ñ»¹Î´´¥·¢¹ı
+	static bool IsFirst = true;      //æ˜¯å¦è¿˜æœªè§¦å‘è¿‡
 
 	if (bShowMenu)
 		IsFirst = false;
@@ -218,17 +218,17 @@ FMargin SInventoryMenuWidget::GetMenuOffset()const
 
 void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
 {
-	if (bShow && !bShowMenu)    //Ã»ÓĞÏÔÊ¾²Ëµ¥µÄÊ±ºò²Å»áÖ´ĞĞ
+	if (bShow && !bShowMenu)    //æ²¡æœ‰æ˜¾ç¤ºèœå•çš„æ—¶å€™æ‰ä¼šæ‰§è¡Œ
 	{
 		bShowMenu = true;
 
 		InventoryMenuAnimation.JumpToStart();
 		InventoryMenuAnimation.Play(this->AsShared());
 	}
-	else if(!bShow && bShowMenu)     //ÕıÔÚÏÔÊ¾²Ëµ¥£¬ĞèÒª¹Ø±ÕÊ±
+	else if(!bShow && bShowMenu)     //æ­£åœ¨æ˜¾ç¤ºèœå•ï¼Œéœ€è¦å…³é—­æ—¶
 	{
-		bShowMenu = false;       //¹Ø±Õ²Ëµ¥
+		bShowMenu = false;       //å…³é—­èœå•
 
-		InventoryMenuAnimation.Reverse();    //·´Ïò²¥·Å¶¯»­
+		InventoryMenuAnimation.Reverse();    //åå‘æ’­æ”¾åŠ¨ç”»
 	}
 }

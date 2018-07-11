@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,16 +17,16 @@ class TESTPROJECT_API UGroundCameraComponent : public UCameraComponent
 public:
 	UGroundCameraComponent();
 
-	/**´Ó¸ÃÏà»úÀàÖĞ»ñÈ¡Êı¾İ*/
+	/**ä»è¯¥ç›¸æœºç±»ä¸­è·å–æ•°æ®*/
 	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)override; 
 
 public:
-	// Ïà»úµÄÒÆ¶¯£¬ÆäÖ÷Òª¾ÍÊÇÓÉSpectatorPawn¿ØÖÆ
+	// ç›¸æœºçš„ç§»åŠ¨ï¼Œå…¶ä¸»è¦å°±æ˜¯ç”±SpectatorPawnæ§åˆ¶
 	void MoveRight(float Val);
 
 	void MoveForward(float Val);
 
-	/**»ñÈ¡Íæ¼ÒController*/
+	/**è·å–ç©å®¶Controller*/
 	APlayerController* GetPlayerController();
 
 	void StartSwipe(const FVector2D& InPoint, float DownTime);
@@ -42,29 +42,29 @@ public:
 	void OnPinchEnd(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime);
 
 public:
-	/**ÉãÏñ»ú¹Û²ìµÄ·½Ïò*/
+	/**æ‘„åƒæœºè§‚å¯Ÿçš„æ–¹å‘*/
 	FRotator LookRotation;    
 
 private:
-	/**¸Ãµã¾ÍÊÇÖĞĞÄµã£¨¾ÍÊÇÊÖÖ¸Ö¸ÏòµÄÊÀ½çÎ»ÖÃ£©£¬ºóĞø¸üĞÂµÄµã¶¼Î§ÈÆÕâ¸öµã*/
+	/**è¯¥ç‚¹å°±æ˜¯ä¸­å¿ƒç‚¹ï¼ˆå°±æ˜¯æ‰‹æŒ‡æŒ‡å‘çš„ä¸–ç•Œä½ç½®ï¼‰ï¼Œåç»­æ›´æ–°çš„ç‚¹éƒ½å›´ç»•è¿™ä¸ªç‚¹*/
 	FVector StartSwipePos;
 
-	///ÏÂÃæÊÇÍÏ×§×èÄáĞ§¹ûµÄÈ«¾Ö±äÁ¿
+	///ä¸‹é¢æ˜¯æ‹–æ‹½é˜»å°¼æ•ˆæœçš„å…¨å±€å˜é‡
 	FVector DecelerateSpeed;
 
-	/**ÓÃÀ´¼ÇÂ¼´¥Ãş¾­¹ıµÄ¹ì¼£*/
+	/**ç”¨æ¥è®°å½•è§¦æ‘¸ç»è¿‡çš„è½¨è¿¹*/
 	TArray<FVector> TracePoints;     
 
-	//×îÖÕ¸üĞÂÎ»ÖÃµÄÊ±¼ä
+	//æœ€ç»ˆæ›´æ–°ä½ç½®çš„æ—¶é—´
 	float LastUpdateTime;
 
 	uint8 bDecelerate : 1;
 
-	///ÏÂÃæÊÇPinchËõ·ÅÏà¹Ø
-	//µ±Ç°ÕûÌåËõ·Å×´Ì¬
+	///ä¸‹é¢æ˜¯Pinchç¼©æ”¾ç›¸å…³
+	//å½“å‰æ•´ä½“ç¼©æ”¾çŠ¶æ€
 	float ZoomAlpha;
 
-	//½øĞĞËõ·Å²Ù×÷Ê±µÄ±ÈÀı
+	//è¿›è¡Œç¼©æ”¾æ“ä½œæ—¶çš„æ¯”ä¾‹
 	float InitialPinchAlpha;
 
 	uint8 bInPinch : 1;

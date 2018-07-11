@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Earth.h"
 #include "ConstructorHelpers.h"
@@ -6,7 +6,7 @@
 
 AEarth::AEarth()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshFinder(TEXT("/Game/StarterContent/Shapes/Shape_Sphere"));      //Ä£ÄâµØÇòµÄÒ»¸öÇòÌåÄ£ĞÍ
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshFinder(TEXT("/Game/StarterContent/Shapes/Shape_Sphere"));      //æ¨¡æ‹Ÿåœ°çƒçš„ä¸€ä¸ªçƒä½“æ¨¡å‹
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/Game/StarterContent/Materials/M_Ground_Moss"));
 
 	if (!ensure(MeshFinder.Succeeded()))return;
@@ -21,7 +21,7 @@ AEarth::AEarth()
 	if (ActorMesh)
 	{
 		FVector EarthBound = ActorMesh->Bounds.BoxExtent;
-		ActorMesh->SetRelativeLocation(FVector(0.f, 0.f, -EarthBound.Z));   //µØÇòµÄ¾Ö²¿¸ù×ø±êÔÚÇòÌåÏÂ·½£¬ËùÒÔÖ»ĞèÒªÉèÖÃÆäZÖáÏà¶Ô·½Ïò
+		ActorMesh->SetRelativeLocation(FVector(0.f, 0.f, -EarthBound.Z));   //åœ°çƒçš„å±€éƒ¨æ ¹åæ ‡åœ¨çƒä½“ä¸‹æ–¹ï¼Œæ‰€ä»¥åªéœ€è¦è®¾ç½®å…¶Zè½´ç›¸å¯¹æ–¹å‘
 		SetActorScale3D(FVector(0.8f, 0.8f, 0.8f));
 		Height = EarthBound.Z * 2.f * 0.8f;
 	}

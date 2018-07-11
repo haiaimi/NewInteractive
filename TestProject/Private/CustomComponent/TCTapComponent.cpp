@@ -1,8 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TCTapComponent.h"
 #include "TouchHelper.h"
 #include "GameFramework/PlayerController.h"
+#include "TestProjectHelper.h"
 
 
 // Sets default values for this component's properties
@@ -10,7 +11,7 @@ UTCTapComponent::UTCTapComponent()
 	:TargetActor(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+	// off to improve performance if you don't need them	
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -43,6 +44,7 @@ int32 UTCTapComponent::GetTouchFingersNum()
 
 void UTCTapComponent::OnRotateTapPressed(const FVector2D& Point, float DownTime)
 {
+	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Touch Points Num: %d"), GetTouchFingersNum()));
 	if (APlayerController* MyController = Cast<APlayerController>(GetOwner()))
 	{
 		FHitResult Result;
@@ -69,6 +71,7 @@ void UTCTapComponent::OnRotateTapUpdated(const FVector2D& Point, float DownTime)
 
 void UTCTapComponent::OnRotateTapReleased(const FVector2D& Point, float DownTime)
 {
-
+	if (TargetActor)
+		TargetActor = nullptr;
 }
 

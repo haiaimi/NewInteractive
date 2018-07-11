@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Gameplay/GroundCameraComponent.h"
 #include "GameFramework/Pawn.h"
@@ -7,9 +7,9 @@
 #include "CustomTouchInput.h"
 
 static const float GlobalDetectTime = 0.1f;
-static const float ZoomHeight = 20000.f;      //¹ö¶¯µÄ¸ß¶È
+static const float ZoomHeight = 20000.f;      //æ»šåŠ¨çš„é«˜åº¦
 static const float BaseHeight = 20000.f;
-static const FRotator CamDefaultRotation = FRotator(-70.f, 0.f, 0.f);    //Ä¬ÈÏÉãÏñ»ú½Ç¶È
+static const FRotator CamDefaultRotation = FRotator(-70.f, 0.f, 0.f);    //é»˜è®¤æ‘„åƒæœºè§’åº¦
 
 UGroundCameraComponent::UGroundCameraComponent()
 {
@@ -92,8 +92,8 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 {
 	static float PreDownTime = 0.f;
 	static float DetectTime = 0.f;
-	//static TArray<FVector> TracePoints;     // ÓÃÀ´¼ÇÂ¼´¥Ãş¾­¹ıµÄ¹ì¼£
-	if (PreDownTime > DownTime)   //´Ë×´Ì¬¾ÍÊÇÒÑ¾­ÖØĞÂ¿ªÊ¼¸üĞÂ
+	//static TArray<FVector> TracePoints;     // ç”¨æ¥è®°å½•è§¦æ‘¸ç»è¿‡çš„è½¨è¿¹
+	if (PreDownTime > DownTime)   //æ­¤çŠ¶æ€å°±æ˜¯å·²ç»é‡æ–°å¼€å§‹æ›´æ–°
 	{
 		PreDownTime = 0.f;
 		DetectTime = 0.f;
@@ -109,7 +109,7 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 		if (Controller->GetHitResultAtScreenPosition(InPoint, ECollisionChannel::ECC_WorldDynamic, true, HitResult))
 		{
 			FVector DeltaPos = StartSwipePos - HitResult.ImpactPoint;
-			DeltaPos.Z = 0.f;        //ºöÂÔZ·ÖÁ¿
+			DeltaPos.Z = 0.f;        //å¿½ç•¥Zåˆ†é‡
 
 			if (!DeltaPos.IsNearlyZero())
 			{
@@ -124,7 +124,7 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 			}
 			else
 			{
-				// Èç¹û³¬¹ıÒªÇóµÄ¼ÇÂ¼Ê±¼ä¾ÍÔö¼ÓÒ»¸öµÄÍ¬Ê±É¾³ıÒ»¸öµã
+				// å¦‚æœè¶…è¿‡è¦æ±‚çš„è®°å½•æ—¶é—´å°±å¢åŠ ä¸€ä¸ªçš„åŒæ—¶åˆ é™¤ä¸€ä¸ªç‚¹
 				TracePoints.Add(DeltaPos);
 				TracePoints.RemoveAt(0);
 			}
@@ -161,7 +161,7 @@ void UGroundCameraComponent::EndSwipe(const FVector2D& InPoint, float DownTime)
 	if (DownTime >= GlobalDetectTime)
 		DecelerateSpeed = DeclerateVec / GlobalDetectTime;
 
-	TracePoints.Empty();   //Çå¿ÕÊı×éÄÚÈİ
+	TracePoints.Empty();   //æ¸…ç©ºæ•°ç»„å†…å®¹
 }
 
 void UGroundCameraComponent::OnPinchStart(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime)

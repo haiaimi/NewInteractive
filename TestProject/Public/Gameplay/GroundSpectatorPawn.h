@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,7 +15,7 @@ class TESTPROJECT_API AGroundSpectatorPawn : public ASpectatorPawn
 	GENERATED_UCLASS_BODY()
 	
 public:
-	//¼Ì³ÐÓÚ¸¸ÀàµÄ·½·¨
+	//ç»§æ‰¿äºŽçˆ¶ç±»çš„æ–¹æ³•
 	virtual void MoveRight(float Val)override;
 
 	virtual void MoveForward(float Val)override;
@@ -25,7 +25,7 @@ public:
 	class UGroundCameraComponent* GetGroundCameraComponent()const;
 
 private:
-	/**ÓÃÓÚ¹Û²ìµÄÏà»ú*/
+	/**ç”¨äºŽè§‚å¯Ÿçš„ç›¸æœº*/
 	class UGroundCameraComponent* SpectatorCamera;
 
 };

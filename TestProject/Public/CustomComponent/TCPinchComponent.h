@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,9 +7,9 @@
 #include "TCPinchComponent.generated.h"
 
 /**
- * ×Ô¶¨Òå´¥ÃşÊäÈëÏìÓ¦´¦Àí--Pinch
- * 1¡¢¸Ã×é¼şÖĞÖ±½Ó²Ù×÷Actor£¬ËùÒÔÒª´«ÈëActor
- * 2¡¢ËùÓĞActor±ä»»ÒÔCameraÎªÖĞĞÄ£¬ËùÒÔÒª×¢ÒâÉèÖÃCameraDirection£¬ÔÚÊÊµ±µÄÇé¿öÏÂµ÷ÓÃSetCameraDirecion
+ * è‡ªå®šä¹‰è§¦æ‘¸è¾“å…¥å“åº”å¤„ç†--Pinch
+ * 1ã€è¯¥ç»„ä»¶ä¸­ç›´æ¥æ“ä½œActorï¼Œæ‰€ä»¥è¦ä¼ å…¥Actor
+ * 2ã€æ‰€æœ‰Actorå˜æ¢ä»¥Cameraä¸ºä¸­å¿ƒï¼Œæ‰€ä»¥è¦æ³¨æ„è®¾ç½®CameraDirectionï¼Œåœ¨é€‚å½“çš„æƒ…å†µä¸‹è°ƒç”¨SetCameraDirecion
  */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TESTPROJECT_API UTCPinchComponent : public UActorComponent
@@ -30,7 +30,7 @@ public:
 
 	void OnPinchPressed(class AActor* TargetActor, const FVector2D Point1, const FVector2D Point2);
 
-	/**¸ù¾İ´¥ÃşÊäÈë¸üĞÂInventoryActorµÄTransformÊôĞÔ*/
+	/**æ ¹æ®è§¦æ‘¸è¾“å…¥æ›´æ–°InventoryActorçš„Transformå±æ€§*/
 	void OnPinchUpdated(AActor* TargetActor, const FVector2D Point1, const FVector2D Point2);
 
 	void OnPinchReleased(AActor* TargetActor, const FVector2D Point1, const FVector2D Point2);
@@ -40,25 +40,25 @@ public:
 	void SetCameraDirection(FRotator& InDir);
 
 private:
-	/**»ñÈ¡Á½¸ö´¥ÃşµãÖ®¼äµÄ¾àÀë£¬ÓëÆÁÄ»±ß½çĞÎ³ÉµÄ½Ç¶È£¨Á½¸ö´¥ÃşµãĞÎ³ÉµÄ½Ç¶È£©£¬ÒÔ¼°Á½¸ö´¥ÃşµãÖ®¼äµÄÖĞĞÄµã*/
+	/**è·å–ä¸¤ä¸ªè§¦æ‘¸ç‚¹ä¹‹é—´çš„è·ç¦»ï¼Œä¸å±å¹•è¾¹ç•Œå½¢æˆçš„è§’åº¦ï¼ˆä¸¤ä¸ªè§¦æ‘¸ç‚¹å½¢æˆçš„è§’åº¦ï¼‰ï¼Œä»¥åŠä¸¤ä¸ªè§¦æ‘¸ç‚¹ä¹‹é—´çš„ä¸­å¿ƒç‚¹*/
 	void GetLengthAndAngle(float& Length, float& Angle, FVector2D& CenterPos);
 
 private:
-	/**µ±Ç°µÄÁ½¸ö´¥Ãşµã,×¢ÒâZ·ÖÁ¿½öÎªÅĞ¶Ï*/
+	/**å½“å‰çš„ä¸¤ä¸ªè§¦æ‘¸ç‚¹,æ³¨æ„Zåˆ†é‡ä»…ä¸ºåˆ¤æ–­*/
 	FVector2D TouchPoints[2];
 
-	/**ÉãÏñ»úÖ¸ÏòµÄ·½Ïò*/
+	/**æ‘„åƒæœºæŒ‡å‘çš„æ–¹å‘*/
 	FRotator CameraRotation;
 
-	///Target³õÊ¼µÄTransform×´Ì¬
+	///Targetåˆå§‹çš„TransformçŠ¶æ€
 	FVector InitialPosition;
 	FVector InitialScale;
 	FRotator InitialRotation;
 
-	/**ÔÚ°´ÏÂÊ±£¬TargetÖĞĞÄÎ»ÖÃÊÖÖ¸°´ÏÂµãÎ»ÖÃµÄÆ«ÒÆÖµ*/
+	/**åœ¨æŒ‰ä¸‹æ—¶ï¼ŒTargetä¸­å¿ƒä½ç½®æ‰‹æŒ‡æŒ‰ä¸‹ç‚¹ä½ç½®çš„åç§»å€¼*/
 	FVector OffsetPos;
 	
-	/**°´ÏÂÊ±Á½¸ö´¥ÃşµãµÄ¾àÀë*/
+	/**æŒ‰ä¸‹æ—¶ä¸¤ä¸ªè§¦æ‘¸ç‚¹çš„è·ç¦»*/
 	float InitialLength;
 	
 	float PreAngle;

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InventoryActor.h"
 #include "Components/SceneComponent.h"
@@ -55,15 +55,15 @@ void AInventoryActor::Tick(float DeltaTime)
 		FVector2D MousePosition;
 		OwnerController->GetMousePosition(MousePosition.X, MousePosition.Y);
 		FVector WorldPosition, WorldDirection;
-		TestProjectHelper::DeprojectScreenToWorld_Cursor(OwnerController, WorldPosition, WorldDirection);      //»ñÈ¡Êó±êËù¶ÔÓ¦µÄÉäÏß
+		TestProjectHelper::DeprojectScreenToWorld_Cursor(OwnerController, WorldPosition, WorldDirection);      //è·å–é¼ æ ‡æ‰€å¯¹åº”çš„å°„çº¿
 		
-		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + 1000.f*WorldDirection, MovePlane);    //¼ÆËãÉäÏßÓëÆ½ÃæµÄ½»µã
+		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPosition, WorldPosition + 1000.f*WorldDirection, MovePlane);    //è®¡ç®—å°„çº¿ä¸å¹³é¢çš„äº¤ç‚¹
 		SetActorLocation(IntersectionPos + Offset);
 	}
 
 	MoveTick(DeltaTime);
 
-	// ²âÊÔËÄÔªÊıĞı×ª
+	// æµ‹è¯•å››å…ƒæ•°æ—‹è½¬
 	/*FVector CamDir = FRotator(-70.f, 0.f, 0.f).Vector();
 	FQuat Rot(CamDir, 10.f * DeltaTime);
 
@@ -77,7 +77,7 @@ void AInventoryActor::PostInitializeComponents()
 
 void AInventoryActor::BeginCursorOver(UPrimitiveComponent* TouchedComponent)
 {
-	// ¶ÔÎïÌå½øĞĞ¹âÕÕ
+	// å¯¹ç‰©ä½“è¿›è¡Œå…‰ç…§
 	if (bInLocker)
 	{
 		if (ALocker* OwnerLocker = Cast<ALocker>(GetAttachParentActor()))
@@ -108,9 +108,9 @@ void AInventoryActor::StartMoveWithCursor(class AMainController* Owner, const FV
 {
 	this->OwnerController = Owner;
 	this->MovePlane = MovePalne;
-	this->Offset = Offset;    //ÉèÖÃÆ«ÒÆÁ¿
+	this->Offset = Offset;    //è®¾ç½®åç§»é‡
 
-	MoveWithCursor = true;     //Ëæ×ÅÊó±êÖ¸ÕëÒÆ¶¯
+	MoveWithCursor = true;     //éšç€é¼ æ ‡æŒ‡é’ˆç§»åŠ¨
 }
 
 void AInventoryActor::StopMoveWithCursor()
@@ -137,7 +137,7 @@ FVector AInventoryActor::GetRelativeLocation()
 
 void AInventoryActor::MoveTick(float DeltaTime)
 {
-	if (bIsInMove)  //´ËÊ±ÎïÌåĞèÒªÒÆ¶¯
+	if (bIsInMove)  //æ­¤æ—¶ç‰©ä½“éœ€è¦ç§»åŠ¨
 	{
 		FVector NewLocation = FMath::VInterpTo(GetRelativeLocation(), DestLocation, DeltaTime, 10.f);
 		SetActorRelativeLocation(NewLocation);

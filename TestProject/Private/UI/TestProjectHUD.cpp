@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TestProjectHUD.h"
 #include "Engine/Engine.h"
@@ -46,15 +46,15 @@ void ATestProjectHUD::DrawHUD()
 			TestProjectHelper::Debug_ScreenMessage(TEXT("Hovered"));
 	}*/
 
-	// »æÖÆdebugÏß
+	// ç»˜åˆ¶debugçº¿
 	if (bDrawDebugLine)
 	{
 		DrawDebugCanvas2DCircle(Canvas, TouchPoints[0], 50.f, 100, FLinearColor::Blue);
 		DrawDebugCanvas2DCircle(Canvas, TouchPoints[1], 50.f, 100, FLinearColor::Blue);
 		DrawDebugCanvas2DLine(Canvas, TouchPoints[0], TouchPoints[1], FLinearColor::Red);
 
-		FVector2D TwoPointCenter = (TouchPoints[0] + TouchPoints[1]) / 2;   //Á½¸ö´¥ÃşµãµÄÖĞĞÄµãÎ»ÖÃ
-		//ÏÂÃæÊÇÁ½¸öÖĞĞÄµãÏßµÄ·½Ïò
+		FVector2D TwoPointCenter = (TouchPoints[0] + TouchPoints[1]) / 2;   //ä¸¤ä¸ªè§¦æ‘¸ç‚¹çš„ä¸­å¿ƒç‚¹ä½ç½®
+		//ä¸‹é¢æ˜¯ä¸¤ä¸ªä¸­å¿ƒç‚¹çº¿çš„æ–¹å‘
 		const static FVector2D LineVec1(1.f, 1.f);
 		const static FVector2D LineVec2(1.f, -1.f);
 
