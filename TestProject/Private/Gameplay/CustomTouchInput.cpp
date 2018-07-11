@@ -7,12 +7,15 @@
 
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔
+static const float CheckTouchLevelTime = 0.02f;     //检测触摸事件类型的等级
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 	, PreTouchedState(0)
+	, CurTouchLevel(ETouchEventLevel::OnePoint)
 	, Touch0DownTime(0.f)
 	, TwoPointDownTime(0.f)
+	, FivePointDownTime(0.f)
 	, bTwoPointTouched(false)
 	, TouchInterval(0.f)
 {
@@ -32,61 +35,47 @@ FVector2D*const UCustomTouchInput::GetTouchAnchors()
 
 void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 {
+	static uint32 PreTouchNum = 0;
+
 	if (!GetOuter())return;
 	APlayerController* Controller = Cast<APlayerController>(GetOuter());
 	
 	uint32 CurrentTouchState = 0;
+	uint32 CurrentTouchNum = 0;
+	TArray<FVector2D> TouchPoints;
+
 	for (int32 i = 0; i < ARRAY_COUNT(Controller->PlayerInput->Touches); i++)
 	{
 		if (Controller->PlayerInput->Touches[i].Z != 0)
 		{
 			CurrentTouchState |= (1 << i);
+			CurrentTouchNum++;
+			TouchPoints.Add(FVector2D(Controller->PlayerInput->Touches[i]));
 		}
 	}
 
 	FVector2D LocalPosition1 = FVector2D(Controller->PlayerInput->Touches[0]);
 	FVector2D LocalPosition2 = FVector2D(Controller->PlayerInput->Touches[1]);
+	//CurTouchLevel = (ETouchEventLevel::Type)(CurrentTouchNum - 1);
 
+	DetectFivePointsActions(CurrentTouchNum == 5, PreTouchNum == 5, DeltaTime, TouchPoints);
+	DetectTwoPointsActions((CurrentTouchState & 1) && (CurrentTouchState & 2), (PreTouchedState & 1) && (PreTouchedState & 2), DeltaTime, LocalPosition1, LocalPosition2);
 	DetectOnePointActions(CurrentTouchState & 1, PreTouchedState & 1, DeltaTime, LocalPosition1, Touch0DownTime);
-	DetectTwoPointActions((CurrentTouchState & 1) && (CurrentTouchState & 2), (PreTouchedState & 1) && (PreTouchedState & 2), DeltaTime, LocalPosition1, LocalPosition2);
 
-	//if (OwnerController && OwnerController->PlayerInput->Touches[0].Z != 0)
-	//{
-	//	CurrentTouchState |= (1 << 0);       //此时有一个触摸点
-	//}
-
-	//FVector Temp = OwnerController->PlayerInput->Touches[0];
-	//FVector2D TouchPoint(Temp);
-
-	//if (CurrentTouchState)
-	//{
-	//	if (!PreTouched)
-	//	{
-	//		DownTime = 0.f;
-	//		OnePointEvent[IE_Pressed].ExecuteIfBound(TouchPoint, DownTime);
-	//	}
-
-	//	if (PreTouched)
-	//	{
-	//		DownTime += DeltaTime;
-	//		OnePointEvent[IE_Repeat].ExecuteIfBound(TouchPoint, DownTime);
-	//	}
-	//}
-	//else
-	//{
-	//	if (PreTouched)
-	//	{
-	//		OnePointEvent[IE_Released].ExecuteIfBound(TouchPoint, DownTime);
-	//		DownTime = 0.f;
-	//	}
-	//}
 	PreTouchedState = CurrentTouchState;
+	PreTouchNum = CurrentTouchNum;
 }
 
 void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition, float& DownTime)
 {
 	if (bCurrentState)
 	{
+		if (DownTime > CheckTouchLevelTime)
+			if (CurTouchLevel > ETouchEventLevel::OnePoint)
+			{
+				return;
+			}
+
 		if (!bPrevState)
 		{
 			DownTime = 0;
@@ -178,15 +167,24 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 					Tap.DownTime = DownTime;
 				}
 			}
+
+			CurTouchLevel = ETouchEventLevel::OnePoint;
 		}
 	}
 }
 
-void UCustomTouchInput::DetectTwoPointActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition1, const FVector2D& CurrentPosition2)
+void UCustomTouchInput::DetectTwoPointsActions(bool bCurrentState, bool bPrevState, float DeltaTime, const FVector2D& CurrentPosition1, const FVector2D& CurrentPosition2)
 {
 	bTwoPointTouched = bCurrentState;
 	if (bCurrentState)
 	{
+		if (ETouchEventLevel::TwoPoints > CurTouchLevel)
+			CurTouchLevel = ETouchEventLevel::TwoPoints;
+
+		if (TwoPointDownTime > CheckTouchLevelTime)
+			if (CurTouchLevel > ETouchEventLevel::TwoPoints)
+				return;
+
 		if (!bPrevState)
 		{
 			TwoPointDownTime = 0.f;
@@ -212,7 +210,7 @@ void UCustomTouchInput::DetectTwoPointActions(bool bCurrentState, bool bPrevStat
 	}
 	else
 	{
-		if (bPrevState)
+		if (bPrevState && CurTouchLevel == ETouchEventLevel::TwoPoints)
 		{
 			FSimpleKeyState& PinchState = KeyStateMap.FindOrAdd(EGameTouchKey::Pinch);
 			if (PinchState.bDown)
@@ -222,6 +220,50 @@ void UCustomTouchInput::DetectTwoPointActions(bool bCurrentState, bool bPrevStat
 				PinchState.Position2 = CurrentPosition2;
 				PinchState.DownTime = TwoPointDownTime;
 			}
+		}
+	}
+}
+
+//检测五指状态
+void UCustomTouchInput::DetectFivePointsActions(bool bCurrentState, bool bPrevState, float DeltaTime, const TArray<FVector2D>& CurrentPositions)
+{
+	if (bCurrentState)
+	{
+		if (ETouchEventLevel::FivePoints > CurTouchLevel)
+			CurTouchLevel = ETouchEventLevel::FivePoints;
+
+		if (!bPrevState)
+		{
+			FivePointDownTime = 0.f;
+			FSimpleKeyState& FivePointsState = KeyStateMap.FindOrAdd(EGameTouchKey::FivePoints);
+			FivePointsState.Events[IE_Pressed]++;  //五指响应已触发
+			FivePointsState.TwoMorePositions = CurrentPositions;
+			FivePointsState.DownTime = FivePointDownTime;
+		}
+
+		FSimpleKeyState& FivePointsState = KeyStateMap.FindOrAdd(EGameTouchKey::FivePoints);
+		if (FivePointsState.bDown)
+		{
+			FivePointsState.Events[IE_Repeat]++;
+			FivePointsState.TwoMorePositions = CurrentPositions;
+			FivePointsState.DownTime = FivePointDownTime;
+		}
+
+		FivePointDownTime += DeltaTime;
+	}
+	else
+	{
+		if (bPrevState)
+		{
+			FSimpleKeyState& FivePointsState = KeyStateMap.FindOrAdd(EGameTouchKey::FivePoints);
+			if (FivePointsState.bDown)
+			{
+				FivePointsState.Events[IE_Released]++;
+				//FivePointsState.TwoMorePositions = CurrentPositions;  //这里不需要重新赋值，因为这里会有小于或大于5的触摸点数目，所以要直接使用上一次检测的点，可能会有1帧的误差
+				FivePointsState.DownTime = FivePointDownTime;
+			}
+
+			//CurTouchLevel = ETouchEventLevel::OnePoint;
 		}
 	}
 }
@@ -246,6 +288,16 @@ void UCustomTouchInput::ProcessKeyStates(float DeltaTime)
 		if (KeyState && KeyState->Events[AB.KeyState] > 0)
 		{
 			AB.ActionDelegate.ExecuteIfBound(KeyState->Position1, KeyState->Position2, KeyState->DownTime);
+		}
+	}
+
+	for (const auto& AB : ActionBindings2MP)
+	{
+		const FSimpleKeyState* KeyState = KeyStateMap.Find(AB.Key);
+
+		if(KeyState && KeyState->Events[AB.KeyState] > 0)
+		{
+			AB.ActionDelegate.ExecuteIfBound(KeyState->TwoMorePositions, KeyState->DownTime);
 		}
 	}
 
