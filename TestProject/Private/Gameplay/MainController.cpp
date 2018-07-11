@@ -20,6 +20,7 @@
 #include "GroundSpectatorPawn.h"
 #include "TCPinchComponent.h"
 #include "TCTapComponent.h"
+#include "TCSwitchUIComponent.h"
 
 
 AMainController::AMainController()
@@ -37,6 +38,7 @@ AMainController::AMainController()
 
 	PinchComponent = CreateDefaultSubobject<UTCPinchComponent>(TEXT("PinchComponent"));    //创建Pinch触控操作组件
 	TapComponent = CreateDefaultSubobject<UTCTapComponent>(TEXT("TapComponent"));
+	SwitchUIComponent = CreateDefaultSubobject<UTCSwitchUIComponent>(TEXT("SwitchUIComponent"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_1(TEXT("/Game/StarterContent/Materials/M_Wood_Pine"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_2(TEXT("/Game/StarterContent/Materials/M_Wood_Oak"));
@@ -115,14 +117,22 @@ void AMainController::BeginPlay()
 			{
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed, CurLocker, &ALocker::StartOpenLocker);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, CurLocker, &ALocker::EndOpenLocker);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::OnSwipePressed);
+				/*BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::OnSwipePressed);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::OnSwipeReleased);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::OnSwipeUpdate);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::OnSwipeUpdate);*/
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Tap, IE_Pressed, this, &AMainController::TapPressed);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::DoubleTap, IE_Pressed, this, &AMainController::DoubleTapPressed);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Pressed, this, &AMainController::OnPinchStart);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Released, this, &AMainController::OnPinchEnd);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Repeat, this, &AMainController::OnPinchUpdate);
+				
+				if (SwitchUIComponent)
+				{
+					BIND_2MP_ACTION(InputHandle, EGameTouchKey::FivePoints, IE_Pressed, SwitchUIComponent, &UTCSwitchUIComponent::OnFivePointsPressed);
+					BIND_2MP_ACTION(InputHandle, EGameTouchKey::FivePoints, IE_Released, SwitchUIComponent, &UTCSwitchUIComponent::OnFivePointsReleased);
+					SwitchUIComponent->ReleasedEventOpen.BindUObject(this, &AMainController::OpenUI);
+					SwitchUIComponent->ReleasedEventClose.BindUObject(this, &AMainController::CloseUI);
+				}
 			}
 		}
 	});
@@ -195,21 +205,21 @@ void AMainController::DragSomeThing()
 		}
 	}
 
-	if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
-	{
-		if (CurHUD->IsInventoryWidgetValid())
-		{
-			const bool bTriggerMenu = DoesCursorInMenu();
-			if (bTriggerMenu)
-			{
-				CurHUD->ShowMenu(true);      //显示菜单
-			}
-			else if(!bTriggerMenu && !HitActor)
-			{
-				CurHUD->ShowMenu(false);       //可能会关闭菜单
-			}
-		}
-	}
+	//if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
+	//{
+	//	if (CurHUD->IsInventoryWidgetValid())
+	//	{
+	//		const bool bTriggerMenu = DoesCursorInMenu();
+	//		if (bTriggerMenu)
+	//		{
+	//			CurHUD->ShowMenu(true);      //显示菜单
+	//		}
+	//		else if(!bTriggerMenu && !HitActor)
+	//		{
+	//			CurHUD->ShowMenu(false);       //可能会关闭菜单
+	//		}
+	//	}
+	//}
 }
 
 void AMainController::StopDrag()
@@ -413,6 +423,27 @@ void AMainController::OnPinchEnd(const FVector2D& Point1, const FVector2D& Point
 		if (ATestProjectHUD* MyHUD = Cast<ATestProjectHUD>(GetHUD()))
 		{
 			MyHUD->DrawCustomDebugLine(false, Point1, Point2);
+		}
+	}
+}
+
+void AMainController::OpenUI()
+{
+	SwitchUI(true);
+}
+
+void AMainController::CloseUI()
+{
+	SwitchUI(false);
+}
+
+void AMainController::SwitchUI(bool bOpenUI)
+{
+	if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
+	{
+		if (CurHUD->IsInventoryWidgetValid())
+		{
+			CurHUD->ShowMenu(bOpenUI);
 		}
 	}
 }
