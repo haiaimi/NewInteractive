@@ -4,7 +4,6 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
 
-
 void TouchHelper::GetTouchInputInfo(class APlayerController* InPlayer, TArray<FVector>& OutTouchPoint)
 {
 	OutTouchPoint.Empty();
@@ -17,4 +16,15 @@ void TouchHelper::GetTouchInputInfo(class APlayerController* InPlayer, TArray<FV
 		else 
 			break;
 	}
+}
+
+bool TouchHelper::IsTouchTypeContained(UObject* TouchComponent, AActor* TargetActor, TEnumAsByte<ECustomTouchType::Type> ComponentTouchType)
+{
+	bool Result = false;
+	if (TargetActor->GetClass()->ImplementsInterface(UCustomTouchInterface::StaticClass()))
+	{
+		ICustomTouchInterface::Execute_CanSuitTargetTouchType(TargetActor, ComponentTouchType, Result);
+	}
+
+	return Result;
 }
