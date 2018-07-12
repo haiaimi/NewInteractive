@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Interface/CustomTouchInterface.h"
 #include "TCTapComponent.generated.h"
 
 
@@ -38,4 +39,7 @@ private:
 	FVector2D AnchorPosition;  //按下去的位置，后面的物体旋转就根据这个点
 
 	FRotator InitialRotation;  //按下去Actor初始化的定向
+
+	/**该组件所对应的触控方式*/
+	TEnumAsByte<ECustomTouchType::Type> CurTouchType;
 };

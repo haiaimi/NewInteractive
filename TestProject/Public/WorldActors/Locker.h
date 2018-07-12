@@ -4,16 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/CustomTouchInterface.h"
 #include "Locker.generated.h"
 
 /**
  *  储物柜类，用于模拟储物柜，管理其中的物体 
  */
 UCLASS()
-class TESTPROJECT_API ALocker : public AActor
+class TESTPROJECT_API ALocker : public AActor, public ICustomTouchInterface
 {
 	GENERATED_BODY()
+		
+	// CustomTouchInterface
+	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes) override;
+
+	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
+
+	virtual void CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out)override;
+
+	virtual void InterfaceFunction_Implementation(ECustomTouchType::Type InType)override {};
 	
+	//virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
 public:	
 	// Sets default values for this actor's properties
 	ALocker();
@@ -25,6 +36,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 public:
 	/** 根据鼠标结束拖拽最后的位置来放置物体*/

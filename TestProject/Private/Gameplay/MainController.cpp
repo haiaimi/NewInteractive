@@ -117,9 +117,9 @@ void AMainController::BeginPlay()
 			{
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed, CurLocker, &ALocker::StartOpenLocker);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, CurLocker, &ALocker::EndOpenLocker);
-				/*BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::OnSwipePressed);
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Pressed,this, &AMainController::OnSwipePressed);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Released, this, &AMainController::OnSwipeReleased);
-				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::OnSwipeUpdate);*/
+				BIND_1P_ACTION(InputHandle, EGameTouchKey::Swipe, IE_Repeat, this, &AMainController::OnSwipeUpdate);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::Tap, IE_Pressed, this, &AMainController::TapPressed);
 				BIND_1P_ACTION(InputHandle, EGameTouchKey::DoubleTap, IE_Pressed, this, &AMainController::DoubleTapPressed);
 				BIND_2P_ACTION(InputHandle, EGameTouchKey::Pinch, IE_Pressed, this, &AMainController::OnPinchStart);
@@ -130,6 +130,7 @@ void AMainController::BeginPlay()
 				{
 					BIND_2MP_ACTION(InputHandle, EGameTouchKey::FivePoints, IE_Pressed, SwitchUIComponent, &UTCSwitchUIComponent::OnFivePointsPressed);
 					BIND_2MP_ACTION(InputHandle, EGameTouchKey::FivePoints, IE_Released, SwitchUIComponent, &UTCSwitchUIComponent::OnFivePointsReleased);
+					BIND_2MP_ACTION(InputHandle, EGameTouchKey::FivePoints, IE_Repeat, SwitchUIComponent, &UTCSwitchUIComponent::OnFivePointsUpdate);
 					SwitchUIComponent->ReleasedEventOpen.BindUObject(this, &AMainController::OpenUI);
 					SwitchUIComponent->ReleasedEventClose.BindUObject(this, &AMainController::CloseUI);
 				}
@@ -330,7 +331,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->StartSwipe(Point, DownTime);
+		//GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -343,7 +344,7 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->EndSwipe(Point, DownTime);
+		//GetGroundCamera()->EndSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)

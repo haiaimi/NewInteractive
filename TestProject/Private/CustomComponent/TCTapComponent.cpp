@@ -4,11 +4,13 @@
 #include "TouchHelper.h"
 #include "GameFramework/PlayerController.h"
 #include "TestProjectHelper.h"
+#include "Interface/CustomTouchInterface.h"
 
 
 // Sets default values for this component's properties
 UTCTapComponent::UTCTapComponent()
-	:TargetActor(nullptr)
+	:TargetActor(nullptr),
+	CurTouchType(ECustomTouchType::RotateSwipe_1P)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them	
@@ -55,6 +57,11 @@ void UTCTapComponent::OnRotateTapPressed(const FVector2D& Point, float DownTime)
 			TargetActor = Result.GetActor();
 			AnchorPosition = Point;
 			InitialRotation = TargetActor->GetActorRotation();
+
+			if (!TouchHelper::IsTouchTypeContained(this, TargetActor, CurTouchType))   //检测目标Actor是否支持该触控模式
+			{
+				TargetActor = nullptr;
+			}
 		}
 	}
 }

@@ -69,8 +69,8 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	else
 		TargetActor->SetActorScale3D(TempScale);
 	
-	TestProjectHelper::Debug_ScreenMessage(InitialScale.ToString());
-	TestProjectHelper::Debug_ScreenMessage(TargetActor->GetActorScale3D().ToString());
+	/*TestProjectHelper::Debug_ScreenMessage(InitialScale.ToString());
+	TestProjectHelper::Debug_ScreenMessage(TargetActor->GetActorScale3D().ToString());*/
 	//检测缩放时的碰撞
 	TArray<FOverlapResult> Result;
 	if (GetWorld())

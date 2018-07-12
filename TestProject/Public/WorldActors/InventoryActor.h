@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/CustomTouchInterface.h"
 #include "InventoryActor.generated.h"
 
 /**
  * 该类是仓库中物体的基类，只包含基本功能，负责基本的场景显示，其他详细逻辑在子类中
  */
 UCLASS()
-class TESTPROJECT_API AInventoryActor : public AActor
+class TESTPROJECT_API AInventoryActor : public AActor, public ICustomTouchInterface
 {
 	GENERATED_BODY()
 	
@@ -27,6 +28,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void PostInitializeComponents()override;
+
+	// CustomTouchInterface
+	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes) {};
+
+	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) {};
+
+	virtual void CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out) {};
+
+	virtual void InterfaceFunction_Implementation(ECustomTouchType::Type InType)override {};
 
 public:
 	UFUNCTION()

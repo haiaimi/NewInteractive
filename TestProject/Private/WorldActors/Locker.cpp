@@ -69,6 +69,8 @@ ALocker::ALocker()
 	bInShow = false;       //默认是显示的
 	bCanUpdate = false;
 	bStartTraceLine = false;
+	//接口中的变量
+	SupportTouchType.Add(ECustomTouchType::Drag_1P);
 
 	LockerMeshComponent->OnInputTouchBegin.AddDynamic(this, &ALocker::BeginMove);
 	LockerMeshComponent->OnInputTouchEnd.AddDynamic(this, &ALocker::EndMove);
@@ -124,6 +126,22 @@ void ALocker::Tick(float DeltaTime)
 		}
 	}
 	UpdateMove();
+}
+
+void ALocker::GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes)
+{
+	OutTypes = SupportTouchType;
+}
+
+void ALocker::AddTouchTypes_Implementation(ECustomTouchType::Type InType)
+{
+	SupportTouchType.AddUnique(InType);
+}
+
+void ALocker::CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out)
+{
+	int Temp;
+	Out = SupportTouchType.Find(TargetTouchType, Temp);
 }
 
 void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector CursorLastPoint)
