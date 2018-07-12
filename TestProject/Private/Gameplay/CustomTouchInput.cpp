@@ -7,7 +7,7 @@
 
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔
-static const float CheckTouchLevelTime = 0.02f;     //检测触摸事件类型的等级
+static const float CheckTouchLevelTime = 0.1f;     //检测触摸事件类型的等级
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -70,11 +70,14 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 {
 	if (bCurrentState)
 	{
+		DownTime += DeltaTime;
+
+		if (DownTime <= CheckTouchLevelTime)
+			return;
+
 		if (DownTime > CheckTouchLevelTime)
 			if (CurTouchLevel > ETouchEventLevel::OnePoint)
-			{
 				return;
-			}
 
 		if (!bPrevState)
 		{
@@ -133,8 +136,6 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 		//		DoubleTap.Events[IE_Pressed]++;    //此时触发双击触摸事件
 		//	}
 		//}
-
-		DownTime += DeltaTime;	
 	}
 	else
 	{
@@ -178,6 +179,10 @@ void UCustomTouchInput::DetectTwoPointsActions(bool bCurrentState, bool bPrevSta
 	bTwoPointTouched = bCurrentState;
 	if (bCurrentState)
 	{
+		TwoPointDownTime += DeltaTime;
+		if (TwoPointDownTime <= CheckTouchLevelTime)
+			return;
+
 		if (ETouchEventLevel::TwoPoints > CurTouchLevel)
 			CurTouchLevel = ETouchEventLevel::TwoPoints;
 
@@ -205,8 +210,6 @@ void UCustomTouchInput::DetectTwoPointsActions(bool bCurrentState, bool bPrevSta
 			PinchState.Position2 = CurrentPosition2;
 			PinchState.DownTime = TwoPointDownTime;
 		}
-
-		TwoPointDownTime += DeltaTime;
 	}
 	else
 	{
