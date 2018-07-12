@@ -32,6 +32,19 @@ void UTCSwitchUIComponent::OnFivePointsPressed(const TArray<FVector2D>& Points, 
 {
 	PressedTime = DownTime;
 	AnchorPoints = Points;
+
+	AnchorPerimeter = UTCSwitchUIComponent::ComputePointsPerimeter(AnchorPoints);
+}
+
+void UTCSwitchUIComponent::OnFivePointsUpdate(const TArray<FVector2D>& Points, float DownTime)
+{
+	float CurrentPerimeter = UTCSwitchUIComponent::ComputePointsPerimeter(Points);
+	float CurrentScale = CurrentPerimeter / AnchorPerimeter;     //计算当前点周长和按下时周长的比例
+
+	if (CurrentScale < 0.8f)
+		ReleasedEventOpen.ExecuteIfBound();
+	else if (CurrentScale > 1.3f)
+		ReleasedEventClose.ExecuteIfBound();
 }
 
 void UTCSwitchUIComponent::OnFivePointsReleased(const TArray<FVector2D>& Points, float DownTime)
@@ -73,7 +86,6 @@ void UTCSwitchUIComponent::OnFivePointsReleased(const TArray<FVector2D>& Points,
 	//	ReleasedEventClose.ExecuteIfBound();
 
 	///下面是根据周长
-	float AnchorPerimeter = UTCSwitchUIComponent::ComputePointsPerimeter(AnchorPoints);
 	float ReleasedPointsPerimeter = UTCSwitchUIComponent::ComputePointsPerimeter(Points);
 
 	if (DownTime - PressedTime < PressToReleaseInterval)

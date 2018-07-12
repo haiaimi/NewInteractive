@@ -27,6 +27,9 @@ public:
 
 	void OnFivePointsPressed(const TArray<FVector2D>& Points, float DownTime);
 
+	/**在更新的时候进行检测，以提高灵敏度*/
+	void OnFivePointsUpdate(const TArray<FVector2D>& Points, float DownTime);
+
 	void OnFivePointsReleased(const TArray<FVector2D>& Points, float DownTime);
 	
 	template<class T>
@@ -36,7 +39,7 @@ public:
 		float MinDistance = MAX_int32;
 		TArray<int32> ComparedIndex; //已比较过的点下标数组
 
-		FVector2D Temp = InPoints[0];
+		T Temp = InPoints[0];
 		ComparedIndex.Add(0);
 
 		for (int32 i = 0; i < InPoints.Num() - 1; ++i)
@@ -76,8 +79,11 @@ public:
 	FTriggerEvent ReleasedEventClose;
 
 private:
-	/** 按下时的5个点*/
+	/**按下时的5个点*/
 	TArray<FVector2D> AnchorPoints;    
+
+	/**按下时5个点的周长*/
+	float AnchorPerimeter;
 
 	float PressedTime;
 };
