@@ -25,15 +25,6 @@ public:
 
 	virtual void PostInitializeComponents()override;
 
-	// CustomTouchInterface
-	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes) override;
-
-	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
-
-	virtual void CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out) override;
-
-	virtual void InterfaceFunction_Implementation(ECustomTouchType::Type InType)override {};
-
 public:
 	UFUNCTION()
 	virtual void BeginCursorOver(UPrimitiveComponent* TouchedComponent)override;

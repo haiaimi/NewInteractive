@@ -18,5 +18,5 @@ public:
 	  * @Param TargetActor        目标Actor
 	  * @Param ComponentTouchType 当前触摸组件的触摸模式
 	  */
-	static bool IsTouchTypeContained(class UObject* TouchComponent, class AActor* TargetActor, TEnumAsByte<ECustomTouchType::Type> ComponentTouchType);
+	static bool IsTouchTypeContained(class UObject* TouchComponent, class AActor* TargetActor, ECustomTouchType::Type ComponentTouchType);
 };

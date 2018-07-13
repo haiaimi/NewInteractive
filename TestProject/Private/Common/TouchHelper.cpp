@@ -3,6 +3,7 @@
 #include "TouchHelper.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
+#include "TestProjectHelper.h"
 
 void TouchHelper::GetTouchInputInfo(class APlayerController* InPlayer, TArray<FVector>& OutTouchPoint)
 {
@@ -18,7 +19,7 @@ void TouchHelper::GetTouchInputInfo(class APlayerController* InPlayer, TArray<FV
 	}
 }
 
-bool TouchHelper::IsTouchTypeContained(UObject* TouchComponent, AActor* TargetActor, TEnumAsByte<ECustomTouchType::Type> ComponentTouchType)
+bool TouchHelper::IsTouchTypeContained(UObject* TouchComponent, AActor* TargetActor, ECustomTouchType::Type ComponentTouchType)
 {
 	bool Result = false;
 	if (TargetActor->GetClass()->ImplementsInterface(UCustomTouchInterface::StaticClass()))

@@ -27,6 +27,7 @@ AEarth::AEarth()
 	}
 
 	SupportTouchType.Add(ECustomTouchType::MoveRotateScalePinch_2P);
+	SupportTouchType.Add(ECustomTouchType::Drag_1P);
 	bCanRotate = false;
 }
 
@@ -46,22 +47,6 @@ void AEarth::Tick(float DeltaTime)
 void AEarth::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-}
-
-void AEarth::GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes)
-{
-	OutTypes = SupportTouchType;
-}
-
-void AEarth::AddTouchTypes_Implementation(ECustomTouchType::Type InType)
-{
-	SupportTouchType.AddUnique(InType);
-}
-
-void AEarth::CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out)
-{
-	int Temp;
-	Out = SupportTouchType.Find(TargetTouchType, Temp);
 }
 
 void AEarth::BeginCursorOver(UPrimitiveComponent* TouchedComponent)

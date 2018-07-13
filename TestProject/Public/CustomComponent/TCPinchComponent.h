@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CustomTouchInterface.h"
 #include "TCPinchComponent.generated.h"
 
 /**
@@ -44,6 +45,8 @@ private:
 	void GetLengthAndAngle(float& Length, float& Angle, FVector2D& CenterPos);
 
 private:
+	ECustomTouchType::Type CurTouchType;
+
 	/**当前的两个触摸点,注意Z分量仅为判断*/
 	FVector2D TouchPoints[2];
 

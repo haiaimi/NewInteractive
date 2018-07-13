@@ -6,12 +6,14 @@
 #include "CollisionQueryParams.h"
 #include "Engine/World.h"
 #include "TestProjectHelper.h"
+#include "TouchHelper.h"
 
 
 // Sets default values for this component's properties
 UTCPinchComponent::UTCPinchComponent()
 	:InitialLength(0.f),
-	PreAngle(0.f)
+	PreAngle(0.f),
+	CurTouchType(ECustomTouchType::MoveRotateScalePinch_2P)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -32,6 +34,14 @@ void UTCPinchComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UTCPinchComponent::OnPinchPressed(class AActor* TargetActor, const FVector2D Point1, const FVector2D Point2)
 {
+	if (TargetActor->GetClass()->ImplementsInterface(UCustomTouchInterface::StaticClass()))
+	{
+		if (!TouchHelper::IsTouchTypeContained(this, TargetActor, CurTouchType))
+			return;
+	}
+	else
+		return;
+
 	TouchPoints[0] = Point1;
 	TouchPoints[1] = Point2;
 
@@ -54,6 +64,14 @@ void UTCPinchComponent::OnPinchPressed(class AActor* TargetActor, const FVector2
 
 void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Point1, const FVector2D Point2)
 {
+	if (TargetActor->GetClass()->ImplementsInterface(UCustomTouchInterface::StaticClass()))
+	{
+		if (!TouchHelper::IsTouchTypeContained(this, TargetActor, CurTouchType))
+			return;
+	}
+	else
+		return;
+
 	TouchPoints[0] = Point1;
 	TouchPoints[1] = Point2;
 
@@ -69,8 +87,6 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	else
 		TargetActor->SetActorScale3D(TempScale);
 	
-	/*TestProjectHelper::Debug_ScreenMessage(InitialScale.ToString());
-	TestProjectHelper::Debug_ScreenMessage(TargetActor->GetActorScale3D().ToString());*/
 	//检测缩放时的碰撞
 	TArray<FOverlapResult> Result;
 	if (GetWorld())
@@ -84,7 +100,6 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	{
 		if (result.Component.IsValid()) //如果遇到碰撞，就恢复上一级的scale
 		{
-			//TestProjectHelper::Debug_ScreenMessage(TEXT("Overlap!"));
 			TargetActor->SetActorScale3D(TempScale);
 			break;
 		}
@@ -103,7 +118,6 @@ void UTCPinchComponent::OnPinchUpdated(AActor* TargetActor, const FVector2D Poin
 	//这里使用四元数进行旋转，因为要围绕任意轴旋转 
 	const float SubAngle = -UTCPinchComponent::ComputeAngleSub(CurAngle, PreAngle);
 	FQuat AddedRotation(FRotator(-70.f, 0.f, 0.f).Vector(), FMath::DegreesToRadians(SubAngle));
-	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Sub Angle: %f"), -SubAngle));
 	TargetActor->AddActorWorldRotation(AddedRotation, true);
 
 	PreAngle = CurAngle;
