@@ -142,8 +142,6 @@ void SInventoryMenuWidget::OnReleased()
 	IsInUI = false;
 	FVector2D CursorPos;
 	OwnerController->GetMousePosition(CursorPos.X, CursorPos.Y);
-	//if(OwnerController->PlayerInput)
-	TestProjectHelper::Debug_ScreenMessage(CursorPos.ToString());
 }
 
 void SInventoryMenuWidget::LoadLandscape()
@@ -161,7 +159,7 @@ FReply SInventoryMenuWidget::OnClicked()
 		IsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
-		OwnerController->DragSomeThing();
+		//OwnerController->DragSomeThing();
 
 		return FReply::Handled();
 	}

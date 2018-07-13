@@ -87,6 +87,9 @@ private:
 	/**五指开关UI的组件*/
 	class UTCSwitchUIComponent* SwitchUIComponent;
 
+	/**触摸拖动组件*/
+	class UTCDragSwipeComponent* DragSwipeComponent;
+
 	/** Pinch组件当前直接控制的Actor*/
 	UPROPERTY()
 	AActor* TargetActor;
@@ -118,4 +121,7 @@ private:
 	UPROPERTY()
 	class UCustomTouchInput* InputHandle;
 
+	uint8 bShouldSpawnActor : 1;
+
+	UClass* SpawnActor;
 };

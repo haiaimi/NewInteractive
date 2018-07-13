@@ -29,14 +29,20 @@ public:
 
 	virtual void PostInitializeComponents()override;
 
-	// CustomTouchInterface
-	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes) {};
+	/// CustomTouchInterface
+	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes)override;
 
-	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) {};
+	// Begin CustonTouchInterface
+	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType)override;
 
-	virtual void CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out) {};
+	/**为了在蓝图中覆写接口函数*/
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void CanSuitTargetTouchType(ECustomTouchType::Type TargetTouchType, bool& Out);
 
-	virtual void InterfaceFunction_Implementation(ECustomTouchType::Type InType)override {};
+	virtual void CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)override;
+
+	virtual void InterfaceFunction(ECustomTouchType::Type InType)override {};
+	/// End CustomTouchInterface
 
 public:
 	UFUNCTION()
@@ -60,7 +66,7 @@ private:
 	void MoveTick(float DeltaTime);
 
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ActorMesh;
 
 	/**基础场景，为场景的根*/

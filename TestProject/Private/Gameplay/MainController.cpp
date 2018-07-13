@@ -21,6 +21,8 @@
 #include "TCPinchComponent.h"
 #include "TCTapComponent.h"
 #include "TCSwitchUIComponent.h"
+#include "TCDragSwipeComponent.h"
+#include "GameFramework/PlayerInput.h"
 
 
 AMainController::AMainController()
@@ -39,6 +41,7 @@ AMainController::AMainController()
 	PinchComponent = CreateDefaultSubobject<UTCPinchComponent>(TEXT("PinchComponent"));    //创建Pinch触控操作组件
 	TapComponent = CreateDefaultSubobject<UTCTapComponent>(TEXT("TapComponent"));
 	SwitchUIComponent = CreateDefaultSubobject<UTCSwitchUIComponent>(TEXT("SwitchUIComponent"));
+	DragSwipeComponent = CreateDefaultSubobject<UTCDragSwipeComponent>(TEXT("DragSwipeComponent"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_1(TEXT("/Game/StarterContent/Materials/M_Wood_Pine"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_2(TEXT("/Game/StarterContent/Materials/M_Wood_Oak"));
@@ -79,7 +82,6 @@ void AMainController::BeginPlay()
 	const FVector TableX2D = TableRotMat.GetUnitAxis(EAxis::X).GetSafeNormal2D();
 	const FVector TableY = TableRotMat.GetUnitAxis(EAxis::Y).GetSafeNormal();
 
-	TestProjectHelper::Debug_ScreenMessage(LookRotation.ToString());
 	const FVector TableSapwnLoaction = ViewLocation + TableX2D * -30.f + LookRotation.Vector() * 550.f;
 	const FVector LockerSpawnLocation = ViewLocation + TableX2D * 170.f + LookRotation.Vector() * 530.f;
 	FActorSpawnParameters SpawnParam;
@@ -143,11 +145,6 @@ void AMainController::BeginPlay()
 void AMainController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (CurTable)
-	{
-		//TestProjectHelper::Debug_ScreenMessage(CurTable->GetActorLocation().ToString());
-	}
 }
 
 void AMainController::SetupInputComponent()
@@ -157,7 +154,7 @@ void AMainController::SetupInputComponent()
 	if (InputComponent)
 	{
 		InputComponent->BindAction(TEXT("ToggleMaterial"), EInputEvent::IE_Pressed, this, &AMainController::ToggleTableMaterial);
-		InputComponent->BindAction(TEXT("Drag"), EInputEvent::IE_Pressed, this, &AMainController::DragSomeThing);
+		//InputComponent->BindAction(TEXT("Drag"), EInputEvent::IE_Pressed, this, &AMainController::DragSomeThing);
 		InputComponent->BindAction(TEXT("Drag"), EInputEvent::IE_Released, this, &AMainController::StopDrag);
 		InputComponent->BindAction(TEXT("Quit"), EInputEvent::IE_Pressed, this, &AMainController::QuitGame);
 		InputComponent->BindAction(TEXT("LockerSwitch"), EInputEvent::IE_Pressed, this, &AMainController::SwitchLocker);
@@ -197,7 +194,6 @@ void AMainController::DragSomeThing()
 		HitActor = Cast<AInventoryActor>(HitResult.GetActor());
 		if (HitActor)
 		{
-			//TestProjectHelper::Debug_ScreenMessage(TEXT("Get it!!"));
 			CurDragThing = HitActor;
 			TargetActor = CurDragThing;
 			const FVector Offset = CurDragThing->GetActorLocation() - HitResult.ImpactPoint;   //鼠标指针相对于物体的位置
@@ -287,14 +283,8 @@ void AMainController::StopDrag()
 
 void AMainController::SpawnInventoryActors(UClass* SpawnedActor)
 {
-	if (GetWorld() && !CurMenuSpawnThing)      //如果当前已经控制着一个就不需要生成
-	{
-		FVector WorldPos, WorldDir;
-		TestProjectHelper::DeprojectScreenToWorld_Cursor(this, WorldPos, WorldDir);
-		FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
-		CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnedActor, &ActorSpawnTransform));
-		CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
-	}
+	SpawnActor = SpawnedActor;
+	bShouldSpawnActor = true;
 }
 
 void AMainController::QuitGame()
@@ -338,6 +328,25 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 	{
 		TapComponent->OnRotateTapPressed(Point, DownTime);
 	}
+
+	if (DragSwipeComponent)
+	{
+		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
+		DragSwipeComponent->OnDragPressed(Point, LookDir);
+		
+		if (GetWorld() && bShouldSpawnActor)      //如果当前已经控制着一个就不需要生成
+		{
+			FVector WorldPos, WorldDir;
+			DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
+
+			FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
+			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform));
+			CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
+
+			bShouldSpawnActor = false;
+			TargetActor = CurMenuSpawnThing;
+		}
+	}
 }
 
 void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
@@ -350,6 +359,11 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 	if (TapComponent)
 	{
 		TapComponent->OnRotateTapReleased(Point, DownTime);
+	}
+
+	if (DragSwipeComponent)
+	{
+		DragSwipeComponent->OnDragReleased(Point);
 	}
 }
 
@@ -364,11 +378,17 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 	{
 		TapComponent->OnRotateTapUpdated(Point, DownTime);
 	}
+
+	if (DragSwipeComponent)
+	{
+		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
+		DragSwipeComponent->OnDragUpdate(Point, LookDir);
+	}
 }
 
 void AMainController::TapPressed(const FVector2D& Point, float DownTime)
 {
-	TestProjectHelper::Debug_ScreenMessage(TEXT("Tap"));
+	TestProjectHelper::Debug_ScreenMessage(Point.ToString());
 }
 
 void AMainController::DoubleTapPressed(const FVector2D& Point, float DownTime)

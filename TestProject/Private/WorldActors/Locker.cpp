@@ -70,7 +70,7 @@ ALocker::ALocker()
 	bCanUpdate = false;
 	bStartTraceLine = false;
 	//接口中的变量
-	SupportTouchType.Add(ECustomTouchType::Drag_1P);
+	SupportTouchType.Add(ECustomTouchType::LockerDrag_1P);
 
 	LockerMeshComponent->OnInputTouchBegin.AddDynamic(this, &ALocker::BeginMove);
 	LockerMeshComponent->OnInputTouchEnd.AddDynamic(this, &ALocker::EndMove);
@@ -138,7 +138,7 @@ void ALocker::AddTouchTypes_Implementation(ECustomTouchType::Type InType)
 	SupportTouchType.AddUnique(InType);
 }
 
-void ALocker::CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out)
+void ALocker::CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)
 {
 	int Temp;
 	Out = SupportTouchType.Find(TargetTouchType, Temp);
@@ -263,7 +263,7 @@ void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touc
 			FVector RelativeTouchPoint = FMath::Lerp<FVector, float>(RelativeToPawn_Show, RelativeToPawn_Hide, ScreenPercent*((LockerShowPos.Y - TouchPos.Y / ScreenSize.Y) / LockerShowPos.Y));            //计算触摸的相对位置
 			TouchOffset = RelativeTouchPoint - GetRelativeLocationToPawn();     // 计算触摸点到Locker的相对位置
 
-			UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
+			//UE_LOG(LogTemp, Log, TEXT("RelativeTouch: %s, RelativeLocPawn: %s"), *RelativeTouchPoint.ToString(), *GetRelativeLocationToPawn().ToString())
 		}
 	}
 }

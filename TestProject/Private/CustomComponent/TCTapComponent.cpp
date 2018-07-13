@@ -46,7 +46,6 @@ int32 UTCTapComponent::GetTouchFingersNum()
 
 void UTCTapComponent::OnRotateTapPressed(const FVector2D& Point, float DownTime)
 {
-	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Touch Points Num: %d"), GetTouchFingersNum()));
 	if (APlayerController* MyController = Cast<APlayerController>(GetOwner()))
 	{
 		FHitResult Result;

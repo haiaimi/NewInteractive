@@ -182,13 +182,12 @@ void UCustomTouchInput::DetectTwoPointsActions(bool bCurrentState, bool bPrevSta
 		TwoPointDownTime += DeltaTime;
 		if (TwoPointDownTime <= CheckTouchLevelTime)
 			return;
-
-		if (ETouchEventLevel::TwoPoints > CurTouchLevel)
-			CurTouchLevel = ETouchEventLevel::TwoPoints;
-
+			
 		if (TwoPointDownTime > CheckTouchLevelTime)
 			if (CurTouchLevel > ETouchEventLevel::TwoPoints)
 				return;
+			else
+				CurTouchLevel = ETouchEventLevel::TwoPoints;
 
 		if (!bPrevState)
 		{

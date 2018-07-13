@@ -42,7 +42,6 @@ void AInventoryActor::BeginPlay()
 	Super::BeginPlay();
 	
 	OriginLocation = GetRelativeLocation();
-	TestProjectHelper::Debug_ScreenMessage(GetRelativeLocation().ToString());
 }
 
 // Called every frame
@@ -73,6 +72,24 @@ void AInventoryActor::Tick(float DeltaTime)
 void AInventoryActor::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+}
+
+void AInventoryActor::GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes)
+{
+	OutTypes = SupportTouchType;
+}
+
+void AInventoryActor::AddTouchTypes_Implementation(ECustomTouchType::Type InType)
+{
+	SupportTouchType.AddUnique(InType);
+
+	TestProjectHelper::Debug_ScreenMessage(FString::FormatAsNumber(SupportTouchType.Find(InType)));
+}
+
+void AInventoryActor::CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)
+{
+	int Temp;
+	Out = SupportTouchType.Find(TargetTouchType, Temp);
 }
 
 void AInventoryActor::BeginCursorOver(UPrimitiveComponent* TouchedComponent)

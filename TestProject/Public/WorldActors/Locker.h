@@ -15,16 +15,16 @@ class TESTPROJECT_API ALocker : public AActor, public ICustomTouchInterface
 {
 	GENERATED_BODY()
 		
-	// CustomTouchInterface
+	/// Begin CustomTouchInterface
 	virtual void GetTouchTypes_Implementation(TArray<TEnumAsByte<ECustomTouchType::Type>>& OutTypes) override;
 
 	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
 
-	virtual void CanSuitTargetTouchType_Implementation(TEnumAsByte<ECustomTouchType::Type>& TargetTouchType, bool& Out)override;
+	virtual void CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)override;
 
-	virtual void InterfaceFunction_Implementation(ECustomTouchType::Type InType)override {};
-	
-	//virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
+	virtual void InterfaceFunction(ECustomTouchType::Type InType)override {};
+	/// End CustomTouchInterface
+
 public:	
 	// Sets default values for this actor's properties
 	ALocker();
