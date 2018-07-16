@@ -7,6 +7,7 @@
 #include "Gameplay/MainController.h"
 #include "Widgets/SInventoryMenuWidget.h"
 #include "DrawDebugHelpers.h"
+#include "SPopMenuWidget.h"
 
 
 ATestProjectHUD::ATestProjectHUD()
@@ -96,4 +97,18 @@ void ATestProjectHUD::DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Poin
 	bDrawDebugLine = bDrawDebug;
 	TouchPoints[0] = Point1;
 	TouchPoints[1] = Point2;
+}
+
+void ATestProjectHUD::SpawnNewWidget()
+{
+	SAssignNew(PopMenuWidget, SPopMenuWidget);
+
+			if (PopMenuWidget.IsValid())
+			{
+				GEngine->GameViewport->AddViewportWidgetContent(
+					SNew(SWeakWidget).
+					PossiblyNullContent(PopMenuWidget.ToSharedRef()), 
+					0
+				);
+			}
 }

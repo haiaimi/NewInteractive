@@ -32,8 +32,13 @@ public:
 
 	void DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Point1, const FVector2D& Point2);
 
+	void SpawnNewWidget();
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
+
+	/**长按弹出的菜单*/
+	TSharedPtr<class SPopMenuWidget> PopMenuWidget;
 
 	///下面的变量是Debug所需要的
 	uint8 bDrawDebugLine : 1;
