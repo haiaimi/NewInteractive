@@ -30,7 +30,7 @@ void UTCDragSwipeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 }
 
 void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookDir)
-{
+{ 
 	DetectActorOnPoint(Point, LookDir);
 }
 
@@ -78,4 +78,3 @@ void UTCDragSwipeComponent::DetectActorOnPoint(const FVector2D& Point, FVector& 
 		}
 	}
 }
-

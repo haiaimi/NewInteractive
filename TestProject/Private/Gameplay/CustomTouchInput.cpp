@@ -4,10 +4,11 @@
 #include "GameFramework/PlayerInput.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "TestProjectHelper.h"
 
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔
-static const float CheckTouchLevelTime = 0.1f;     //检测触摸事件类型的等级
+static const float CheckTouchLevelTime = 0.07f;     //检测触摸事件类型的等级
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -57,6 +58,7 @@ void UCustomTouchInput::UpdateGameKeys(float DeltaTime)
 	FVector2D LocalPosition1 = FVector2D(Controller->PlayerInput->Touches[0]);
 	FVector2D LocalPosition2 = FVector2D(Controller->PlayerInput->Touches[1]);
 	//CurTouchLevel = (ETouchEventLevel::Type)(CurrentTouchNum - 1);
+	//TestProjectHelper::Debug_ScreenMessage(LocalPosition1.ToString());
 
 	DetectFivePointsActions(CurrentTouchNum == 5, PreTouchNum == 5, DeltaTime, TouchPoints);
 	DetectTwoPointsActions((CurrentTouchState & 1) && (CurrentTouchState & 2), (PreTouchedState & 1) && (PreTouchedState & 2), DeltaTime, LocalPosition1, LocalPosition2);

@@ -18,12 +18,10 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	OwnerController = InArgs._OwnerController;
 
 	ChildSlot
-	.VAlign(EVerticalAlignment::VAlign_Fill)
-	.HAlign(EHorizontalAlignment::HAlign_Left)
 	[
 		SNew(SOverlay)
 		+SOverlay::Slot()
-		.VAlign(EVerticalAlignment::VAlign_Fill)
+		.VAlign(EVerticalAlignment::VAlign_Center)
 		.HAlign(EHorizontalAlignment::HAlign_Left)
 		.Padding(TAttribute<FMargin>(this, &SInventoryMenuWidget::GetMenuOffset))
 		[
@@ -36,7 +34,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 				.HAlign(EHorizontalAlignment::HAlign_Fill) 
 				.VAlign(EVerticalAlignment::VAlign_Fill)
 				.WidthOverride(400)
-				.HeightOverride(600)
+				.HeightOverride(1000)
 				[
 					SNew(SVerticalBox)
 					+SVerticalBox::Slot()
@@ -54,6 +52,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 					.VAlign(EVerticalAlignment::VAlign_Center)
 					.HAlign(EHorizontalAlignment::HAlign_Center)
 					.AutoHeight()
+					//.Padding(0.f,100.f,0.f,0.f)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(FString(TEXT("TEXT"))))
@@ -65,6 +64,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 					.VAlign(EVerticalAlignment::VAlign_Fill)
 					.HAlign(EHorizontalAlignment::HAlign_Fill)
 					.AutoHeight()
+					//.Padding(0.f, 50.f, 0.f, 0.f)
 					[
 						SNew(SButton)
 						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
@@ -77,6 +77,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
 						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
 						.IsFocusable(false)
+						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
 						[
 							SNew(STextBlock)
 							.Text(FText::FromString(FString(TEXT("Earth"))))
