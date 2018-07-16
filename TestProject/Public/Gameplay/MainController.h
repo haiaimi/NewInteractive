@@ -41,8 +41,8 @@ public:
 	/**储物柜开关*/
 	void SwitchLocker();
 
-	/**判断鼠标指针是否在菜单区域*/
-	bool DoesCursorInMenu();
+	/**判断指定的点是否在菜单区域*/
+	bool DoesPointInMenu(FVector2D Point);
 
 	void LoadLandscape(FName const LevelName);
 
@@ -71,6 +71,8 @@ public:
 
 	/**判断当前状态是否可以拖拽地形，当用户在拖拽物体和控制UI时不可以拖拽*/
 	bool CanDragLanscape();
+
+	void SpawnNewWidget();
 
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
@@ -124,4 +126,6 @@ private:
 	uint8 bShouldSpawnActor : 1;
 
 	UClass* SpawnActor;
+
+	TSharedPtr<class SPopMenuWidget> PopMenu;
 };

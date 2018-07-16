@@ -23,6 +23,7 @@
 #include "TCSwitchUIComponent.h"
 #include "TCDragSwipeComponent.h"
 #include "GameFramework/PlayerInput.h"
+#include "SPopMenuWidget.h"
 
 
 AMainController::AMainController()
@@ -158,6 +159,7 @@ void AMainController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Drag"), EInputEvent::IE_Released, this, &AMainController::StopDrag);
 		InputComponent->BindAction(TEXT("Quit"), EInputEvent::IE_Pressed, this, &AMainController::QuitGame);
 		InputComponent->BindAction(TEXT("LockerSwitch"), EInputEvent::IE_Pressed, this, &AMainController::SwitchLocker);
+		InputComponent->BindAction(TEXT("PopMenu"), EInputEvent::IE_Pressed, this, &AMainController::SpawnNewWidget);
 	}
 }
 
@@ -246,33 +248,33 @@ void AMainController::StopDrag()
 		}
 		else
 		{
-			if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
-			{
-				if (CurHUD->IsInventoryWidgetValid())
-				{
-					const bool bInMenu = DoesCursorInMenu();
-					if (bInMenu && CurHUD->IsMenuShow() && CurMenuSpawnThing)      //菜单正在显示，并且鼠标指针在菜单内
-					{
-						CurMenuSpawnThing->Destroy();
-					}
-					else
-					{
-						CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
-						if (CurDragThing->bInLocker)
-						{
-							ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
-							CurDragThing->bInLocker = false;
+			//if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
+			//{
+			//	if (CurHUD->IsInventoryWidgetValid())
+			//	{
+			//		const bool bInMenu = DoesCursorInMenu();
+			//		if (bInMenu && CurHUD->IsMenuShow() && CurMenuSpawnThing)      //菜单正在显示，并且鼠标指针在菜单内
+			//		{
+			//			CurMenuSpawnThing->Destroy();
+			//		}
+			//		else
+			//		{
+			//			CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
+			//			if (CurDragThing->bInLocker)
+			//			{
+			//				ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
+			//				CurDragThing->bInLocker = false;
 
-							if (OwnerLocker)
-							{
-								OwnerLocker->RemoveInventoryThing(CurDragThing);
-								OwnerLocker->StopCastLight();
-							}
-							//CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-						}
-					}
-				}
-			}
+			//				if (OwnerLocker)
+			//				{
+			//					OwnerLocker->RemoveInventoryThing(CurDragThing);
+			//					OwnerLocker->StopCastLight();
+			//				}
+			//				//CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			//			}
+			//		}
+			//	}
+			//}
 		}
 		FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
 		CurDragThing->StopMoveWithCursor();
@@ -297,15 +299,14 @@ void AMainController::SwitchLocker()
 	CurLocker->Switch();
 }
 
-bool AMainController::DoesCursorInMenu()
+bool AMainController::DoesPointInMenu(FVector2D Point)
 {
 	bool bTriggerMenu;
 
-	FVector2D ViewportSize, MousePosition;
+	FVector2D ViewportSize;
 	GetLocalPlayer()->ViewportClient->GetViewportSize(ViewportSize);  //获取客户端窗口大小
-	GetMousePosition(MousePosition.X, MousePosition.Y);       //获取鼠标坐标
 
-	bTriggerMenu = (MousePosition.X / ViewportSize.X) < (static_cast<float>(400) / static_cast<float>(2048));
+	bTriggerMenu = (Point.X / ViewportSize.X) < (static_cast<float>(400) / static_cast<float>(2048));
 	return bTriggerMenu;
 }
 
@@ -345,6 +346,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 
 			bShouldSpawnActor = false;
 			TargetActor = CurMenuSpawnThing;
+			CurDragThing = CurMenuSpawnThing;
 		}
 	}
 }
@@ -415,7 +417,7 @@ void AMainController::OnPinchUpdate(const FVector2D& Point1, const FVector2D& Po
 {
 	if (GetGroundCamera() != nullptr)
 	{
-	//	GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
+		//GetGroundCamera()->OnPinchUpdate(InputHandle, Point1, Point2, DownTime);
 	}
 
 	if (PinchComponent != nullptr && TargetActor != nullptr)
@@ -481,12 +483,26 @@ bool AMainController::CanDragLanscape()
 	{
 		if (CurHUD->IsInventoryWidgetValid())
 		{
-			if (DoesCursorInMenu() && CurHUD->IsMenuShow())
-				bCanDrag = false;
+			/*if (DoesCursorInMenu() && CurHUD->IsMenuShow())
+				bCanDrag = false;*/
 		}
 	}
 
 	return bCanDrag;
+}
+
+void AMainController::SpawnNewWidget()
+{
+	SAssignNew(PopMenu, SPopMenuWidget);
+
+			if (PopMenu.IsValid())
+			{
+				GEngine->GameViewport->AddViewportWidgetContent(
+					SNew(SWeakWidget).
+					PossiblyNullContent(PopMenu.ToSharedRef()), 
+					0
+				);
+			}
 }
 
 class AGroundSpectatorPawn* AMainController::GetGroundSpectatorPawn() const
