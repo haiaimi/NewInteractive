@@ -9,6 +9,7 @@
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔
 static const float CheckTouchLevelTime = 0.07f;     //检测触摸事件类型的等级
+static const float HoldTime = 0.8f;                 //按下持续时间
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -72,29 +73,25 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 {
 	if (bCurrentState)
 	{
-		DownTime += DeltaTime;
-
-		if (DownTime <= CheckTouchLevelTime)
-			return;
-
-		if (DownTime > CheckTouchLevelTime)
-			if (CurTouchLevel > ETouchEventLevel::OnePoint)
-				return;
-
 		if (!bPrevState)
 		{
 			DownTime = 0;
 		}
-		//else
-		//{
-		//	FSimpleKeyState& DoubleTap = KeyStateMap.FindOrAdd(EGameTouchKey::DoubleTap);
-		//	const FVector2D TwoPointsDistance = DoubleTap.Position1 - CurrentPosition;
 
-		//	if (TwoPointsDistance.Size() < DoubleTapMaxDistance && (DownTime - DoubleTap.DownTime) < DoubleTapIntervalTime)   //判断是否符合双击状态
-		//	{
-		//		DoubleTap.Events[IE_Pressed]++;
-		//	}
-		//}
+		FSimpleKeyState& HoldState = KeyStateMap.FindOrAdd(EGameTouchKey::Hold);
+		if (!bPrevState)
+		{
+			HoldState.DownTime = DownTime;
+			HoldState.Position1 = CurrentPosition;
+		}
+
+		FSimpleKeyState& Tap = KeyStateMap.FindOrAdd(EGameTouchKey::Tap);   //单击事件
+		if (!bPrevState)
+		{
+			Tap.Events[IE_Pressed]++; 
+			Tap.Position1 = CurrentPosition;
+			Tap.DownTime = DownTime;
+		}
 
 		FSimpleKeyState& SwipeState = KeyStateMap.FindOrAdd(EGameTouchKey::Swipe);
 		if (SwipeState.bDown)
@@ -110,39 +107,41 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 			SwipeState.DownTime = DownTime;
 		}
 
-		FSimpleKeyState& Tap = KeyStateMap.FindOrAdd(EGameTouchKey::Tap);   //单击事件
-		if (!bPrevState)
+		DownTime += DeltaTime;
+
+		//在一定时间内进行检测是否有其他按键按下，延迟检测，可能会损失一些精确度
+		if (DownTime <= CheckTouchLevelTime)
+			return;
+
+		if (DownTime > CheckTouchLevelTime)
+			if (CurTouchLevel > ETouchEventLevel::OnePoint)
+				return;
+
+		if (!HoldState.bDown)
 		{
-			Tap.Events[IE_Pressed]++; 
-			Tap.Position1 = CurrentPosition;
-			Tap.DownTime = DownTime;
+			if ((CurrentPosition - HoldState.Position1).Size() < 20.f)
+			{
+				if (DownTime - HoldState.DownTime >= HoldTime)
+				{
+					HoldState.Events[IE_Pressed]++;
+					HoldState.Position1 = CurrentPosition;
+					HoldState.DownTime = DownTime;
+				}
+			}
 		}
-
-		//FSimpleKeyState& DoubleTap = KeyStateMap.FindOrAdd(EGameTouchKey::DoubleTap);
-		//if (!DoubleTap.bDown)
-		//{
-		//	DoubleTap.DownTime = DownTime;
-		//	DoubleTap.Position1 = CurrentPosition;
-		//}
-		//else
-		//{
-		//	DoubleTap.Events[IE_Released]++;
-		//}
-
-		//if (bPrevState)      //
-		//{
-		//	const FVector2D TwoPointsDistance = DoubleTap.Position1 - CurrentPosition;
-
-		//	if (TwoPointsDistance.Size() < DoubleTapMaxDistance && (DownTime - DoubleTap.DownTime) < DoubleTapIntervalTime)   //判断是否符合双击状态
-		//	{
-		//		DoubleTap.Events[IE_Pressed]++;    //此时触发双击触摸事件
-		//	}
-		//}
 	}
 	else
 	{
 		if (bPrevState)
 		{
+			FSimpleKeyState& HoldState = KeyStateMap.FindOrAdd(EGameTouchKey::Hold);
+			if (HoldState.bDown)
+			{
+				HoldState.Events[IE_Released]++;
+				HoldState.Position1 = CurrentPosition;
+				HoldState.DownTime = DownTime;
+			}
+
 			FSimpleKeyState& SwipeState = KeyStateMap.FindOrAdd(EGameTouchKey::Swipe);
 			if (SwipeState.bDown)
 			{
