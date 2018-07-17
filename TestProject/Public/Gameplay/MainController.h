@@ -46,6 +46,8 @@ public:
 
 	void LoadLandscape(FName const LevelName);
 
+	void OnHoldPressed(const FVector2D& Point, float DownTime);
+
 	void OnSwipePressed(const FVector2D& Point, float DownTime);
 
 	void OnSwipeReleased(const FVector2D& Point, float DownTime);
