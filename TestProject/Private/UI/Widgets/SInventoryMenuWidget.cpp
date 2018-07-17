@@ -21,7 +21,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	[
 		SNew(SOverlay)
 		+SOverlay::Slot()
-		.VAlign(EVerticalAlignment::VAlign_Center)
+		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.HAlign(EHorizontalAlignment::HAlign_Left)
 		.Padding(TAttribute<FMargin>(this, &SInventoryMenuWidget::GetMenuOffset))
 		[

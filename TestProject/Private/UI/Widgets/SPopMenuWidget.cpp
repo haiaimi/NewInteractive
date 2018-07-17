@@ -10,30 +10,27 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SPopMenuWidget::Construct(const FArguments& InArgs)
 {
 	FSlateBrush* SlateBrush = new FSlateBrush();
-	SlateBrush->TintColor = FLinearColor(0.3, 0.3, 0.3, 0.3);
+	SlateBrush->TintColor = FLinearColor(0.3, 0.3, 0.3, 0.f);
 	FSlateBrush* TitleBrush = new FSlateBrush();
 	TitleBrush->TintColor = FLinearColor(1.f, 0.804f, 0.219f, 0.5f);
 
-	ButtonAnimHandles.SetNum(4);
-	ButtonPaddings.SetNum(ButtonAnimHandles.Num());
-	Buttons.SetNum(ButtonAnimHandles.Num());
-
-	TAttribute<FVector2D> MenuSize;
+	ButtonAnimHandles.SetNum(InArgs._InMenuInfo.ButtonsNum);
+	Buttons.SetNum(InArgs._InMenuInfo.ButtonsNum);
+	TextBlocks.SetNum(InArgs._InMenuInfo.ButtonsNum);
 
 	ChildSlot
 	[
 		SNew(SOverlay)
 		+SOverlay::Slot()
 		.VAlign(EVerticalAlignment::VAlign_Top)
-		.HAlign(EHorizontalAlignment::HAlign_Center)
-		.Padding(600,100,0.f,0.f)
+		.HAlign(InArgs._InMenuInfo.HorizontalAlignType)
+		.Padding(InArgs._InMenuInfo.MenuPos)
 		[
 			SNew(SBorder)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.BorderImage(SlateBrush)
 			.DesiredSizeScale(TAttribute<FVector2D>(this, &SPopMenuWidget::GetPopMenuSize))
-			//.Padding(TAttribute<FMargin>(FMargin(600.f,0.f,0.f,0.f)))
 			[
 				SNew(SBox)
 				.HAlign(EHorizontalAlignment::HAlign_Fill) 
@@ -50,96 +47,11 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Fill)
 						.VAlign(VAlign_Fill)
 						.BorderImage(TitleBrush)
-							[
-								SNew(STextBlock)
-								.Text(FText::FromString(FString(TEXT("Details"))))
-								.ColorAndOpacity(FSlateColor(FLinearColor(0.f, 0.f, 0.f)))
-								.Font(FSlateFontInfo(TEXT("Consolas"), 20))
-								.AutoWrapText(true)
-							]
-						
-					]
-					+SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Fill)
-					.HAlign(EHorizontalAlignment::HAlign_Fill)
-					.AutoHeight()
-					[
-						SAssignNew(Buttons[0], SButton)
-						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
-						.VAlign(VAlign_Center)
-						.HAlign(HAlign_Center)
-						.PressMethod(EButtonPressMethod::Type::ButtonRelease)
-						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
-						.IsFocusable(false)
-						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
 						[
 							SNew(STextBlock)
-							.Text(FText::FromString(FString(TEXT("Button1"))))
-							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-							.Font(FSlateFontInfo(TEXT("Consolas"), 30))
-							.AutoWrapText(true)
-						]
-					]
-					+ SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Fill)
-					.HAlign(EHorizontalAlignment::HAlign_Fill)
-					.AutoHeight()
-					[
-						SAssignNew(Buttons[1], SButton)
-						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
-						.VAlign(VAlign_Center)
-						.HAlign(HAlign_Center)
-						.PressMethod(EButtonPressMethod::Type::ButtonRelease)
-						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
-						.IsFocusable(false)
-						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(FString(TEXT("Button2"))))
-							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-							.Font(FSlateFontInfo(TEXT("Consolas"), 30))
-							.AutoWrapText(true)
-						]
-					]
-					+SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Fill)
-					.HAlign(EHorizontalAlignment::HAlign_Fill)
-					.AutoHeight()
-					[
-						SAssignNew(Buttons[2], SButton)
-						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
-						.VAlign(VAlign_Center)
-						.HAlign(HAlign_Center)
-						.PressMethod(EButtonPressMethod::Type::ButtonRelease)
-						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
-						.IsFocusable(false)
-						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(FString(TEXT("Button3"))))
-							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-							.Font(FSlateFontInfo(TEXT("Consolas"), 30))
-							.AutoWrapText(true)
-						]
-					]
-					+ SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Fill)
-					.HAlign(EHorizontalAlignment::HAlign_Fill)
-					.AutoHeight()
-					[
-						SAssignNew(Buttons[3], SButton)
-						.ButtonColorAndOpacity(FLinearColor(0.4f, 0.4f, 0.4f, 0.1f))
-						.VAlign(VAlign_Center)
-						.HAlign(HAlign_Center)
-						.PressMethod(EButtonPressMethod::Type::DownAndUp)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(FString(TEXT("Button4"))))
-							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-							.Font(FSlateFontInfo(TEXT("Consolas"), 30))
+							.Text(FText::FromString(FString(TEXT("Details"))))
+							.ColorAndOpacity(FSlateColor(FLinearColor(0.f, 0.f, 0.f)))
+							.Font(FSlateFontInfo(TEXT("Consolas"), 20))
 							.AutoWrapText(true)
 						]
 					]
@@ -147,14 +59,39 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-
+	
+	for (int32 i = 0; i < InArgs._InMenuInfo.ButtonsNum; ++i)
+	{
+		ButtonContainer->AddSlot()
+		.VAlign(EVerticalAlignment::VAlign_Fill)
+		.HAlign(EHorizontalAlignment::HAlign_Fill)
+		.AutoHeight()
+		[
+			SAssignNew(Buttons[i], SButton)
+			.ButtonColorAndOpacity(FLinearColor(0.4f, 0.4f, 0.4f, 0.f))
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Center)
+			.PressMethod(EButtonPressMethod::Type::DownAndUp)
+			[
+				SAssignNew(TextBlocks[i], STextBlock)
+				.Text(FText::FromString(FString(TEXT("Button"))))
+				.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f, 0.f)))
+				.Font(FSlateFontInfo(TEXT("Consolas"), 30))
+				.AutoWrapText(true)
+			]
+		];
+	}
+	
 	SetupAnimation();
 }
 
 void SPopMenuWidget::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
-	for (int32 i = 0; i < ButtonPaddings.Num(); ++i)
+	for (int32 i = 0; i < Buttons.Num(); ++i)
 	{
+		FLinearColor ButtonColor(0.4f, 0.4f, 0.4f, 0.f);
+		FLinearColor ButtonFontColor(0.2f, 0.2f, 0.2f, 0.f);
+
 		float ButtonAnimProgress = ButtonAnimHandles[i].GetLerp();
 		//获取当前按键的Padding
 		FMargin CurPadding = FMargin(0.f, (30.f * i) * (1 - ButtonAnimProgress), 0.f, 0.f);
@@ -168,6 +105,13 @@ void SPopMenuWidget::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 		FVector2D CurButtonScale = FVector2D(1.f, 2.f - ButtonAnimProgress);
 		Buttons[i]->SetDesiredSizeScale(CurButtonScale);
+
+		//设置按键的透明度
+		ButtonColor.A = ButtonAnimProgress * 0.1f;
+		ButtonFontColor.A = ButtonAnimProgress * 1.f;
+		Buttons[i]->SetBorderBackgroundColor(ButtonColor);
+		
+		TextBlocks[i]->SetColorAndOpacity(FSlateColor(ButtonFontColor));
 	}
 }
 
@@ -191,7 +135,7 @@ void SPopMenuWidget::SetupAnimation()
 FVector2D SPopMenuWidget::GetPopMenuSize()const
 {
 	const float AnimProgress = PopMenuSizeHandle.GetLerp();
-	FVector2D Result = FVector2D(1.5f - 0.5f*AnimProgress, 1.f);
+	FVector2D Result = FVector2D(1.3f - 0.3f*AnimProgress, 1.f);
 
 	return Result;
 }
@@ -209,4 +153,3 @@ float SPopMenuWidget::GetPopMenuHeight() const
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
-
