@@ -3,6 +3,7 @@
 #include "TCDragSwipeComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "TouchHelper.h"
+#include "Engine/World.h"
 
 
 // Sets default values for this component's properties
@@ -32,6 +33,7 @@ void UTCDragSwipeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookDir)
 { 
 	DetectActorOnPoint(Point, LookDir);
+	StartPoint = Point;
 }
 
 void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDir)
@@ -57,6 +59,8 @@ void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDi
 
 void UTCDragSwipeComponent::OnDragReleased(const FVector2D& Point)
 {
+	TArray<AActor> temp;
+	TouchHelper::GetAllActorsInOrIntersectFrustrum(GetWorld()->GetFirstPlayerController(), StartPoint, Point, temp);
 	TargetActor = nullptr;
 }
 

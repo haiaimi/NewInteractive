@@ -47,4 +47,6 @@ private:
 
 	/**目标Acto移动的平面，现阶段只进行二维移动*/
 	FPlane MovePlane;
+
+	FVector2D StartPoint;
 };

@@ -147,6 +147,9 @@ void AMainController::BeginPlay()
 void AMainController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	/*if (CurLocker->WasRecentlyRendered())
+		TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Last Render Time: %f"), CurLocker->GetLastRenderTime()));*/
 }
 
 void AMainController::SetupInputComponent()
