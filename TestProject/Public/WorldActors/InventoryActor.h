@@ -61,6 +61,9 @@ public:
 	/**获取物体相对于父物体的位置*/
 	FVector GetRelativeLocation(); 
 
+	UFUNCTION(BlueprintCallable)
+	virtual void ShowHighlight(bool bShow);
+
 private:
 	/**物体移动，有过渡效果，使其看起来不那么突兀*/
 	void MoveTick(float DeltaTime);

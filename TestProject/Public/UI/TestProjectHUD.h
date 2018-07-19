@@ -38,7 +38,7 @@ private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
 
 	/**长按弹出的菜单*/
-	TSharedPtr<class SPopMenuWidget> PopMenuWidget;
+	TSharedPtr<class SMultiSelectWidget> MultiSelectWidget;
 
 	///下面的变量是Debug所需要的
 	uint8 bDrawDebugLine : 1;

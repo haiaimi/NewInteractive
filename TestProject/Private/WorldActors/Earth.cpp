@@ -20,6 +20,7 @@ AEarth::AEarth()
 	
 	if (ActorMesh)
 	{
+		ActorMesh->bRenderCustomDepth = true;
 		FVector EarthBound = ActorMesh->Bounds.BoxExtent;
 		ActorMesh->SetRelativeLocation(FVector(0.f, 0.f, -EarthBound.Z));   //地球的局部根坐标在球体下方，所以只需要设置其Z轴相对方向
 		SetActorScale3D(FVector(0.8f, 0.8f, 0.8f));

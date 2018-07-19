@@ -25,7 +25,8 @@ public:
 	  * @Param InPlayer        请求调用的玩家
 	  * @Param StartPoint      框选开始的点（屏幕）
 	  * @Param EndPoint        框选结束得点（屏幕）
+	  * @Param DetectClass     参与检测得类（就是哪些类可以被检测到）
 	  * @Out OutActors  返回与指定截椎体相交或被包含的所有Actor
 	  */
-	static void GetAllActorsInOrIntersectFrustrum(class APlayerController* InPlayer, FVector2D StartPoint, FVector2D EndPoint, TArray<AActor>& OutActors);
+	static void GetAllActorsInOrIntersectFrustrum(class APlayerController* InPlayer, FVector2D StartPoint, FVector2D EndPoint, TArray<AActor*>& OutActors, TArray<UClass*> DetectClass);
 };

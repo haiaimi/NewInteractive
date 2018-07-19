@@ -38,6 +38,7 @@ ALocker::ALocker()
 
 	if (LockerMeshComponent && BaseScene)
 	{
+		//LockerMeshComponent->bRenderCustomDepth = true;
 		LockerMeshComponent->SetCollisionResponseToChannel(COLLISION_LOCKERRAY, ECollisionResponse::ECR_Block);
 		LockerMeshComponent->SetCollisionResponseToChannel(COLLISION_INVENTORYRAY, ECollisionResponse::ECR_Ignore);
 		
