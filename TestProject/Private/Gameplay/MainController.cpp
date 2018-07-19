@@ -24,6 +24,8 @@
 #include "TCDragSwipeComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "SPopMenuWidget.h"
+#include "Engine/PostProcessVolume.h"
+#include "EngineUtils.h"
 
 
 AMainController::AMainController()
@@ -34,7 +36,8 @@ AMainController::AMainController()
 	CurTable(nullptr),
 	InputHandle(nullptr),
 	MaterialIndex(0),
-	PinchComponent(nullptr)
+	PinchComponent(nullptr),
+	PostProcessVoulme(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;      //Controller每帧更新
 	MaterialInventory.Reset();
@@ -142,6 +145,11 @@ void AMainController::BeginPlay()
 		}
 	});
 	GetWorldTimerManager().SetTimer(SpawnLockerHandle, TimerDelegate, 0.1f, false);
+
+	for (TActorIterator<APostProcessVolume> Iter(GetWorld()); Iter; ++Iter)
+	{
+		PostProcessVoulme = *Iter;
+	}
 }
 
 void AMainController::Tick(float DeltaSeconds)
@@ -595,6 +603,12 @@ void AMainController::SpawnNewWidget()
 			0
 			);
 	}
+}
+
+void AMainController::ShowHighlight(bool bShow)
+{
+	if (PostProcessVoulme)
+		PostProcessVoulme->bEnabled = bShow;
 }
 
 class AGroundSpectatorPawn* AMainController::GetGroundSpectatorPawn() const

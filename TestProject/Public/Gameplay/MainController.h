@@ -76,6 +76,8 @@ public:
 
 	void SpawnNewWidget();
 
+	void ShowHighlight(bool bShow);
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
@@ -93,6 +95,8 @@ private:
 
 	/**触摸拖动组件*/
 	class UTCDragSwipeComponent* DragSwipeComponent;
+
+	class APostProcessVolume* PostProcessVoulme;
 
 	/** Pinch组件当前直接控制的Actor*/
 	UPROPERTY()

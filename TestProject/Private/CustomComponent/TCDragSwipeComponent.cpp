@@ -4,6 +4,9 @@
 #include "GameFramework/PlayerController.h"
 #include "TouchHelper.h"
 #include "Engine/World.h"
+#include "InventoryActor.h"
+#include "TestProjectHelper.h"
+#include "Components/StaticMeshComponent.h"
 
 
 // Sets default values for this component's properties
@@ -59,8 +62,22 @@ void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDi
 
 void UTCDragSwipeComponent::OnDragReleased(const FVector2D& Point)
 {
-	TArray<AActor> temp;
-	TouchHelper::GetAllActorsInOrIntersectFrustrum(GetWorld()->GetFirstPlayerController(), StartPoint, Point, temp);
+	TArray<AActor*> temp;
+	TArray<UClass*> DetectClass = { AInventoryActor::StaticClass() };
+	TouchHelper::GetAllActorsInOrIntersectFrustrum(GetWorld()->GetFirstPlayerController(), StartPoint, Point, temp, DetectClass);
+
+	if (GetOwner())
+	{
+		if (AMainController* Controller = Cast<AMainController>(GetOwner()))
+			Controller->ShowHighlight(true);
+	}
+
+	for (auto Iter : temp)
+	{
+		UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent> (Iter->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		MeshComponent->SetRenderCustomDepth(true);
+		TestProjectHelper::Debug_ScreenMessage(Iter->GetName());
+	}
 	TargetActor = nullptr;
 }
 
