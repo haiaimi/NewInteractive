@@ -33,13 +33,14 @@ bool TouchHelper::IsTouchTypeContained(UObject* TouchComponent, AActor* TargetAc
 	return Result;
 }
 
-void TouchHelper::GetAllActorsInOrIntersectFrustrum(class APlayerController* InPlayer, FVector2D StartPoint, FVector2D EndPoint, TArray<AActor>& OutActors)
+void TouchHelper::GetAllActorsInOrIntersectFrustrum(class APlayerController* InPlayer, FVector2D StartPoint, FVector2D EndPoint, TArray<AActor*>& OutActors, TArray<UClass*> DetectClass)
 {
-	FConvexVolume Frustrum;   //检测的截椎体
+	if ((EndPoint - StartPoint).IsNearlyZero())  //框选距离太短就不进行检测
+		return;
 
 	TArray<FVector> WorldPos, WorldDir;
 	TArray<FVector2D> ScreenPos;   //屏幕上的位置
-	TArray<FPlane> FrustrumPlanes;   //截椎体的平面，不包含两端的
+	TArray<FPlane,TInlineAllocator<6>> FrustrumPlanes;   //截椎体的平面，不包含两端的
 	// 对应屏幕上4个点在世界空间的位置及方向，分别为左上，右上，右下，左下
 	ScreenPos.SetNum(4);
 	FrustrumPlanes.SetNum(4);
@@ -88,19 +89,32 @@ void TouchHelper::GetAllActorsInOrIntersectFrustrum(class APlayerController* InP
 		FrustrumPlanes[j] = FPlane(WorldPos[j], PlaneNormal.GetSafeNormal());
 	}
 
-	Frustrum.Planes = FrustrumPlanes;    //填充截椎体里的平面信息
+	FConvexVolume Frustrum(FrustrumPlanes);   //构造检测的截椎体
 	
 	// 遍历所有已经渲染的actor，判断是否被框选
 	for (TActorIterator<AActor> Iter(InPlayer->GetWorld()); Iter; ++Iter)
 	{
-		if ((*Iter)->WasRecentlyRendered())
+		bool bDetectedActor = false;
+		AActor* CurActor = *Iter;
+		for (auto Iter1 : DetectClass)
+		{
+			if (CurActor->GetClass()->IsChildOf(Iter1))
+			{
+				bDetectedActor = true;
+				break;
+			}
+		}
+
+		if ((*Iter)->WasRecentlyRendered() && bDetectedActor)
 		{
 			bool bActorContained = false;
-			const FBox ActorBox = (*Iter)->GetComponentsBoundingBox();
+			const FBox ActorBox = CurActor->GetComponentsBoundingBox();
 			bool bIntersected = Frustrum.IntersectBox(ActorBox.GetCenter(), ActorBox.GetExtent(), bActorContained);
 
 			if (bIntersected || bActorContained)
-				TestProjectHelper::Debug_ScreenMessage((*Iter)->GetName());
+			{
+				OutActors.Add(CurActor);
+			}
 		}
 	}
 }
