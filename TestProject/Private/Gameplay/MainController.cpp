@@ -26,6 +26,8 @@
 #include "SPopMenuWidget.h"
 #include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
+#include "TCMultiSelectComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 
 AMainController::AMainController()
@@ -46,6 +48,7 @@ AMainController::AMainController()
 	TapComponent = CreateDefaultSubobject<UTCTapComponent>(TEXT("TapComponent"));
 	SwitchUIComponent = CreateDefaultSubobject<UTCSwitchUIComponent>(TEXT("SwitchUIComponent"));
 	DragSwipeComponent = CreateDefaultSubobject<UTCDragSwipeComponent>(TEXT("DragSwipeComponent"));
+	MultiSelectComponent = CreateDefaultSubobject<UTCMultiSelectComponent>(TEXT("MultiSelectComponent"));
 
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_1(TEXT("/Game/StarterContent/Materials/M_Wood_Pine"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material_2(TEXT("/Game/StarterContent/Materials/M_Wood_Oak"));
@@ -233,7 +236,7 @@ void AMainController::DragSomeThing()
 	//}
 }
 
-void AMainController::StopDrag()
+void AMainController::StopDrag(FVector2D StopPoint)
 {
 	if (CurDragThing)
 	{
@@ -243,7 +246,9 @@ void AMainController::StopDrag()
 		FHitResult HitResult;
 		//FCollisionQueryParams QueryParam;
 		//QueryParam.bIgnoreBlocks = true;  //忽略阻挡
-		GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_LOCKERRAY);
+		//GetWorld()->LineTraceSingleByChannel(HitResult, WorldPosition, WorldPosition + WorldDirection * 1000.f, COLLISION_LOCKERRAY);
+
+		GetHitResultAtScreenPosition(StopPoint, COLLISION_LOCKERRAY, FCollisionQueryParams(), HitResult);
 		
 		if (ALocker* AimLocker = Cast<ALocker>(HitResult.GetActor()))
 		{
@@ -289,7 +294,7 @@ void AMainController::StopDrag()
 			//}
 		}
 		FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
-		CurDragThing->StopMoveWithCursor();
+		//CurDragThing->StopMoveWithCursor();
 		CurDragThing = nullptr;
 		CurMenuSpawnThing = nullptr;
 	}
@@ -383,7 +388,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		//GetGroundCamera()->StartSwipe(Point, DownTime);
+		GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -394,14 +399,13 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 	if (DragSwipeComponent)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
-		DragSwipeComponent->OnDragPressed(Point, LookDir);
 		
 		if (GetWorld() && bShouldSpawnActor)      //如果当前已经控制着一个就不需要生成
 		{
 			FVector WorldPos, WorldDir;
 			DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
 
-			FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
+			const FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
 			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform));
 			CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
 
@@ -409,6 +413,15 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 			TargetActor = CurMenuSpawnThing;
 			CurDragThing = CurMenuSpawnThing;
 		}
+
+		DragSwipeComponent->OnDragPressed(Point, LookDir, CurDragThing, MultiSelectedActors);
+		TargetActor = DragSwipeComponent->TargetActor;
+		CurDragThing = Cast<AInventoryActor>(TargetActor);
+	}
+
+	if (MultiSelectComponent && !CurDragThing && !DragSwipeComponent->IsDragActor())
+	{
+		MultiSelectComponent->OnMultiSelectPressed(Point, DownTime);
 	}
 }
 
@@ -416,7 +429,7 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		//GetGroundCamera()->EndSwipe(Point, DownTime);
+		GetGroundCamera()->EndSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -427,6 +440,12 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 	if (DragSwipeComponent)
 	{
 		DragSwipeComponent->OnDragReleased(Point);
+		StopDrag(Point);
+	}
+
+	if (MultiSelectComponent && !CurDragThing)
+	{
+		MultiSelectComponent->OnMultiSelectReleased(Point, DownTime, MultiSelectedActors);
 	}
 }
 
@@ -434,7 +453,7 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
+		GetGroundCamera()->UpdateSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -445,7 +464,12 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 	if (DragSwipeComponent)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
-		DragSwipeComponent->OnDragUpdate(Point, LookDir);
+		DragSwipeComponent->OnDragUpdate(Point, LookDir, MultiSelectedActors);
+	}
+
+	if (MultiSelectComponent && !CurDragThing)
+	{
+		MultiSelectComponent->OnMultiSelectUpdate(Point, DownTime);
 	}
 }
 

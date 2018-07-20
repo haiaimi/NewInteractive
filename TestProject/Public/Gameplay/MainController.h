@@ -32,7 +32,7 @@ public:
 	/**鼠标点击一些物体然后实现拖拽*/
 	void DragSomeThing();
 
-	void StopDrag();
+	void StopDrag(FVector2D StopPoint);
 
 	void SpawnInventoryActors(UClass* SpawnedActor);
 
@@ -96,6 +96,9 @@ private:
 	/**触摸拖动组件*/
 	class UTCDragSwipeComponent* DragSwipeComponent;
 
+	/**多选框组件*/
+	class UTCMultiSelectComponent* MultiSelectComponent;
+
 	class APostProcessVolume* PostProcessVoulme;
 
 	/** Pinch组件当前直接控制的Actor*/
@@ -134,4 +137,7 @@ private:
 	UClass* SpawnActor;
 
 	TSharedPtr<class SPopMenuWidget> PopMenu;
+
+	UPROPERTY()
+	TArray<AActor*> MultiSelectedActors;
 };
