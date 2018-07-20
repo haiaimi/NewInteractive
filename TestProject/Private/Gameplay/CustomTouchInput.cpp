@@ -128,6 +128,15 @@ void UCustomTouchInput::DetectOnePointActions(bool bCurrentState, bool bPrevStat
 					HoldState.DownTime = DownTime;
 				}
 			}
+			else
+			{
+				if (DownTime - HoldState.DownTime <= HoldTime)
+				{
+					HoldState.Position1 = CurrentPosition;
+					HoldState.DownTime = DownTime;
+					HoldState.bDown = DownTime;
+				}
+			}
 		}
 	}
 	else
