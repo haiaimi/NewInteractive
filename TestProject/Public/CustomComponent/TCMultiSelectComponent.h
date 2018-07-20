@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,8 +6,18 @@
 #include "Components/ActorComponent.h"
 #include "TCMultiSelectComponent.generated.h"
 
+namespace EMultiSelectAnchor
+{
+	enum Type
+	{
+		ETop_Left,
+		EBotton_Left,
+		ETop_Right,
+		EBotton_Right,
+	};
+}
 /**
-  * ¸Ã×é¼şÊÇ¶àÑ¡´¥Ãş×é¼ş£¬ÀàËÆÓÚWindows×ÀÃæÉÏµÄÊó±ê¶àÑ¡¹¦ÄÜ£¬ÕâÀïÊÇÊ¹ÓÃ´¥Ãş
+  * è¯¥ç»„ä»¶æ˜¯å¤šé€‰è§¦æ‘¸ç»„ä»¶ï¼Œç±»ä¼¼äºWindowsæ¡Œé¢ä¸Šçš„é¼ æ ‡å¤šé€‰åŠŸèƒ½ï¼Œè¿™é‡Œæ˜¯ä½¿ç”¨è§¦æ‘¸
   */
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -31,6 +41,29 @@ public:
 
 	void OnMultiSelectUpdate(const FVector2D& Point, float DownTime);
 
-	void OnMultiSelectReleased(const FVector2D& Point, float DownTime);
-	
+	void OnMultiSelectReleased(const FVector2D& Point, float DownTime, TArray<AActor*>& MultiSelectedActors);
+
+	void ShowHighlight(bool bShow);
+
+	EMultiSelectAnchor::Type GetAnchorTypeFromSub(const FVector2D& Sub);
+
+	struct FOptionalSize GetSelectBoundWidth()const;
+
+	struct FOptionalSize GetSelectBoundHeight()const;
+
+private:
+	/**å°±æ˜¯æŒ‰ä¸‹çš„ä½ç½®*/
+	FVector2D AnchorPoint;
+
+	/**å½“å‰çš„ä½ç½®*/
+	FVector2D CurPoint;
+
+	/**åå¤„ç†ä½“*/
+	class APostProcessVolume* PostProcessVoulme;
+
+	/**å¤šé€‰æ¡†æ§ä»¶*/
+	TSharedPtr<class SMultiSelectWidget> MultiSelectWidget;
+
+	/**æ˜¯å¦å¼€å§‹å¤šé€‰*/
+	uint8 bStartSelect : 1;
 };
