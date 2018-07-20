@@ -12,7 +12,8 @@
 // Sets default values for this component's properties
 UTCDragSwipeComponent::UTCDragSwipeComponent() :
 	TargetActor(nullptr),
-	CurTouchType(ECustomTouchType::Drag_1P)
+	CurTouchType(ECustomTouchType::Drag_1P),
+	bMultiMove(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -33,52 +34,58 @@ void UTCDragSwipeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookDir)
+void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookDir, class AActor* InTargetActor, TArray<AActor*>& InActors)
 { 
+	if (InTargetActor)
+		TargetActor = InTargetActor;
+
 	DetectActorOnPoint(Point, LookDir);
-	StartPoint = Point;
+
+	if (TargetActor == nullptr || InActors.Find(TargetActor) == INDEX_NONE)    //当前指向的Actor不在多选Actor数组中
+	{
+		for (TArray<AActor*>::TIterator Iter(InActors); Iter; ++Iter)     //这里使用迭代器
+		{
+			UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>((*Iter)->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+			if (MeshComponent)
+				MeshComponent->SetRenderCustomDepth(false);     //停止高亮渲染
+		}
+	}
+	else if (InActors.Num() > 1)
+		bMultiMove = true;
 }
 
-void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDir)
+void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDir, TArray<AActor*>& InActors)
 {
 	APlayerController* MyController = Cast<APlayerController>(GetOwner());
 	if (TargetActor)
 	{
+		FVector RelativeLoc;     //TargetActor当前位置相对于上一次的位置
 		if (MyController)
 		{
 			FVector WorldPos, WorldDir;
 			MyController->DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
 
 			FVector ActorNewPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, MovePlane);
-			TargetActor->SetActorLocation(ActorNewPos + TouchOffset);     //更新Actor的位置
+			RelativeLoc = ActorNewPos + TouchOffset - TargetActor->GetActorLocation();
+			if (!bMultiMove)
+				TargetActor->SetActorLocation(ActorNewPos);     //更新Actor的位置
 		}
-	}
-	else
-	{
-		//不存在目标Actor则继续检测
-		DetectActorOnPoint(Point, LookDir);
+		
+		if(bMultiMove)
+		{
+			for (TArray<AActor*>::TIterator Iter(InActors); Iter; ++Iter)     //这里使用迭代器
+			{
+				if (TouchHelper::IsTouchTypeContained(this, *Iter, CurTouchType))
+					(*Iter)->SetActorLocation((*Iter)->GetActorLocation() + RelativeLoc);    //更新位置
+			}
+		}
 	}
 }
 
 void UTCDragSwipeComponent::OnDragReleased(const FVector2D& Point)
 {
-	TArray<AActor*> temp;
-	TArray<UClass*> DetectClass = { AInventoryActor::StaticClass() };
-	TouchHelper::GetAllActorsInOrIntersectFrustrum(GetWorld()->GetFirstPlayerController(), StartPoint, Point, temp, DetectClass);
-
-	if (GetOwner())
-	{
-		if (AMainController* Controller = Cast<AMainController>(GetOwner()))
-			Controller->ShowHighlight(true);
-	}
-
-	for (auto Iter : temp)
-	{
-		UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent> (Iter->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-		MeshComponent->SetRenderCustomDepth(true);
-		TestProjectHelper::Debug_ScreenMessage(Iter->GetName());
-	}
 	TargetActor = nullptr;
+	bMultiMove = false;
 }
 
 void UTCDragSwipeComponent::DetectActorOnPoint(const FVector2D& Point, FVector& LookDir)
@@ -98,4 +105,9 @@ void UTCDragSwipeComponent::DetectActorOnPoint(const FVector2D& Point, FVector& 
 			}
 		}
 	}
+}
+
+bool UTCDragSwipeComponent::IsDragActor()
+{
+	return TargetActor != nullptr;
 }

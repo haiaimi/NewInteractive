@@ -28,18 +28,22 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void OnDragPressed(const FVector2D& Point, FVector& LookDir);
+	void OnDragPressed(const FVector2D& Point, FVector& LookDir, class AActor* InTargetActor, TArray<AActor*>& InActors);
 
-	void OnDragUpdate(const FVector2D& Point, FVector& LookDir);
+	void OnDragUpdate(const FVector2D& Point, FVector& LookDir, TArray<AActor*>& InActors);
 
 	void OnDragReleased(const FVector2D& Point);
 
 	/**检测触摸点是否存在合适的Actor*/
 	void DetectActorOnPoint(const FVector2D& Point, FVector& LookDir);
 
-private:
+	/**查看是否在拖拽Actor*/
+	bool IsDragActor();
+
+public:
 	class AActor* TargetActor;
 
+private:
 	ECustomTouchType::Type CurTouchType;
 
 	/**触摸点到Actor中心的偏移量*/
@@ -48,5 +52,6 @@ private:
 	/**目标Acto移动的平面，现阶段只进行二维移动*/
 	FPlane MovePlane;
 
-	FVector2D StartPoint;
+	/**多目标移动*/
+	uint8 bMultiMove : 1;
 };
