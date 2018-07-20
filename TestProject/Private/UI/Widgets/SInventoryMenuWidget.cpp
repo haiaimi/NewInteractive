@@ -125,7 +125,6 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	bShowMenu = false;
 	SetupAnimation();
 }
-END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SInventoryMenuWidget::OnPressed()
 {
@@ -231,3 +230,5 @@ void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
 		InventoryMenuAnimation.Reverse();    //反向播放动画
 	}
 }
+
+END_SLATE_FUNCTION_BUILD_OPTIMIZATION

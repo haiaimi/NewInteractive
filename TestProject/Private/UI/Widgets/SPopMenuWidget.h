@@ -6,7 +6,7 @@
 #include "SlateExtras.h"
 #include "Widgets/SCompoundWidget.h"
 
-static const float PopMenuWidth = 157.f;     //PopMenu的宽度，注意是相对于标准分辨率（1080p）
+static const float PopMenuWidth = 200.f;       //PopMenu的宽度，注意是相对于标准分辨率（1080p）
 static const float PopButtonHeight = 60.f;     //单个按键高度，注意是相对于标准分辨率（1080p）
 
 struct FPopMenuInfo

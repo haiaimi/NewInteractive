@@ -23,7 +23,6 @@ AInventoryActor::AInventoryActor()
 
 	if (ActorMesh)
 	{
-		ActorMesh->bRenderCustomDepth = true;
 		ActorMesh->SetCollisionResponseToChannel(COLLISION_LOCKERRAY, ECollisionResponse::ECR_Ignore);
 		ActorMesh->SetCollisionResponseToChannel(COLLISION_INVENTORYRAY, ECollisionResponse::ECR_Block);
 		ActorMesh->SetupAttachment(RootComponent);

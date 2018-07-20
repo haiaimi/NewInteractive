@@ -20,7 +20,7 @@ void ATestProjectHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	if (!InventoryWidget.IsValid() && GEngine &&!MultiSelectWidget.IsValid())
+	if (!InventoryWidget.IsValid() && GEngine)
 	{
 		if (AMainController* OwnerController = Cast<AMainController>(GetOwningPlayerController()))
 		{
@@ -39,17 +39,6 @@ void ATestProjectHUD::DrawHUD()
 				FSlateApplication::Get().SetKeyboardFocus(InventoryWidget.ToSharedRef());
 			}
 		}
-
-		SAssignNew(MultiSelectWidget, SMultiSelectWidget);
-
-			if (MultiSelectWidget.IsValid())
-			{
-				GEngine->GameViewport->AddViewportWidgetContent(
-					SNew(SWeakWidget).
-					PossiblyNullContent(MultiSelectWidget.ToSharedRef()), 
-					0
-				);
-			}
 	}
 
 	/*if (InventoryWidget.IsValid())
@@ -112,7 +101,7 @@ void ATestProjectHUD::DrawCustomDebugLine(bool bDrawDebug, const FVector2D& Poin
 
 void ATestProjectHUD::SpawnNewWidget()
 {
-	SAssignNew(MultiSelectWidget, SMultiSelectWidget);
+	/*SAssignNew(MultiSelectWidget, SMultiSelectWidget);
 
 			if (MultiSelectWidget.IsValid())
 			{
@@ -121,5 +110,5 @@ void ATestProjectHUD::SpawnNewWidget()
 					PossiblyNullContent(MultiSelectWidget.ToSharedRef()), 
 					0
 				);
-			}
+			}*/
 }
