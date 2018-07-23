@@ -74,9 +74,11 @@ public:
 	/**判断当前状态是否可以拖拽地形，当用户在拖拽物体和控制UI时不可以拖拽*/
 	bool CanDragLanscape();
 
-	void SpawnNewWidget();
-
 	void ShowHighlight(bool bShow);
+
+	TSharedPtr<class SPopMenuWidget>& GetPopMenu() { return PopMenu; }
+
+	TArray<AActor*>& GetMultiSelectedActors() { return MultiSelectedActors; }
 
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;

@@ -337,10 +337,19 @@ void AMainController::LoadLandscape(FName const LevelName)
 
 void AMainController::OnHoldPressed(const FVector2D& Point, float DownTime)
 {
-	TestProjectHelper::Debug_ScreenMessage(Point.ToString());
+	AInventoryActor* CurTargetActor = nullptr;
+	if (DragSwipeComponent && DragSwipeComponent->IsDragActor())
+	{
+		CurTargetActor = Cast<AInventoryActor>(DragSwipeComponent->TargetActor);
+	}
 
 	FPopMenuInfo NewMenuInfo;
-	NewMenuInfo.ButtonsNum = 8;
+	if (CurTargetActor)
+	{
+		NewMenuInfo = CurTargetActor->InfoInMenu;
+	}
+	else
+		NewMenuInfo.SetButtonNum(8);
 
 	FVector2D ScreenSize;
 	GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
@@ -388,7 +397,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->StartSwipe(Point, DownTime);
+		//GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -429,7 +438,7 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->EndSwipe(Point, DownTime);
+		//GetGroundCamera()->EndSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -453,7 +462,7 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
 	if (GetGroundCamera() != nullptr)
 	{
-		GetGroundCamera()->UpdateSwipe(Point, DownTime);
+		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
 	}
 
 	if (TapComponent)
@@ -579,54 +588,6 @@ bool AMainController::CanDragLanscape()
 	}
 
 	return bCanDrag;
-}
-
-void AMainController::SpawnNewWidget()
-{
-	FPopMenuInfo NewMenuInfo;
-	NewMenuInfo.ButtonsNum = 4;
-
-	FVector2D MousePos, ScreenSize;
-	GetMousePosition(MousePos.X, MousePos.Y);
-	GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
-
-	const FVector2D StandardPos(MousePos.X*1920.f / ScreenSize.X, MousePos.Y*1080.f / ScreenSize.Y);       //在标准分辨率中的位置
-	const FVector2D NoAffectArea(1920.f - PopMenuWidth, 1080.f - NewMenuInfo.ButtonsNum*PopButtonHeight - 40.f);    //PopMenu生成不受影响的区域
-
-	//下面就是对各个情况的判断
-	if (StandardPos.X <= NoAffectArea.X && StandardPos.Y <= NoAffectArea.Y)
-	{
-		NewMenuInfo.MenuPos = FMargin(StandardPos.X, StandardPos.Y, 0.f, 0.f);
-		NewMenuInfo.HorizontalAlignType = EHorizontalAlignment::HAlign_Left;
-	}
-	else if (StandardPos.X > NoAffectArea.X && StandardPos.Y <= NoAffectArea.Y)
-	{
-		NewMenuInfo.MenuPos = FMargin(0.f, StandardPos.Y, 1920.f - StandardPos.X, 0.f);
-		NewMenuInfo.HorizontalAlignType = EHorizontalAlignment::HAlign_Right;
-	}
-	else if (StandardPos.X <= NoAffectArea.X && StandardPos.Y > NoAffectArea.Y)
-	{
-		NewMenuInfo.MenuPos = FMargin(StandardPos.X, NoAffectArea.Y, 0.f, 0.f);
-		NewMenuInfo.HorizontalAlignType = EHorizontalAlignment::HAlign_Left;
-	}
-	else
-	{
-		NewMenuInfo.MenuPos = FMargin(0.f, NoAffectArea.Y, 1920.f - StandardPos.X, 0.f);
-		NewMenuInfo.HorizontalAlignType = EHorizontalAlignment::HAlign_Right;
-	}
-
-	//创建并显示控件
-	SAssignNew(PopMenu, SPopMenuWidget)
-		.InMenuInfo(NewMenuInfo);
-
-	if (PopMenu.IsValid())
-	{
-		GEngine->GameViewport->AddViewportWidgetContent(
-			SNew(SWeakWidget).
-			PossiblyNullContent(PopMenu.ToSharedRef()), 
-			0
-			);
-	}
 }
 
 void AMainController::ShowHighlight(bool bShow)

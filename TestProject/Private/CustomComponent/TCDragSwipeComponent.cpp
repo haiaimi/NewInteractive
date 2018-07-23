@@ -27,7 +27,6 @@ void UTCDragSwipeComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-
 // Called every frame
 void UTCDragSwipeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -57,7 +56,7 @@ void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookD
 void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDir, TArray<AActor*>& InActors)
 {
 	APlayerController* MyController = Cast<APlayerController>(GetOwner());
-	if (TargetActor)
+	if (TargetActor && TouchHelper::IsTouchTypeContained(this, TargetActor, ECustomTouchType::Drag_1P))
 	{
 		FVector RelativeLoc;     //TargetActor当前位置相对于上一次的位置
 		if (MyController)
@@ -68,15 +67,14 @@ void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDi
 			FVector ActorNewPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, MovePlane);
 			RelativeLoc = ActorNewPos + TouchOffset - TargetActor->GetActorLocation();
 			if (!bMultiMove)
-				TargetActor->SetActorLocation(ActorNewPos);     //更新Actor的位置
-		}
-		
-		if(bMultiMove)
-		{
-			for (TArray<AActor*>::TIterator Iter(InActors); Iter; ++Iter)     //这里使用迭代器
+				TargetActor->SetActorLocation(ActorNewPos + TouchOffset);     //更新Actor的位置
+			else
 			{
-				if (TouchHelper::IsTouchTypeContained(this, *Iter, CurTouchType))
-					(*Iter)->SetActorLocation((*Iter)->GetActorLocation() + RelativeLoc);    //更新位置
+				for (TArray<AActor*>::TIterator Iter(InActors); Iter; ++Iter)     //这里使用迭代器
+				{
+					if (TouchHelper::IsTouchTypeContained(this, *Iter, CurTouchType))
+						(*Iter)->SetActorLocation((*Iter)->GetActorLocation() + RelativeLoc);    //更新位置
+				}
 			}
 		}
 	}
@@ -97,12 +95,9 @@ void UTCDragSwipeComponent::DetectActorOnPoint(const FVector2D& Point, FVector& 
 
 		if (Result.GetActor())
 		{
-			if (TouchHelper::IsTouchTypeContained(this, Result.GetActor(), ECustomTouchType::Drag_1P))
-			{
-				TargetActor = Result.GetActor();
-				TouchOffset = TargetActor->GetActorLocation() - Result.ImpactPoint;   //鼠标指针相对于物体的位置
-				MovePlane = FPlane(Result.ImpactPoint, -LookDir);   //获取鼠标与物体撞击点的平面
-			}
+			TargetActor = Result.GetActor();
+			TouchOffset = TargetActor->GetActorLocation() - Result.ImpactPoint;   //鼠标指针相对于物体的位置
+			MovePlane = FPlane(Result.ImpactPoint, -LookDir);   //获取鼠标与物体撞击点的平面
 		}
 	}
 }
