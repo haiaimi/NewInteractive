@@ -17,24 +17,49 @@ struct FPopMenuInfo
 	/**横向对齐方式*/
 	EHorizontalAlignment HorizontalAlignType;    
 
-	///还有其他相关信息，如按键数目等等
+	///还有其他相关信息，如按键数目，代理等等
 	/**按键数量*/
 	int32 ButtonsNum;
 
-public:
+	/**按键代理*/
+	TArray<FOnClicked> Delegates;
 
+	/**按键名称*/
+	TArray<FString> ButtonNames;
+
+public:
 	FPopMenuInfo(FMargin& InMargin, EHorizontalAlignment InAlignType, int32 InButtonNum)
 	{
 		MenuPos = InMargin;
 		HorizontalAlignType = InAlignType;
-		ButtonsNum = InButtonNum;
+		SetButtonNum(InButtonNum);
+		
 	}
 
 	FPopMenuInfo()
 	{
 		MenuPos = FMargin(0.f, 0.f, 0.f, 0.f);
 		HorizontalAlignType = EHorizontalAlignment::HAlign_Left;
-		ButtonsNum = 4;
+		SetButtonNum(4);
+	}
+
+	void SetButtonNum(int32 InNum)
+	{
+		if (InNum > ButtonsNum)
+		{
+			for (int32 i = 0; i < InNum - ButtonsNum; ++i)
+			{
+				Delegates.Add(FOnClicked());
+				ButtonNames.Add(TEXT("Button"));
+			}
+		}
+		else
+		{
+			Delegates.SetNum(InNum);
+			ButtonNames.SetNum(InNum);
+		}
+
+		ButtonsNum = InNum;
 	}
 };
 /**

@@ -51,7 +51,7 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.Text(FText::FromString(FString(TEXT("Details"))))
 							.ColorAndOpacity(FSlateColor(FLinearColor(0.f, 0.f, 0.f)))
-							.Font(FSlateFontInfo(TEXT("Consolas"), 20))
+							.Font(FSlateFontInfo(TEXT("Roboto"), 20))
 							.AutoWrapText(true)
 						]
 					]
@@ -72,11 +72,13 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center)
 			.HAlign(HAlign_Center)
 			.PressMethod(EButtonPressMethod::Type::DownAndUp)
+			.TouchMethod(EButtonTouchMethod::DownAndUp)
+			.OnClicked(InArgs._InMenuInfo.Delegates[i])
 			[
 				SAssignNew(TextBlocks[i], STextBlock)
-				.Text(FText::FromString(FString(TEXT("Button"))))
+				.Text(FText::FromString(InArgs._InMenuInfo.ButtonNames[i]))
 				.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f, 0.f)))
-				.Font(FSlateFontInfo(TEXT("Consolas"), 30))
+				.Font(FSlateFontInfo(TEXT("Roboto"), 30))
 				.AutoWrapText(true)
 			]
 		];
