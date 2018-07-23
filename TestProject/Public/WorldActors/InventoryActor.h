@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/CustomTouchInterface.h"
+#include "SPopMenuWidget.h"
 #include "InventoryActor.generated.h"
 
 /**
@@ -64,6 +65,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ShowHighlight(bool bShow);
 
+	FReply DestroySelf();
+
+	virtual void Destroyed()override;
+
 private:
 	/**物体移动，有过渡效果，使其看起来不那么突兀*/
 	void MoveTick(float DeltaTime);
@@ -92,6 +97,8 @@ public:
 	/**目标地点*/
 	FVector DestLocation;
 
+	struct FPopMenuInfo InfoInMenu;
+
 private:
 	FVector RelativeLoc;
 
@@ -106,4 +113,9 @@ private:
 	FVector Offset;
 
 	uint32 MoveWithCursor : 1;
+
+	/**是否从PopMenu删除*/
+	uint8 bDestroyedFromPopMenu : 1;
+
+	class TSharedPtr<class SPopMenuWidget> PopMenu;
 };

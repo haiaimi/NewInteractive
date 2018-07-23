@@ -8,9 +8,12 @@
 #include "TestProject.h"
 #include "Locker.h"
 #include "Engine/Engine.h"
+#include "SPopMenuWidget.h"
 
 // Sets default values
-AInventoryActor::AInventoryActor()
+AInventoryActor::AInventoryActor():
+	PopMenu(nullptr),
+	bDestroyedFromPopMenu(false)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -34,6 +37,12 @@ AInventoryActor::AInventoryActor()
 	MovePlane = FPlane(ForceInit);
 	MoveWithCursor = false;
 	bInLocker = false;
+
+	FOnClicked ClickDelegate;
+	ClickDelegate.BindUObject(this, &AInventoryActor::DestroySelf);
+
+	InfoInMenu.Delegates[0] = ClickDelegate;
+	InfoInMenu.ButtonNames[0] = TEXT("删除物体");
 }
 
 // Called when the game starts or when spawned
@@ -118,7 +127,6 @@ void AInventoryActor::EndCursorOver(UPrimitiveComponent* TouchedComponent)
 float AInventoryActor::GetHeight()
 {
 	return Height;
-	
 }
 
 void AInventoryActor::StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne)
@@ -155,6 +163,36 @@ FVector AInventoryActor::GetRelativeLocation()
 void AInventoryActor::ShowHighlight(bool bShow)
 {
 	ActorMesh->SetRenderCustomDepth(bShow);
+}
+
+FReply AInventoryActor::DestroySelf()
+{
+	bDestroyedFromPopMenu = true;
+	AMainController* MyController = Cast<AMainController>(GetWorld()->GetFirstPlayerController());
+	TArray<AActor*>& MultiSelectedActor = MyController->GetMultiSelectedActors();
+	if (MultiSelectedActor.Num() > 0)
+	{
+		for (TArray<AActor*>::TIterator Iter(MultiSelectedActor); Iter; ++Iter)
+		{
+			(*Iter)->Destroy();
+		}
+	}
+	else
+		Super::Destroy();
+
+	return FReply::Handled();
+}
+
+void AInventoryActor::Destroyed()
+{
+	Super::Destroyed();
+
+	if (!bDestroyedFromPopMenu)
+		return;
+	AMainController* MyController = Cast<AMainController>(GetWorld()->GetFirstPlayerController());
+	TSharedPtr<SPopMenuWidget>& PopMenu1 = MyController->GetPopMenu();
+	if (PopMenu1.IsValid())
+		PopMenu1.Reset();
 }
 
 void AInventoryActor::MoveTick(float DeltaTime)
