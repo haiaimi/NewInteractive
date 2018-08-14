@@ -80,10 +80,11 @@ public:
 
 	TArray<AActor*>& GetMultiSelectedActors() { return MultiSelectedActors; }
 
+	class UGroundCameraComponent* GetGroundCamera();
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
-	class UGroundCameraComponent* GetGroundCamera()const;
 
 private:
 	/**Pinch操作的组件*/

@@ -21,6 +21,8 @@ public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)override;
+
 public:
 	void OnPressed();
 
@@ -59,4 +61,7 @@ public:
 	FCurveSequence InventoryMenuAnimation;
 
 	TSharedPtr<SEditableText> EditableText;
+
+	/**长按时间*/
+	float HoldTime;
 };

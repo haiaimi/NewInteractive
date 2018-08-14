@@ -601,7 +601,7 @@ class AGroundSpectatorPawn* AMainController::GetGroundSpectatorPawn() const
 	return Cast<AGroundSpectatorPawn>(GetPawn());
 }
 
-class UGroundCameraComponent* AMainController::GetGroundCamera() const
+class UGroundCameraComponent* AMainController::GetGroundCamera()
 {
 	UGroundCameraComponent* CameraComponent = nullptr;
 	if (GetGroundSpectatorPawn() != nullptr)

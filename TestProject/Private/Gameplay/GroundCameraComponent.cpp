@@ -184,3 +184,18 @@ void UGroundCameraComponent::OnPinchEnd(const FVector2D& InPoint1, const FVector
 {
 	bInPinch = false;
 }
+
+void UGroundCameraComponent::BlurMode()
+{
+	FPostProcessSettings Temp;
+	Temp.bOverride_DepthOfFieldMethod = true;
+	Temp.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+	Temp.bOverride_DepthOfFieldFocalDistance = true;
+	Temp.DepthOfFieldFocalDistance = 1.f;
+	Temp.bOverride_DepthOfFieldNearTransitionRegion = true;
+	Temp.DepthOfFieldNearTransitionRegion = 0.f;
+	Temp.bOverride_DepthOfFieldFarTransitionRegion = true;
+	Temp.DepthOfFieldFarTransitionRegion = 0.f;
+
+	PostProcessSettings = Temp;
+}

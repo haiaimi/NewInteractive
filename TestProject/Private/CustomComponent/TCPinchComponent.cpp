@@ -167,4 +167,3 @@ void UTCPinchComponent::GetLengthAndAngle(float& Length, float& Angle, FVector2D
 		Angle = Angle - 180.f;
 	}
 }
-

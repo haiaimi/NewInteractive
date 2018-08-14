@@ -41,6 +41,9 @@ public:
 
 	void OnPinchEnd(const FVector2D& InPoint1, const FVector2D& InPoint2, float DownTime);
 
+	/**开启镜头模糊模式*/
+	void BlurMode();
+
 public:
 	/**摄像机观察的方向*/
 	FRotator LookRotation;    

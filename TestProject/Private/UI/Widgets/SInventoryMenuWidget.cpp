@@ -8,11 +8,13 @@
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
 #include "Gameplay/MainController.h"
+#include "GroundCameraComponent.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 {
+	HoldTime = 0.f;
 	FSlateBrush* SlateBrush = new FSlateBrush();
 	SlateBrush->TintColor = FLinearColor(0.3, 0.3, 0.3, 0.3);
 	OwnerController = InArgs._OwnerController;
@@ -70,10 +72,10 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
 						.VAlign(VAlign_Center)
 						.HAlign(HAlign_Center)
-						//.OnPressed(this,&SInventoryMenuWidget::OnPressed)
+						.OnPressed(this,&SInventoryMenuWidget::OnPressed)
 						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
 						.OnClicked(this, &SInventoryMenuWidget::OnClicked)
-						.PressMethod(EButtonPressMethod::Type::ButtonRelease)
+						.PressMethod(EButtonPressMethod::Type::ButtonPress)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
 						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
 						.IsFocusable(false)
@@ -126,19 +128,40 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	SetupAnimation();
 }
 
+void SInventoryMenuWidget::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (HoldTime > 0)
+		HoldTime += InDeltaTime;
+	else if (HoldTime >= 1.f)
+	{
+		HoldTime = 0.f;
+		UGroundCameraComponent* Camera = OwnerController->GetGroundCamera();
+		Camera->BlurMode();
+		TestProjectHelper::Debug_ScreenMessage(TEXT("Hold Pressed"));
+	}
+	//TestProjectHelper::Debug_ScreenMessage(FString::SanitizeFloat(HoldTime));
+}
+
 void SInventoryMenuWidget::OnPressed()
 {
-	if (GEngine && OwnerController.IsValid() && !IsInUI)
+	/*if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
 		IsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		OwnerController->DragSomeThing();
-	}
+	}*/
+	TestProjectHelper::Debug_ScreenMessage(TEXT("Pressed"));
+	HoldTime = 0.001f;
+	UGroundCameraComponent* Camera = OwnerController->GetGroundCamera();
+	Camera->BlurMode();
 }
 
 void SInventoryMenuWidget::OnReleased()
 {
+	HoldTime = 0.f;
 	IsInUI = false;
 	FVector2D CursorPos;
 	OwnerController->GetMousePosition(CursorPos.X, CursorPos.Y);

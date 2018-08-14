@@ -96,4 +96,3 @@ void UTCSwitchUIComponent::OnFivePointsReleased(const TArray<FVector2D>& Points,
 			ReleasedEventClose.ExecuteIfBound();
 	}
 }
-

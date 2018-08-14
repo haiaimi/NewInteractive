@@ -15,6 +15,7 @@ class TESTPROJECT_API UGroundSpectatorPawnMovement : public USpectatorPawnMoveme
 	GENERATED_BODY()
 	
 	
-	
+public:
+	void Move() {};
 	
 };
