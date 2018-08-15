@@ -82,6 +82,12 @@ public:
 
 	class UGroundCameraComponent* GetGroundCamera();
 
+	/**预览想要生成的物体*/
+	void StartPreview();
+
+	/**结束预览*/
+	void StopPreview();
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
@@ -136,6 +142,8 @@ private:
 	class UCustomTouchInput* InputHandle;
 
 	uint8 bShouldSpawnActor : 1;
+
+	uint8 bInPreview : 1;
 
 	UClass* SpawnActor;
 

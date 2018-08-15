@@ -39,7 +39,8 @@ AMainController::AMainController()
 	InputHandle(nullptr),
 	MaterialIndex(0),
 	PinchComponent(nullptr),
-	PostProcessVoulme(nullptr)
+	PostProcessVoulme(nullptr),
+	bInPreview(false)
 {
 	PrimaryActorTick.bCanEverTick = true;      //Controller每帧更新
 	MaterialInventory.Reset();
@@ -296,7 +297,8 @@ void AMainController::StopDrag(FVector2D StopPoint)
 		FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
 		//CurDragThing->StopMoveWithCursor();
 		CurDragThing = nullptr;
-		CurMenuSpawnThing = nullptr;
+		if (!bInPreview)
+			CurMenuSpawnThing = nullptr;
 	}
 }
 
@@ -337,6 +339,7 @@ void AMainController::LoadLandscape(FName const LevelName)
 
 void AMainController::OnHoldPressed(const FVector2D& Point, float DownTime)
 {
+	if (CurMenuSpawnThing)return;
 	AInventoryActor* CurTargetActor = nullptr;
 	if (DragSwipeComponent && DragSwipeComponent->IsDragActor())
 	{
@@ -400,11 +403,6 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 		//GetGroundCamera()->StartSwipe(Point, DownTime);
 	}
 
-	if (TapComponent)
-	{
-		TapComponent->OnRotateTapPressed(Point, DownTime);
-	}
-
 	if (DragSwipeComponent)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
@@ -414,7 +412,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 			FVector WorldPos, WorldDir;
 			DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
 
-			const FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 600.f*WorldDir);
+			const FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 800.f*WorldDir);
 			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform));
 			CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
 
@@ -431,6 +429,11 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 	if (MultiSelectComponent && !CurDragThing && !DragSwipeComponent->IsDragActor())
 	{
 		MultiSelectComponent->OnMultiSelectPressed(Point, DownTime);
+	}
+
+	if (TapComponent)
+	{
+		TapComponent->OnRotateTapPressed(Point, DownTime, TargetActor);
 	}
 }
 
@@ -460,6 +463,8 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 
 void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
+	if (bShouldSpawnActor)
+		OnSwipePressed(Point, DownTime);
 	if (GetGroundCamera() != nullptr)
 	{
 		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
@@ -470,7 +475,7 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 		TapComponent->OnRotateTapUpdated(Point, DownTime);
 	}
 
-	if (DragSwipeComponent)
+	if (DragSwipeComponent && CurDragThing)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
 		DragSwipeComponent->OnDragUpdate(Point, LookDir, MultiSelectedActors);
@@ -608,4 +613,35 @@ class UGroundCameraComponent* AMainController::GetGroundCamera()
 		CameraComponent = GetGroundSpectatorPawn()->GetGroundCameraComponent();
 
 	return CameraComponent;
+}
+
+void AMainController::StartPreview()
+{
+	if (CurMenuSpawnThing)   //当前欲生成的物体存在
+	{
+		bInPreview = true;
+		CurDragThing = nullptr;
+		CurMenuSpawnThing->AttachToActor(GetPawn(), FAttachmentTransformRules::KeepWorldTransform);
+		CurMenuSpawnThing->RemoveTouchTypes_Implementation(ECustomTouchType::AllTouchType);
+		CurMenuSpawnThing->AddTouchTypes_Implementation(ECustomTouchType::RotateSwipe_1P);
+
+		const FVector ViewLocation = GetFocalLocation();
+		FRotator LookRotation = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation;
+		const FVector RelDestLoc = LookRotation.Vector()*200.f;
+		CurMenuSpawnThing->BeginMove(RelDestLoc);
+
+		GetGroundCamera()->BlurMode(true);
+	}
+}
+
+void AMainController::StopPreview()
+{
+	if (bInPreview)
+	{
+		bInPreview = false;
+		CurMenuSpawnThing->Destroy();
+		CurMenuSpawnThing = nullptr;
+
+		GetGroundCamera()->BlurMode(false);
+	}
 }
