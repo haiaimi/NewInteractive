@@ -12,6 +12,7 @@ UTCTapComponent::UTCTapComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
+	CurTouchType = ECustomTouchType::Type::RotateSwipe_1P;
 }
 
 
@@ -41,16 +42,13 @@ int32 UTCTapComponent::GetTouchFingersNum()
 	return 0;
 }
 
-void UTCTapComponent::OnRotateTapPressed(const FVector2D& Point, float DownTime)
+void UTCTapComponent::OnRotateTapPressed(const FVector2D& Point, float DownTime, AActor* TargetActorRef)
 {
-	if (APlayerController* MyController = Cast<APlayerController>(GetOwner()))
+	if (TargetActorRef)
 	{
-		FHitResult Result;
-		MyController->GetHitResultAtScreenPosition(Point, ECollisionChannel::ECC_WorldDynamic, false, Result);
-		
-		if (Result.GetActor())
+		if (TouchHelper::IsTouchTypeContained(this, TargetActorRef, CurTouchType))
 		{
-			TargetActor = Result.GetActor();
+			TargetActor = TargetActorRef;
 			AnchorPosition = Point;
 			InitialRotation = TargetActor->GetActorRotation();
 		}
@@ -69,6 +67,6 @@ void UTCTapComponent::OnRotateTapUpdated(const FVector2D& Point, float DownTime)
 
 void UTCTapComponent::OnRotateTapReleased(const FVector2D& Point, float DownTime)
 {
-
+	TargetActor = nullptr;
 }
 
