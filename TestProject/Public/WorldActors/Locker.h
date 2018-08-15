@@ -20,6 +20,8 @@ class TESTPROJECT_API ALocker : public AActor, public ICustomTouchInterface
 
 	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType) override;
 
+	virtual void RemoveTouchTypes_Implementation(ECustomTouchType::Type InType)override;
+
 	virtual void CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)override;
 
 	virtual void InterfaceFunction(ECustomTouchType::Type InType)override {};

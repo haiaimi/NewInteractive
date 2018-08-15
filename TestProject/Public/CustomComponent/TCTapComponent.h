@@ -27,7 +27,7 @@ public:
 
 	int32 GetTouchFingersNum();
 
-	void OnRotateTapPressed(const FVector2D& Point, float DownTime);
+	void OnRotateTapPressed(const FVector2D& Point, float DownTime, AActor* TargetActorRef);
 
 	void OnRotateTapUpdated(const FVector2D& Point, float DownTime);
 

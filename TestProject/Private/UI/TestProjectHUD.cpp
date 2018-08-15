@@ -88,7 +88,7 @@ void ATestProjectHUD::ShowMenu(bool bShouldShow)
 {
 	if (InventoryWidget.IsValid())
 	{
-		InventoryWidget->PlayOrClosePlayMenuAnim(bShouldShow);
+		InventoryWidget->PlayMenuAnimation(bShouldShow);
 	}
 }
 

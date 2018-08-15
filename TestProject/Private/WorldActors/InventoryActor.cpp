@@ -95,6 +95,16 @@ void AInventoryActor::AddTouchTypes_Implementation(ECustomTouchType::Type InType
 	TestProjectHelper::Debug_ScreenMessage(FString::FormatAsNumber(SupportTouchType.Find(InType)));
 }
 
+void AInventoryActor::RemoveTouchTypes_Implementation(ECustomTouchType::Type InType)
+{
+	if (InType == ECustomTouchType::AllTouchType)
+	{
+		SupportTouchType.Empty(0);
+	}
+	else
+		SupportTouchType.Remove(InType);
+}
+
 void AInventoryActor::CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)
 {
 	int Temp;
@@ -193,6 +203,12 @@ void AInventoryActor::Destroyed()
 	TSharedPtr<SPopMenuWidget>& PopMenu1 = MyController->GetPopMenu();
 	if (PopMenu1.IsValid())
 		PopMenu1.Reset();
+}
+
+void AInventoryActor::BeginMove(const FVector& DestLoc)
+{
+	bIsInMove = true;
+	DestLocation = DestLoc;
 }
 
 void AInventoryActor::MoveTick(float DeltaTime)

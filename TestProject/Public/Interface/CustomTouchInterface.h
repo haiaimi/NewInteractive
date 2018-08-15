@@ -17,6 +17,7 @@ namespace ECustomTouchType
 		LockerDrag_1P,
 		RotateSwipe_1P,
 		MoveRotateScalePinch_2P,
+		AllTouchType,
 	};
 }
 
@@ -42,11 +43,15 @@ class ICustomTouchInterface
 	void AddTouchTypes(ECustomTouchType::Type InType);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void RemoveTouchTypes(ECustomTouchType::Type InType);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void CanSuitTargetTouchType(ECustomTouchType::Type TargetTouchType, bool& Out);
 
 	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	virtual void InterfaceFunction(ECustomTouchType::Type InType) = 0;
 	
+public:
 	/**该对象所支持的触摸类型*/
 	TArray<TEnumAsByte<ECustomTouchType::Type>> SupportTouchType;
 }; 

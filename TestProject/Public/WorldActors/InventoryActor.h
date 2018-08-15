@@ -36,6 +36,8 @@ public:
 	// Begin CustonTouchInterface
 	virtual void AddTouchTypes_Implementation(ECustomTouchType::Type InType)override;
 
+	virtual void RemoveTouchTypes_Implementation(ECustomTouchType::Type InType)override;
+
 	/**为了在蓝图中覆写接口函数*/
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CanSuitTargetTouchType(ECustomTouchType::Type TargetTouchType, bool& Out);
@@ -69,6 +71,8 @@ public:
 
 	virtual void Destroyed()override;
 
+	void BeginMove(const FVector& DestLoc);
+
 private:
 	/**物体移动，有过渡效果，使其看起来不那么突兀*/
 	void MoveTick(float DeltaTime);
@@ -94,7 +98,7 @@ public:
 	/**物体的停留位置*/
 	FVector OriginLocation;
 
-	/**目标地点*/
+	/**目标地点，注意这是相对位置*/
 	FVector DestLocation;
 
 	struct FPopMenuInfo InfoInMenu;

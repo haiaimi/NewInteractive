@@ -139,6 +139,16 @@ void ALocker::AddTouchTypes_Implementation(ECustomTouchType::Type InType)
 	SupportTouchType.AddUnique(InType);
 }
 
+void ALocker::RemoveTouchTypes_Implementation(ECustomTouchType::Type InType)
+{
+	if (InType == ECustomTouchType::AllTouchType)
+	{
+		SupportTouchType.Empty(0);
+	}
+	else
+		SupportTouchType.Remove(InType);
+}
+
 void ALocker::CanSuitTargetTouchType_Implementation(ECustomTouchType::Type TargetTouchType, bool& Out)
 {
 	int Temp;
