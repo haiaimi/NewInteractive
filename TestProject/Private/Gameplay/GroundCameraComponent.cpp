@@ -49,6 +49,7 @@ void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& De
 		GetOwner()->SetActorLocation(PawnLocation);
 		DesiredView.Rotation = LookRotation;   //
 		DesiredView.Location = Controller->GetFocalLocation();
+		DesiredView.PostProcessSettings = PostProcessSettings;
 	}
 }
 
@@ -185,17 +186,22 @@ void UGroundCameraComponent::OnPinchEnd(const FVector2D& InPoint1, const FVector
 	bInPinch = false;
 }
 
-void UGroundCameraComponent::BlurMode()
+void UGroundCameraComponent::BlurMode(bool bBlur)
 {
 	FPostProcessSettings Temp;
-	Temp.bOverride_DepthOfFieldMethod = true;
-	Temp.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
-	Temp.bOverride_DepthOfFieldFocalDistance = true;
-	Temp.DepthOfFieldFocalDistance = 1.f;
-	Temp.bOverride_DepthOfFieldNearTransitionRegion = true;
-	Temp.DepthOfFieldNearTransitionRegion = 0.f;
-	Temp.bOverride_DepthOfFieldFarTransitionRegion = true;
-	Temp.DepthOfFieldFarTransitionRegion = 0.f;
+	if (bBlur)
+	{
+		Temp.bOverride_DepthOfFieldMethod = true;
+		Temp.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+		Temp.bOverride_DepthOfFieldFocalDistance = true;
+		Temp.DepthOfFieldFocalDistance = 1.f;
+		Temp.bOverride_DepthOfFieldFocalRegion = true;
+		Temp.DepthOfFieldFocalRegion = 200.f;
+		Temp.bOverride_DepthOfFieldNearBlurSize = true;
+		Temp.DepthOfFieldNearBlurSize = 1.f;
+		Temp.bOverride_DepthOfFieldFarBlurSize = true;
+		Temp.DepthOfFieldFarBlurSize = 32.f;
+	}
 
 	PostProcessSettings = Temp;
 }
