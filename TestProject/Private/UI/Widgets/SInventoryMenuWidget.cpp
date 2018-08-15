@@ -72,12 +72,12 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
 						.VAlign(VAlign_Center)
 						.HAlign(HAlign_Center)
-						.OnPressed(this,&SInventoryMenuWidget::OnPressed)
+						.OnPressed(this, &SInventoryMenuWidget::OnPressed)
 						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
-						.OnClicked(this, &SInventoryMenuWidget::OnClicked)
+						//.OnClicked(this, &SInventoryMenuWidget::OnClicked)
 						.PressMethod(EButtonPressMethod::Type::ButtonPress)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
+						//.TouchMethod(EButtonTouchMethod::Type::)
 						.IsFocusable(false)
 						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
 						[
@@ -122,6 +122,23 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 				]
 			]
 		]
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Bottom)
+		.Padding(TAttribute<FMargin>(this, &SInventoryMenuWidget::GetPreViewButtonOffset))
+		[
+			SNew(SButton)
+			.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Center)
+			.OnClicked(this, &SInventoryMenuWidget::StopPreview)
+			.ClickMethod(EButtonClickMethod::Type::MouseUp)
+			[	
+				SNew(STextBlock)
+				.Text(FText::FromString(FString(TEXT("结束预览"))))
+				.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
+				.Font(FSlateFontInfo(TEXT("Roboto"), 40))			]
+		]
 	];
 
 	bShowMenu = false;
@@ -132,31 +149,26 @@ void SInventoryMenuWidget::Tick(const FGeometry& AllottedGeometry, const double 
 {
 	SWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
+	if (HoldTime >= 0.7f)
+	{
+		OwnerController->StartPreview();
+		PlayPreviewButtonAnimation(true);
+		HoldTime = 0.f;
+	}
+
 	if (HoldTime > 0)
 		HoldTime += InDeltaTime;
-	else if (HoldTime >= 1.f)
-	{
-		HoldTime = 0.f;
-		UGroundCameraComponent* Camera = OwnerController->GetGroundCamera();
-		Camera->BlurMode();
-		TestProjectHelper::Debug_ScreenMessage(TEXT("Hold Pressed"));
-	}
-	//TestProjectHelper::Debug_ScreenMessage(FString::SanitizeFloat(HoldTime));
 }
 
 void SInventoryMenuWidget::OnPressed()
 {
-	/*if (GEngine && OwnerController.IsValid() && !IsInUI)
+	if (GEngine && OwnerController.IsValid() && !IsInUI)
 	{
 		IsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
-		OwnerController->DragSomeThing();
-	}*/
-	TestProjectHelper::Debug_ScreenMessage(TEXT("Pressed"));
-	HoldTime = 0.001f;
-	UGroundCameraComponent* Camera = OwnerController->GetGroundCamera();
-	Camera->BlurMode();
+		HoldTime = 0.001f;
+	}
 }
 
 void SInventoryMenuWidget::OnReleased()
@@ -182,11 +194,18 @@ FReply SInventoryMenuWidget::OnClicked()
 		IsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
-		//OwnerController->DragSomeThing();
+		HoldTime = 0.001f;
 
 		return FReply::Handled();
 	}
 
+	return FReply::Handled();
+}
+
+FReply SInventoryMenuWidget::StopPreview()
+{
+	OwnerController->StopPreview();
+	PlayPreviewButtonAnimation(false);
 	return FReply::Handled();
 }
 
@@ -209,20 +228,16 @@ void SInventoryMenuWidget::SetupAnimation()
 	float SecondSeconds = 0.5f;
 	float DurationSeconds = 0.5f;
 	InventoryMenuAnimation = FCurveSequence();
+	PreviewButtonAnimation = FCurveSequence();
 
 	InventoryMenuIn = InventoryMenuAnimation.AddCurve(StartSeconds, DurationSeconds, ECurveEaseFunction::CubicInOut);
-	InventoryMenuAnimation.Play(this->AsShared());  //先创建智能指针，再播放
+	PreviewButtonIn = PreviewButtonAnimation.AddCurve(StartSeconds, DurationSeconds, ECurveEaseFunction::CubicInOut);
+	//InventoryMenuAnimation.Play(this->AsShared());  //先创建智能指针，再播放
 }
 
 FMargin SInventoryMenuWidget::GetMenuOffset()const
 {
 	FMargin Result;
-	static bool IsFirst = true;      //是否还未触发过
-
-	if (bShowMenu)
-		IsFirst = false;
-	if (IsFirst)
-		return FMargin(-400, 0, 0, 0);
 
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -232,12 +247,19 @@ FMargin SInventoryMenuWidget::GetMenuOffset()const
 	const float MenuWidth = 400.f;
 	const float AnimProgess = InventoryMenuIn.GetLerp();
 	Result = FMargin(-400.f + AnimProgess * 400.f, 0.f, 0.f, 0.f);
-	//TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("%f"), AnimProgess));
 
 	return Result;
 }
 
-void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
+FMargin SInventoryMenuWidget::GetPreViewButtonOffset() const
+{
+	FMargin Result;
+	const float AnimProgress = PreviewButtonIn.GetLerp();
+	Result = FMargin(0.f, 0.f, 0.f, AnimProgress*150.f - 80.f);
+	return Result;
+}
+
+void SInventoryMenuWidget::PlayMenuAnimation(bool bShow)
 {
 	if (bShow && !bShowMenu)    //没有显示菜单的时候才会执行
 	{
@@ -251,6 +273,20 @@ void SInventoryMenuWidget::PlayOrClosePlayMenuAnim(bool bShow)
 		bShowMenu = false;       //关闭菜单
 
 		InventoryMenuAnimation.Reverse();    //反向播放动画
+	}
+}
+
+void SInventoryMenuWidget::PlayPreviewButtonAnimation(bool bShow)
+{
+	if (bShow)
+	{
+		PreviewButtonAnimation.JumpToStart();
+		PreviewButtonAnimation.Play(this->AsShared());
+	}
+	else
+	{
+		PreviewButtonAnimation.JumpToEnd();
+		PreviewButtonAnimation.Reverse();
 	}
 }
 

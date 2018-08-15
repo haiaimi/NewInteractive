@@ -32,6 +32,9 @@ public:
 
 	FReply OnClicked();
 
+	/**结束预览按钮*/
+	FReply StopPreview();
+
 	/**用于触发Inventory菜单*/
 	FReply OnEmptyMouseButtonDown(const FGeometry&, const FPointerEvent&);
 
@@ -43,7 +46,11 @@ public:
 	/**获取动画播放时的Menu偏移*/
 	FMargin GetMenuOffset()const;
 
-	void PlayOrClosePlayMenuAnim(bool bShow);
+	FMargin GetPreViewButtonOffset()const;
+
+	void PlayMenuAnimation(bool bShow);
+
+	void PlayPreviewButtonAnimation(bool bShow);
 
 public:
 	TWeakObjectPtr<AMainController> OwnerController;
@@ -57,8 +64,13 @@ public:
 	/**用于Menu界面渐入的动画*/
 	FCurveHandle InventoryMenuIn;
 
+	/**结束预览按键动画*/
+	FCurveHandle PreviewButtonIn;
+
 	/**动画序列*/
 	FCurveSequence InventoryMenuAnimation;
+
+	FCurveSequence PreviewButtonAnimation;
 
 	TSharedPtr<SEditableText> EditableText;
 
