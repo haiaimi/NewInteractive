@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Common/WarSimulateHelper.h"
 #include "Gameplay/MainController.h"
-#include "TestProject.h"
+#include "WarSimulateProject.h"
 #include "Locker.h"
 #include "Engine/Engine.h"
 #include "SPopMenuWidget.h"

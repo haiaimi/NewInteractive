@@ -3,6 +3,7 @@
 #include "TCTapComponent.h"
 #include "TouchHelper.h"
 #include "GameFramework/PlayerController.h"
+#include "WarSimulateHelper.h"
 
 
 // Sets default values for this component's properties
@@ -61,7 +62,7 @@ void UTCTapComponent::OnRotateTapUpdated(const FVector2D& Point, float DownTime)
 	{
 		FVector2D Offset = Point - AnchorPosition;
 		FRotator Rotation(0.f, Offset.Y, Offset.X);
-		TargetActor->SetActorRotation(Rotation);
+		TargetActor->SetActorRotation(InitialRotation + Rotation);
 	}
 }		
 

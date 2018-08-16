@@ -68,7 +68,7 @@ bool AWarSimulateHUD::IsInUI()
 {
 	if (InventoryWidget.IsValid())
 	{
-		return InventoryWidget->IsInUI;
+		return InventoryWidget->bIsInUI;
 	}
 
 	return false;

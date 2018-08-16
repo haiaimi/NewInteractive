@@ -6,7 +6,7 @@
 #include "Common/WarSimulateHelper.h"
 #include "Components/SpotLightComponent.h"
 #include "InventoryActor.h"
-#include "TestProject.h"
+#include "WarSimulateProject.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
@@ -260,7 +260,7 @@ void ALocker::SetVisibility(bool bVisible)
 
 void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* TouchedComponent)
 {
-	if (OwnerController)
+	if (OwnerController && !OwnerController->IsInPreview())
 	{
 		FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
 		if (TouchPos.Z > 0)
@@ -281,7 +281,7 @@ void ALocker::BeginMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touc
 
 void ALocker::UpdateMove()
 {
-	if (OwnerController && bCanUpdate)
+	if (OwnerController && !OwnerController->IsInPreview() && bCanUpdate)
 	{
 		FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
 		if (TouchPos.Z > 0)
@@ -311,7 +311,7 @@ void ALocker::EndMove(ETouchIndex::Type FingerIndex, UPrimitiveComponent* Touche
 {
 	bCanUpdate = false;   //结束移动
 	TouchOffset = FVector::ZeroVector;
-	if (OwnerController)
+	if (OwnerController && !OwnerController->IsInPreview())
 	{
 		const FVector TouchPos = OwnerController->PlayerInput->Touches[FingerIndex];
 		FVector2D ScreenSize;

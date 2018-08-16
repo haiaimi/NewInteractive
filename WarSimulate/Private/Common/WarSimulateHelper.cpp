@@ -2,7 +2,7 @@
 
 #include "WarSimulateHelper.h"
 #include "Engine/Engine.h"
-#include "WarSimulate/TestProject.h"
+#include "WarSimulate/WarSimulateProject.h"
 #include "Gameplay/MainController.h"
 #include "SceneView.h"
 #include "Engine/LocalPlayer.h"

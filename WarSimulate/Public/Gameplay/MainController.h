@@ -88,6 +88,8 @@ public:
 	/**结束预览*/
 	void StopPreview();
 
+	bool IsInPreview() { return bInPreview; }
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 

@@ -38,7 +38,7 @@ void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookD
 	if (InTargetActor)
 		TargetActor = InTargetActor;
 
-	DetectActorOnPoint(Point, LookDir);
+	DetectActorOnPoint(Point, LookDir);  //检查触摸点是否存在Actor
 
 	if (TargetActor == nullptr || InActors.Find(TargetActor) == INDEX_NONE)    //当前指向的Actor不在多选Actor数组中
 	{

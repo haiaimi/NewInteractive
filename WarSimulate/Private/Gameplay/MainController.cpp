@@ -9,9 +9,9 @@
 #include "SceneView.h"
 #include "InventoryActor.h"
 #include "Locker.h"
-#include "TestProject.h"
+#include "WarSimulateProject.h"
 #include "Engine/World.h"
-#include "UI/TestProjectHUD.h"
+#include "UI/WarSimulateHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../Public/Gameplay/GroundCameraComponent.h"
 #include "SlateApplication.h"
@@ -258,9 +258,8 @@ void AMainController::StopDrag(FVector2D StopPoint)
 				AimLocker->RemoveInventoryThing(CurDragThing);        //
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
 			}
-			else
+			else if(!CurDragThing->bInLocker && !bInPreview)
 			{
-				//TestProjectHelper::Debug_ScreenMessage(TEXT("Catch Locker"));
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
 			}
 		}
@@ -296,9 +295,12 @@ void AMainController::StopDrag(FVector2D StopPoint)
 		}
 		FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
 		//CurDragThing->StopMoveWithCursor();
-		CurDragThing = nullptr;
+		
 		if (!bInPreview)
+		{
 			CurMenuSpawnThing = nullptr;
+			CurDragThing = nullptr;
+		}
 	}
 }
 
@@ -407,7 +409,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
 		
-		if (GetWorld() && bShouldSpawnActor)      //如果当前已经控制着一个就不需要生成
+		if (GetWorld() && bShouldSpawnActor && !bInPreview)      //如果当前已经控制着一个就不需要生成
 		{
 			FVector WorldPos, WorldDir;
 			DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
@@ -426,7 +428,7 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 		CurDragThing = Cast<AInventoryActor>(TargetActor);
 	}
 
-	if (MultiSelectComponent && !CurDragThing && !DragSwipeComponent->IsDragActor())
+	if (MultiSelectComponent && !DragSwipeComponent->IsDragActor() && !bInPreview)
 	{
 		MultiSelectComponent->OnMultiSelectPressed(Point, DownTime);
 	}
@@ -463,16 +465,19 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 
 void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
-	if (bShouldSpawnActor)
+	if (bShouldSpawnActor && !bInPreview)
 		OnSwipePressed(Point, DownTime);
-	if (GetGroundCamera() != nullptr)
-	{
-		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
-	}
 
 	if (TapComponent)
 	{
 		TapComponent->OnRotateTapUpdated(Point, DownTime);
+	}
+
+	if (bInPreview)return;
+
+	if (GetGroundCamera() != nullptr)
+	{
+		//GetGroundCamera()->UpdateSwipe(Point, DownTime);
 	}
 
 	if (DragSwipeComponent && CurDragThing)
@@ -617,7 +622,7 @@ class UGroundCameraComponent* AMainController::GetGroundCamera()
 
 void AMainController::StartPreview()
 {
-	if (CurMenuSpawnThing)   //当前欲生成的物体存在
+	if (CurMenuSpawnThing && !bInPreview)   //当前欲生成的物体存在
 	{
 		bInPreview = true;
 		CurDragThing = nullptr;
@@ -641,6 +646,7 @@ void AMainController::StopPreview()
 		bInPreview = false;
 		CurMenuSpawnThing->Destroy();
 		CurMenuSpawnThing = nullptr;
+		CurDragThing = nullptr;
 
 		GetGroundCamera()->BlurMode(false);
 	}
