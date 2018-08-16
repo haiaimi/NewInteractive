@@ -9,15 +9,31 @@
 #include "GameFramework/PlayerInput.h"
 #include "Gameplay/MainController.h"
 #include "GroundCameraComponent.h"
+#include "FlightPlatform.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 {
+	bIsInUI = false;
 	HoldTime = 0.f;
 	FSlateBrush* SlateBrush = new FSlateBrush();
 	SlateBrush->TintColor = FLinearColor(0.3, 0.3, 0.3, 0.3);
+	FSlateBrush* MenuTitleBrush = new FSlateBrush;
+	MenuTitleBrush->TintColor = FLinearColor(0.61f, 1.f, 0.133f, 0.7f);
+
 	OwnerController = InArgs._OwnerController;
+	FSimpleDelegate SpawnPlain;
+	SpawnPlain.BindLambda([&]()
+	{
+		if (OwnerController.IsValid() && !bIsInUI)
+		{
+			bIsInUI = true;
+
+			OwnerController->SpawnInventoryActors(AFlightPlatform::StaticClass());
+			HoldTime = 0.001f;
+		}
+	});
 
 	ChildSlot
 	[
@@ -40,15 +56,20 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 					+SVerticalBox::Slot()
-					.VAlign(EVerticalAlignment::VAlign_Center)
-					.HAlign(EHorizontalAlignment::HAlign_Center)
+					.VAlign(EVerticalAlignment::VAlign_Fill)
+					.HAlign(EHorizontalAlignment::HAlign_Fill)
 					.AutoHeight()
 					[
-						SNew(STextBlock)
-						.Text(FText::FromString(FString(TEXT("TEXT"))))
-						.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-						.Font(FSlateFontInfo(TEXT("Roboto"),40))
-						.AutoWrapText(true)
+						SNew(SBorder)
+						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Fill)
+						.BorderImage(MenuTitleBrush)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString(FString(TEXT("工具栏"))))
+							.ColorAndOpacity(FSlateColor(FLinearColor(0.f, 0.06f, 0.00904f)))
+							.Font(FSlateFontInfo(TEXT("Roboto"),25))
+						]
 					]
 					+ SVerticalBox::Slot()
 					.VAlign(EVerticalAlignment::VAlign_Center)
@@ -112,12 +133,21 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 					.HAlign(EHorizontalAlignment::HAlign_Fill)
 					.AutoHeight()
 					[
-						SAssignNew(EditableText, SEditableText)
-						.HintText(FText::FromString(TEXT("Input")))
-						.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
-						.Font(FSlateFontInfo(TEXT("Roboto"), 40))
-						.OnTextCommitted(this,&SInventoryMenuWidget::OnTextCommitted)
-						.VirtualKeyboardTrigger(EVirtualKeyboardTrigger::OnAllFocusEvents)
+						SNew(SButton)
+						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
+						.VAlign(VAlign_Center)
+						.HAlign(HAlign_Center)
+						.OnPressed(SpawnPlain)
+						.OnReleased(this,&SInventoryMenuWidget::OnReleased)
+						.PressMethod(EButtonPressMethod::Type::ButtonPress)
+						.ClickMethod(EButtonClickMethod::Type::MouseDown)
+						.IsFocusable(false)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString(FString(TEXT("Plain"))))
+							.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f)))
+							.Font(FSlateFontInfo(TEXT("Roboto"), 40))
+						]
 					]
 				]
 			]
@@ -162,9 +192,9 @@ void SInventoryMenuWidget::Tick(const FGeometry& AllottedGeometry, const double 
 
 void SInventoryMenuWidget::OnPressed()
 {
-	if (GEngine && OwnerController.IsValid() && !IsInUI)
+	if (GEngine && OwnerController.IsValid() && !bIsInUI)
 	{
-		IsInUI = true;
+		bIsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
@@ -174,9 +204,7 @@ void SInventoryMenuWidget::OnPressed()
 void SInventoryMenuWidget::OnReleased()
 {
 	HoldTime = 0.f;
-	IsInUI = false;
-	FVector2D CursorPos;
-	OwnerController->GetMousePosition(CursorPos.X, CursorPos.Y);
+	bIsInUI = false;
 }
 
 void SInventoryMenuWidget::LoadLandscape()
@@ -189,9 +217,9 @@ void SInventoryMenuWidget::LoadLandscape()
 
 FReply SInventoryMenuWidget::OnClicked()
 {
-	if (GEngine && OwnerController.IsValid() && !IsInUI)
+	if (GEngine && OwnerController.IsValid() && !bIsInUI)
 	{
-		IsInUI = true;
+		bIsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
@@ -225,7 +253,6 @@ void SInventoryMenuWidget::OnTextCommitted(const FText& ChangedText, ETextCommit
 void SInventoryMenuWidget::SetupAnimation()
 {
 	float StartSeconds = 0.f;
-	float SecondSeconds = 0.5f;
 	float DurationSeconds = 0.5f;
 	InventoryMenuAnimation = FCurveSequence();
 	PreviewButtonAnimation = FCurveSequence();

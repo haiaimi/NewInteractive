@@ -7,8 +7,19 @@
 #include "SlateExtras.h"
 #include "Gameplay/MainController.h"
 
+class AInventoryActor;
+
+// 菜单栏的按键信息
+struct FInventoryButtonInfo
+{
+	/**按键名称*/
+	TArray<FString> ButtonNames;
+	/**按键触发事件*/
+	TArray<FSimpleDelegate> ButtonEvent;
+};
+
 /**
- * 
+ *  左弹出菜单
  */
 class WARSIMULATE_API SInventoryMenuWidget : public SCompoundWidget
 {
@@ -56,7 +67,7 @@ public:
 	TWeakObjectPtr<AMainController> OwnerController;
 
 	/**玩家当前鼠标是否在UI内*/
-	uint32 IsInUI : 1;
+	uint32 bIsInUI : 1;
 
 	/**是否显示Inventory Menu*/
 	uint32 bShowMenu : 1;
