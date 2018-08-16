@@ -71,4 +71,6 @@ private:
 	float InitialPinchAlpha;
 
 	uint8 bInPinch : 1;
+
+	uint8 bInBlur : 1;
 };

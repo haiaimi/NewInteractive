@@ -11,7 +11,8 @@ static const float ZoomHeight = 20000.f;      //滚动的高度
 static const float BaseHeight = 20000.f;
 static const FRotator CamDefaultRotation = FRotator(-70.f, 0.f, 0.f);    //默认摄像机角度
 
-UGroundCameraComponent::UGroundCameraComponent()
+UGroundCameraComponent::UGroundCameraComponent():
+	bInBlur(false)
 {
 	LookRotation = CamDefaultRotation;
 	LastUpdateTime = 0.f;
@@ -19,6 +20,17 @@ UGroundCameraComponent::UGroundCameraComponent()
 	InitialPinchAlpha = 0.f;
 	ZoomAlpha = 0.5f;
 	bInPinch = false;
+
+	PostProcessSettings.bOverride_DepthOfFieldMethod = false;
+	PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+	PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+	PostProcessSettings.DepthOfFieldFocalDistance = 1.f;
+	PostProcessSettings.bOverride_DepthOfFieldFocalRegion = true;
+	PostProcessSettings.DepthOfFieldFocalRegion = 280.f;
+	PostProcessSettings.bOverride_DepthOfFieldNearBlurSize = true;
+	PostProcessSettings.DepthOfFieldNearBlurSize = 1.f;
+	PostProcessSettings.bOverride_DepthOfFieldFarBlurSize = true;
+	PostProcessSettings.DepthOfFieldFarBlurSize = 0.f;
 }
 
 void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
@@ -34,7 +46,6 @@ void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& De
 		{
 			float NewSpeedScale = FMath::FInterpTo(CurSpeedScale, 0.f, DeltaTime, 3.f);
 			PawnLocation += DecelerateSpeed * NewSpeedScale * DeltaTime;
-			//GetOwner()->SetActorLocation(GetOwner()->GetActorLocation() + DecelerateSpeed * NewSpeedScale * DeltaTime);
 			CurSpeedScale = NewSpeedScale;
 
 			if (NewSpeedScale <= 0.01f)
@@ -49,6 +60,21 @@ void UGroundCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& De
 		GetOwner()->SetActorLocation(PawnLocation);
 		DesiredView.Rotation = LookRotation;   //
 		DesiredView.Location = Controller->GetFocalLocation();
+		
+		if (bInBlur && PostProcessSettings.DepthOfFieldFarBlurSize != 32.f)
+		{
+			const float FarBlurSize = FMath::FInterpConstantTo(PostProcessSettings.DepthOfFieldFarBlurSize, 32.f, DeltaTime, 32.f);
+			PostProcessSettings.DepthOfFieldFarBlurSize = FarBlurSize;
+		}
+		else if (!bInBlur && PostProcessSettings.DepthOfFieldFarBlurSize != 0.f)
+		{
+			const float FarBlurSize = FMath::FInterpConstantTo(PostProcessSettings.DepthOfFieldFarBlurSize, 0.f, DeltaTime, 40.f);
+			PostProcessSettings.DepthOfFieldFarBlurSize = FarBlurSize;
+			if (PostProcessSettings.DepthOfFieldFarBlurSize == 0.f)
+				PostProcessSettings.bOverride_DepthOfFieldMethod = false;  //关闭模糊
+
+		} 
+
 		DesiredView.PostProcessSettings = PostProcessSettings;
 	}
 }
@@ -188,20 +214,13 @@ void UGroundCameraComponent::OnPinchEnd(const FVector2D& InPoint1, const FVector
 
 void UGroundCameraComponent::BlurMode(bool bBlur)
 {
-	FPostProcessSettings Temp;
+	bInBlur = bBlur;
 	if (bBlur)
 	{
-		Temp.bOverride_DepthOfFieldMethod = true;
-		Temp.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
-		Temp.bOverride_DepthOfFieldFocalDistance = true;
-		Temp.DepthOfFieldFocalDistance = 1.f;
-		Temp.bOverride_DepthOfFieldFocalRegion = true;
-		Temp.DepthOfFieldFocalRegion = 200.f;
-		Temp.bOverride_DepthOfFieldNearBlurSize = true;
-		Temp.DepthOfFieldNearBlurSize = 1.f;
-		Temp.bOverride_DepthOfFieldFarBlurSize = true;
-		Temp.DepthOfFieldFarBlurSize = 32.f;
+		PostProcessSettings.bOverride_DepthOfFieldMethod = true;
 	}
-
-	PostProcessSettings = Temp;
+	else
+	{
+		PostProcessSettings.DepthOfFieldFarBlurSize = 15.f;
+	}
 }
