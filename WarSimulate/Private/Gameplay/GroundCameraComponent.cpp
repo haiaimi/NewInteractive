@@ -3,7 +3,7 @@
 #include "Gameplay/GroundCameraComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 #include "CustomTouchInput.h"
 
 static const float GlobalDetectTime = 0.1f;

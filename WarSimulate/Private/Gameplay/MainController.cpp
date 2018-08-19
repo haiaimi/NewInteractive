@@ -4,7 +4,7 @@
 #include "ConstructorHelpers.h"
 #include "Table.h"
 #include "Engine/Engine.h"
-#include "Common/WarSimulateHelper.h"
+#include "Common/OriginHelper.h"
 #include "Engine/LocalPlayer.h"
 #include "SceneView.h"
 #include "InventoryActor.h"
@@ -199,7 +199,7 @@ void AMainController::ToggleTableMaterial()
 void AMainController::DragSomeThing()
 {
 	FVector WorldPosition, WorldDirection;
-	WarSimulateHelper::DeprojectScreenToWorld_Cursor(this, WorldPosition, WorldDirection);
+	OriginHelper::DeprojectScreenToWorld_Cursor(this, WorldPosition, WorldDirection);
 
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParam;
@@ -242,8 +242,6 @@ void AMainController::StopDrag(FVector2D StopPoint)
 	if (CurDragThing)
 	{
 		//检测是否停留在储物柜上，然后决定存放位置
-		FVector WorldPosition, WorldDirection;
-		WarSimulateHelper::DeprojectScreenToWorld_Cursor(this, WorldPosition, WorldDirection);
 		FHitResult HitResult;
 		//FCollisionQueryParams QueryParam;
 		//QueryParam.bIgnoreBlocks = true;  //忽略阻挡
@@ -293,7 +291,7 @@ void AMainController::StopDrag(FVector2D StopPoint)
 			//	}
 			//}
 		}
-		FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
+		//FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
 		//CurDragThing->StopMoveWithCursor();
 		
 		if (!bInPreview)
@@ -417,10 +415,14 @@ void AMainController::OnSwipePressed(const FVector2D& Point, float DownTime)
 			const FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 800.f*WorldDir);
 			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform));
 			CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
+			CurMenuSpawnThing->AddToCluster(this);  
 
-			bShouldSpawnActor = false;
-			TargetActor = CurMenuSpawnThing;
-			CurDragThing = CurMenuSpawnThing;
+			if (CurMenuSpawnThing)
+			{
+				bShouldSpawnActor = false;
+				TargetActor = CurMenuSpawnThing;
+				CurDragThing = CurMenuSpawnThing;
+			}
 		}
 
 		DragSwipeComponent->OnDragPressed(Point, LookDir, CurDragThing, MultiSelectedActors);
@@ -465,8 +467,8 @@ void AMainController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 
 void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 {
-	if (bShouldSpawnActor && !bInPreview)
-		OnSwipePressed(Point, DownTime);
+	/*if (bShouldSpawnActor && !bInPreview)
+		OnSwipePressed(Point, DownTime);*/
 
 	if (TapComponent)
 	{
@@ -494,7 +496,7 @@ void AMainController::OnSwipeUpdate(const FVector2D& Point, float DownTime)
 
 void AMainController::TapPressed(const FVector2D& Point, float DownTime)
 {
-	WarSimulateHelper::Debug_ScreenMessage(Point.ToString());
+	OriginHelper::Debug_ScreenMessage(Point.ToString());
 
 	if (PopMenu.IsValid() &&! PopMenu->IsInteractable())    //检测是否有交互，如果没有交互就删除弹出的菜单
 	{
@@ -504,7 +506,7 @@ void AMainController::TapPressed(const FVector2D& Point, float DownTime)
 
 void AMainController::DoubleTapPressed(const FVector2D& Point, float DownTime)
 {
-	WarSimulateHelper::Debug_ScreenMessage(TEXT("Double Tap"));
+	OriginHelper::Debug_ScreenMessage(TEXT("Double Tap"));
 }
 
 void AMainController::OnPinchStart(const FVector2D& Point1, const FVector2D& Point2, float DownTime)

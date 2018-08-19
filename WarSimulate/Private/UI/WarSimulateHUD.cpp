@@ -3,7 +3,7 @@
 #include "WarSimulateHUD.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 #include "Gameplay/MainController.h"
 #include "Widgets/SInventoryMenuWidget.h"
 #include "DrawDebugHelpers.h"

@@ -15,7 +15,7 @@ class WARSIMULATE_API AEarth : public AInventoryActor
 	GENERATED_BODY()
 
 public:
-	AEarth();
+	AEarth(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay()override;
@@ -32,11 +32,5 @@ public:
 	virtual void EndCursorOver(UPrimitiveComponent* TouchedComponent)override;
 
 private:
-	UPROPERTY()
-	class UStaticMesh* EarthMesh;
-
-	UPROPERTY()
-	class UMaterialInterface* EarthMaterial;
-
 	int32 bCanRotate : 1;
 };

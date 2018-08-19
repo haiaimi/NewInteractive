@@ -4,7 +4,8 @@
 #include "ConstructorHelpers.h"
 #include "Components/StaticMeshComponent.h"
 
-AEarth::AEarth()
+AEarth::AEarth(const FObjectInitializer& ObjectInitializer):
+	Super(ObjectInitializer)
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshFinder(TEXT("/Game/StarterContent/Shapes/Shape_Sphere"));      //模拟地球的一个球体模型
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialFinder(TEXT("/Game/StarterContent/Materials/M_Ground_Moss"));

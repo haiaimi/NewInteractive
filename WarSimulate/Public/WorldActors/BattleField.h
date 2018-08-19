@@ -16,7 +16,7 @@ class WARSIMULATE_API ABattleField : public AInventoryActor
 	
 	
 public:
-	ABattleField();
+	ABattleField(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay()override;
 

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TCSwitchUIComponent.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 
 static const float PressToReleaseInterval = 1.f;     //按下松开的最大间隔时间为1秒
 

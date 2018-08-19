@@ -3,7 +3,8 @@
 #include "BattleField.h"
 #include "LandscapeComponent.h"
 
-ABattleField::ABattleField()
+ABattleField::ABattleField(const FObjectInitializer& ObjectInitializer):
+	Super(ObjectInitializer)
 {
 	//Landscape = CreateDefaultSubobject<ULandscapeComponent>(TEXT("BattleField"));
 }

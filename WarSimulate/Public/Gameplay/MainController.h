@@ -90,6 +90,8 @@ public:
 
 	bool IsInPreview() { return bInPreview; }
 
+	bool IsInDrag() { return CurDragThing != nullptr; }
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 

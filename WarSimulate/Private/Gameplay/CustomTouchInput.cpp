@@ -4,7 +4,7 @@
 #include "GameFramework/PlayerInput.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔

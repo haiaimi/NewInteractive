@@ -3,7 +3,7 @@
 #include "SInventoryMenuWidget.h"
 #include "SlateOptMacros.h"
 #include "Engine/Engine.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 #include "Earth.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
@@ -93,12 +93,12 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.ButtonColorAndOpacity(FLinearColor(0.4f,0.4f,0.4f,0.1f))
 						.VAlign(VAlign_Center)
 						.HAlign(HAlign_Center)
+						//.OnClicked(this, &SInventoryMenuWidget::OnClicked)
 						.OnPressed(this, &SInventoryMenuWidget::OnPressed)
 						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
-						//.OnClicked(this, &SInventoryMenuWidget::OnClicked)
-						.PressMethod(EButtonPressMethod::Type::ButtonPress)
+						.PressMethod(EButtonPressMethod::Type::DownAndUp)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						//.TouchMethod(EButtonTouchMethod::Type::)
+						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
 						.IsFocusable(false)
 						//.DesiredSizeScale(TAttribute<FVector2D>(FVector2D(2.f,3.f)))
 						[
@@ -138,7 +138,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.VAlign(VAlign_Center)
 						.HAlign(HAlign_Center)
 						.OnPressed(SpawnPlain)
-						.OnReleased(this,&SInventoryMenuWidget::OnReleased)
+						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
 						.PressMethod(EButtonPressMethod::Type::ButtonPress)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
 						.IsFocusable(false)
@@ -192,12 +192,14 @@ void SInventoryMenuWidget::Tick(const FGeometry& AllottedGeometry, const double 
 
 void SInventoryMenuWidget::OnPressed()
 {
-	if (GEngine && OwnerController.IsValid() && !bIsInUI)
+	if (OwnerController.IsValid() && !bIsInUI && !OwnerController->IsInDrag())
 	{
 		bIsInUI = true;
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
+
+		OriginHelper::Debug_ScreenMessage(TEXT("SPawn Actor"));
 	}
 }
 
@@ -205,6 +207,8 @@ void SInventoryMenuWidget::OnReleased()
 {
 	HoldTime = 0.f;
 	bIsInUI = false;
+		
+	OriginHelper::Debug_ScreenMessage(TEXT("Stop Spawn Actor"));
 }
 
 void SInventoryMenuWidget::LoadLandscape()
@@ -224,6 +228,7 @@ FReply SInventoryMenuWidget::OnClicked()
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
 
+		OriginHelper::Debug_ScreenMessage(TEXT("Spawn Actor"));
 		return FReply::Handled();
 	}
 

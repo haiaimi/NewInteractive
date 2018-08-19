@@ -7,7 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "SMultiSelectWidget.h"
@@ -134,7 +134,7 @@ void UTCMultiSelectComponent::OnMultiSelectReleased(const FVector2D& Point, floa
 	{
 		UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent> (Iter->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		MeshComponent->SetRenderCustomDepth(true);
-		WarSimulateHelper::Debug_ScreenMessage(Iter->GetName());
+		OriginHelper::Debug_ScreenMessage(Iter->GetName());
 	}
 
 	if (MultiSelectWidget.IsValid())

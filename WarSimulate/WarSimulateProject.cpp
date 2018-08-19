@@ -2,7 +2,14 @@
 
 #include "WarSimulateProject.h"
 #include "Modules/ModuleManager.h"
+#include "OriginHelper.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, WarSimulate, "WarSimulate" );
 
-DEFINE_LOG_CATEGORY(LogTest)
+void FWarSimulateModule::StartupModule()
+{
+	OriginHelper::Init(FString(TEXT("ConfigRes/FlightPlatform")));
+}
+
+IMPLEMENT_PRIMARY_GAME_MODULE( FWarSimulateModule, WarSimulate, "WarSimulate" );
+
+DEFINE_LOG_CATEGORY(LogOrigin)

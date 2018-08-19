@@ -3,7 +3,7 @@
 #include "Locker.h"
 #include "Components/StaticMeshComponent.h"
 #include "ConstructorHelpers.h"
-#include "Common/WarSimulateHelper.h"
+#include "Common/OriginHelper.h"
 #include "Components/SpotLightComponent.h"
 #include "InventoryActor.h"
 #include "WarSimulateProject.h"
@@ -187,7 +187,7 @@ void ALocker::AddInventoryThing(class AInventoryActor* AddedActor, FVector Curso
 		AddedActor->bInLocker = true;       //该物体已在储物柜中
 		AddedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);   //把仓库物体附着在储物柜上
 		FVector DestRelativeLocation(0.f, - LockerLength * 0.5f + ArrayIndex * PerGridWidth + PerGridWidth * 0.5f, AddedActor->GetHeight() * 0.5f);
-		WarSimulateHelper::Debug_LogMessage(FString::Printf(TEXT("Locker Length: %f, PerGridWidth: %f, RelativeY: %f"), LockerLength, PerGridWidth, -LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2));
+		OriginHelper::Debug_LogMessage(FString::Printf(TEXT("Locker Length: %f, PerGridWidth: %f, RelativeY: %f"), LockerLength, PerGridWidth, -LockerLength / 2 + ArrayIndex * PerGridWidth + PerGridWidth / 2));
 		AddedActor->bIsInMove = true;
 		DestRelativeLocation.Y /= 1.5f;
 		AddedActor->DestLocation = DestRelativeLocation;   //设置新的目标位置
@@ -243,11 +243,11 @@ void ALocker::UpdateRelativePosToPawn(class FViewport* InViewport, uint32 i)
 		FVector WorldPos, WorldDir, DestPos;
 		FPlane LockerPlane(GetActorLocation(), FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::Z));       //Locker所在平面
 
-		WarSimulateHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerShowPos, WorldPos, WorldDir);
+		OriginHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerShowPos, WorldPos, WorldDir);
 		FVector IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);    //计算射线与平面的交点
 		RelativeToPawn_Show = IntersectionPos - OwnerController->GetFocalLocation();     //相对位置
 
-		WarSimulateHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerHidePos, WorldPos, WorldDir);
+		OriginHelper::DeprojectScreenToWorld_SpecifyPoint(OwnerController, LockerHidePos, WorldPos, WorldDir);
 		IntersectionPos = FMath::LinePlaneIntersection(WorldPos, WorldPos + 1000.f*WorldDir, LockerPlane);
 		RelativeToPawn_Hide = IntersectionPos + FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X)*(LockerWidth + 10.f) - OwnerController->GetFocalLocation();   //隐藏相对位置
 	}

@@ -3,7 +3,7 @@
 #include "TCTapComponent.h"
 #include "TouchHelper.h"
 #include "GameFramework/PlayerController.h"
-#include "WarSimulateHelper.h"
+#include "OriginHelper.h"
 
 
 // Sets default values for this component's properties
