@@ -29,6 +29,7 @@
   ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E5%8D%95%E4%B8%AA%E5%88%A0%E9%99%A4.gif)
   
   ### 6、批量删除
+  * 多选框呈现是使用Slate实现，多选功能实现其实就是物体与多面体相交测试，多面体就是把平面中的长方形转换到三维世界中的平截头体
   * 可以框选多个物体然后长按删除
   
   ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E6%89%B9%E9%87%8F%E5%88%A0%E9%99%A4.gif)
