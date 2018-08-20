@@ -32,3 +32,11 @@
   * 可以框选多个物体然后长按删除
   
   ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E6%89%B9%E9%87%8F%E5%88%A0%E9%99%A4.gif)
+  
+  ### 7、地形拖拽
+  * 可以拖拽地形（当然实际是视角摄像机的位置变换）
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E5%9C%B0%E5%BD%A2%E6%8B%96%E6%8B%BD.gif)
+  
+  ### 8、地形缩放
+  * 同样是摄像机的空间位置变换
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E5%9C%B0%E5%BD%A2%E7%BC%A9%E6%94%BE.gif)
