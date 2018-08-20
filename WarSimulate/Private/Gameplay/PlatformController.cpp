@@ -28,6 +28,7 @@
 #include "EngineUtils.h"
 #include "TCMultiSelectComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "FlightPlatform.h"
 
 
 APlatformController::APlatformController()
@@ -41,7 +42,8 @@ APlatformController::APlatformController()
 	PinchComponent(nullptr),
 	PostProcessVoulme(nullptr),
 	bInPreview(false),
-	bHasLandscape(false)
+	bHasLandscape(false),
+	ControlPlatform(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;      //Controller每帧更新
 	MaterialInventory.Reset();
@@ -176,6 +178,7 @@ void APlatformController::SetupInputComponent()
 		//InputComponent->BindAction(TEXT("Drag"), EInputEvent::IE_Released, this, &AMainController::StopDrag);
 		InputComponent->BindAction(TEXT("Quit"), EInputEvent::IE_Pressed, this, &APlatformController::QuitGame);
 		InputComponent->BindAction(TEXT("LockerSwitch"), EInputEvent::IE_Pressed, this, &APlatformController::SwitchLocker);
+		InputComponent->BindAction(TEXT("ToggleTarget"), EInputEvent::IE_Pressed, this, &APlatformController::ToggleTarget);
 		//InputComponent->BindAction(TEXT("PopMenu"), EInputEvent::IE_Pressed, this, &AMainController::SpawnNewWidget);
 	}
 }
@@ -654,5 +657,38 @@ void APlatformController::StopPreview()
 		CurDragThing = nullptr;
 
 		GetGroundCamera()->BlurMode(false);
+	}
+}
+
+void APlatformController::ToggleTarget()
+{
+	for (TActorIterator<AFlightPlatform> It(GetWorld()); It; ++It)
+	{
+		if (*It != ControlPlatform)
+		{
+			SetViewTargetWithBlend(*It, 1.f, EViewTargetBlendFunction::VTBlend_Linear);
+			FTimerDelegate Delegate;
+			Delegate.BindUObject(this, &APlatformController::PossessNewTarget);
+			GetWorldTimerManager().SetTimer(PossessHandle, Delegate, 1.f, false);
+			ControlPlatform = *It;
+			break;
+		}
+	}
+}
+
+void APlatformController::PossessNewTarget()
+{
+	static bool bControlPlatform = true;
+	if (AActor* TargetActor = GetViewTarget())
+	{
+		AInventoryActor* TempTarget = Cast<AInventoryActor>(TargetActor);
+		if (bControlPlatform)
+		{
+			bControlPlatform = false;
+			TempTarget->PlatformData->PlatformPos = FVector(-225.f, 0.f, 17454.f);
+			TempTarget->PlatformData->bControlled = true;
+		}
+
+		Possess(TempTarget);
 	}
 }

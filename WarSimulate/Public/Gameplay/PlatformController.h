@@ -89,6 +89,10 @@ public:
 
 	bool IsInDrag() { return CurDragThing != nullptr; };
 
+	void ToggleTarget();
+
+	void PossessNewTarget();
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
@@ -150,6 +154,11 @@ private:
 	uint8 bHasLandscape : 1;
 
 	class UClass* SpawnActor;
+
+	class AFlightPlatform* ControlPlatform;
+
+	/**在经过镜头转换后就开始Possess新目标*/
+	FTimerHandle PossessHandle;
 
 	class TSharedPtr<class SPopMenuWidget> PopMenu;
 
