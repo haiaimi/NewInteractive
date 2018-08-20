@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "WarSimulateGameModeBase.generated.h"
+#include "WarSimulateGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WARSIMULATE_API AWarSimulateGameModeBase : public AGameModeBase
+class WARSIMULATE_API AWarSimulateGameMode : public AGameModeBase
 {
 	GENERATED_UCLASS_BODY()
 	

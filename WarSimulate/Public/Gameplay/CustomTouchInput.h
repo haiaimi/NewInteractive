@@ -136,7 +136,7 @@ public:
 	/**更新输入状态*/
 	void UpdateInputStates(float DeltaTime);
 
-	FVector2D*const GetTouchAnchors();
+	FVector2D* const GetTouchAnchors();
 	
 private:
 	/**更新游戏触摸输入状态*/
