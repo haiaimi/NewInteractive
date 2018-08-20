@@ -7,7 +7,6 @@
 #include "Earth.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/PlayerInput.h"
-#include "Gameplay/MainController.h"
 #include "GroundCameraComponent.h"
 #include "FlightPlatform.h"
 

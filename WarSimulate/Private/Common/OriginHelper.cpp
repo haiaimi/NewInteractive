@@ -3,7 +3,7 @@
 #include "OriginHelper.h"
 #include "Engine/Engine.h"
 #include "WarSimulate/WarSimulateProject.h"
-#include "Gameplay/MainController.h"
+#include "Gameplay/PlatformController.h"
 #include "SceneView.h"
 #include "Engine/LocalPlayer.h"
 #include "Paths.h"
@@ -218,7 +218,7 @@ void OriginHelper::ResetJson()
 	JsonDataArray.Empty();
 }
 
-void OriginHelper::DeprojectScreenToWorld_Cursor(const AMainController* PlayerControl, FVector& OutWorldPos, FVector& OutWorldDir)
+void OriginHelper::DeprojectScreenToWorld_Cursor(const APlatformController* PlayerControl, FVector& OutWorldPos, FVector& OutWorldDir)
 {
 	FVector2D MousePosition;
 	PlayerControl->GetMousePosition(MousePosition.X, MousePosition.Y);    //获取鼠标位置
@@ -231,7 +231,7 @@ void OriginHelper::DeprojectScreenToWorld_Cursor(const AMainController* PlayerCo
 	FSceneView::DeprojectScreenToWorld(MousePosition, ProjectionData.GetConstrainedViewRect(), InvViewProjMatrix, OutWorldPos, OutWorldDir);   //其流程就是: 屏幕坐标-->NDC坐标-->世界坐标
 }
 
-void OriginHelper::DeprojectScreenToWorld_SpecifyPoint(const AMainController* PlayerControl, FVector2D ScreenPos, FVector& OutWorldPos, FVector& OutWorldDir)
+void OriginHelper::DeprojectScreenToWorld_SpecifyPoint(const APlatformController* PlayerControl, FVector2D ScreenPos, FVector& OutWorldPos, FVector& OutWorldDir)
 {
 	FVector2D ScreenSize;
 	PlayerControl->GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);   //获取屏幕尺寸

@@ -7,6 +7,7 @@
 #include "InventoryActor.h"
 #include "OriginHelper.h"
 #include "Components/StaticMeshComponent.h"
+#include "Landscape.h"
 
 
 // Sets default values for this component's properties
@@ -104,5 +105,6 @@ void UTCDragSwipeComponent::DetectActorOnPoint(const FVector2D& Point, FVector& 
 
 bool UTCDragSwipeComponent::IsDragActor()
 {
-	return TargetActor != nullptr;
+	//同时判断是否指向的是地形
+	return TargetActor != nullptr && !TargetActor->IsA(ALandscape::StaticClass());
 }

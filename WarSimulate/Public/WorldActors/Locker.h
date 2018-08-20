@@ -103,7 +103,7 @@ private:
 	UPROPERTY()
 	class USpotLightComponent* SpotLight;
 
-	class AMainController* OwnerController;
+	class APlatformController* OwnerController;
 
 	uint8 bInMove : 1;
 

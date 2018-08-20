@@ -5,7 +5,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "SlateBasics.h"
 #include "SlateExtras.h"
-#include "Gameplay/MainController.h"
+#include "Gameplay/PlatformController.h"
 
 class AInventoryActor;
 
@@ -26,7 +26,7 @@ class WARSIMULATE_API SInventoryMenuWidget : public SCompoundWidget
 public:
 	SLATE_BEGIN_ARGS(SInventoryMenuWidget)
 	{}
-	SLATE_ARGUMENT(TWeakObjectPtr<AMainController>, OwnerController)
+	SLATE_ARGUMENT(TWeakObjectPtr<APlatformController>, OwnerController)
 	SLATE_END_ARGS()
 
 	/** Constructs this widget with InArgs */
@@ -64,7 +64,7 @@ public:
 	void PlayPreviewButtonAnimation(bool bShow);
 
 public:
-	TWeakObjectPtr<AMainController> OwnerController;
+	TWeakObjectPtr<APlatformController> OwnerController;
 
 	/**玩家当前鼠标是否在UI内*/
 	uint32 bIsInUI : 1;

@@ -4,7 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Common/OriginHelper.h"
-#include "Gameplay/MainController.h"
+#include "Gameplay/PlatformController.h"
 #include "WarSimulateProject.h"
 #include "Locker.h"
 #include "Engine/Engine.h"
@@ -179,7 +179,7 @@ float AInventoryActor::GetHeight()
 	return Height;
 }
 
-void AInventoryActor::StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne)
+void AInventoryActor::StartMoveWithCursor(class APlatformController* Owner, const FVector Offset, const FPlane MovePalne)
 {
 	this->OwnerController = Owner;
 	this->MovePlane = MovePalne;
@@ -218,7 +218,7 @@ void AInventoryActor::ShowHighlight(bool bShow)
 FReply AInventoryActor::DestroySelf()
 {
 	bDestroyedFromPopMenu = true;
-	AMainController* MyController = Cast<AMainController>(GetWorld()->GetFirstPlayerController());
+	APlatformController* MyController = Cast<APlatformController>(GetWorld()->GetFirstPlayerController());
 	TArray<AActor*>& MultiSelectedActor = MyController->GetMultiSelectedActors();
 	if (MultiSelectedActor.Num() > 0)
 	{
@@ -239,7 +239,7 @@ void AInventoryActor::Destroyed()
 
 	if (!bDestroyedFromPopMenu)
 		return;
-	AMainController* MyController = Cast<AMainController>(GetWorld()->GetFirstPlayerController());
+	APlatformController* MyController = Cast<APlatformController>(GetWorld()->GetFirstPlayerController());
 	TSharedPtr<SPopMenuWidget>& PopMenu1 = MyController->GetPopMenu();
 	if (PopMenu1.IsValid())
 		PopMenu1.Reset();

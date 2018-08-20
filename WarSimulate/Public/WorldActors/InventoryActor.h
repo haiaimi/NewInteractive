@@ -72,7 +72,7 @@ public:
 	virtual float GetHeight();
 
 	/**跟随鼠标移动*/
-	void StartMoveWithCursor(class AMainController* Owner, const FVector Offset, const FPlane MovePalne);
+	void StartMoveWithCursor(class APlatformController* Owner, const FVector Offset, const FPlane MovePalne);
 
 	void StopMoveWithCursor();
 
@@ -190,7 +190,7 @@ private:
 	FVector RelativeRot;
 
 	/**控制该物体的Controller*/
-	class AMainController* OwnerController;
+	class APlatformController* OwnerController;
 
 	/**物体移动的平面，因为要根据鼠标位置移动，所以目前只使用二维平面的移动*/
 	FPlane MovePlane;

@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "OriginHelper.h"
-#include "Gameplay/MainController.h"
+#include "Gameplay/PlatformController.h"
 #include "Widgets/SInventoryMenuWidget.h"
 #include "DrawDebugHelpers.h"
 #include "SPopMenuWidget.h"
@@ -22,7 +22,7 @@ void AWarSimulateHUD::DrawHUD()
 
 	if (!InventoryWidget.IsValid() && GEngine)
 	{
-		if (AMainController* OwnerController = Cast<AMainController>(GetOwningPlayerController()))
+		if (APlatformController* OwnerController = Cast<APlatformController>(GetOwningPlayerController()))
 		{
 			SAssignNew(InventoryWidget, SInventoryMenuWidget)
 			.OwnerController(OwnerController);

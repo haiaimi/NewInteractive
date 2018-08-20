@@ -87,7 +87,7 @@ void ALocker::BeginPlay()
 	LockerContent.SetNum(4);      //设置储物柜的容量
 	if (GetOwner())
 	{
-		OwnerController = Cast<AMainController>(GetOwner());
+		OwnerController = Cast<APlatformController>(GetOwner());
 	}
 
 	if (GEngine && GEngine->GameViewport)

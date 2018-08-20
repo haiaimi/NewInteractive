@@ -8,7 +8,7 @@
 
 static const float DoubleTapMaxDistance = 10.f;    //双击事件情况下，两次触摸的最大距离（一般双击状态，两次点击距离过大则不算）
 static const float DoubleTapIntervalTime = 0.25f;   //双击时间间隔
-static const float CheckTouchLevelTime = 0.07f;     //检测触摸事件类型的等级
+static const float CheckTouchLevelTime = 0.1f;     //检测触摸事件类型的等级
 static const float HoldTime = 0.8f;                 //按下持续时间
 
 UCustomTouchInput::UCustomTouchInput(const FObjectInitializer& ObjectInitializer)

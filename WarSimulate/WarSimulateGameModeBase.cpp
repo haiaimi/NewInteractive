@@ -2,12 +2,12 @@
 
 #include "WarSimulateGameModeBase.h"
 #include "UI/WarSimulateHUD.h"
-#include "Gameplay/MainController.h"
+#include "Gameplay/PlatformController.h"
 #include "Gameplay/GroundSpectatorPawn.h"
 
 AWarSimulateGameModeBase::AWarSimulateGameModeBase(const FObjectInitializer& Initializer)
 {
-	PlayerControllerClass = AMainController::StaticClass();
+	PlayerControllerClass = APlatformController::StaticClass();
 	HUDClass = AWarSimulateHUD::StaticClass();
 	DefaultPawnClass = AGroundSpectatorPawn::StaticClass();
 	SpectatorClass = AGroundSpectatorPawn::StaticClass();
