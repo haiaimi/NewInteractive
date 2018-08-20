@@ -5,10 +5,12 @@
 #include "GameFramework/PlayerController.h"
 #include "OriginHelper.h"
 #include "CustomTouchInput.h"
+#include "Engine/World.h"
 
 static const float GlobalDetectTime = 0.1f;
 static const float ZoomHeight = 20000.f;      //滚动的高度
 static const float BaseHeight = 20000.f;
+static const float CameraMaxSpeed = 100000.f;     //摄像机最大移动速度
 static const FRotator CamDefaultRotation = FRotator(-70.f, 0.f, 0.f);    //默认摄像机角度
 
 UGroundCameraComponent::UGroundCameraComponent():
@@ -127,7 +129,7 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 	}
 
 	APlayerController* Controller = GetPlayerController();
-	AMainController* MyController = Cast<AMainController>(Controller);
+	APlatformController* MyController = Cast<APlatformController>(Controller);
 	LastUpdateTime = DownTime;
 
 	if (Controller && MyController && MyController->CanDragLanscape() &&!bInPinch)
@@ -137,6 +139,9 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 		{
 			FVector DeltaPos = StartSwipePos - HitResult.ImpactPoint;
 			DeltaPos.Z = 0.f;        //忽略Z分量
+
+			const float CurSpeed = DeltaPos.Size() / GetWorld()->GetDeltaSeconds();
+			//if(CurSpeed<CameraMaxSpeed)
 
 			if (!DeltaPos.IsNearlyZero())
 			{
@@ -175,6 +180,7 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 
 void UGroundCameraComponent::EndSwipe(const FVector2D& InPoint, float DownTime)
 {
+	OriginHelper::Debug_ScreenMessage(TEXT("End Swipe"));
 	//StartSwipePos = GetOwner()->GetActorLocation();
 	bDecelerate = true;
 	FVector DeclerateVec;
@@ -187,6 +193,11 @@ void UGroundCameraComponent::EndSwipe(const FVector2D& InPoint, float DownTime)
 		DecelerateSpeed = DeclerateVec / DownTime;
 	if (DownTime >= GlobalDetectTime)
 		DecelerateSpeed = DeclerateVec / GlobalDetectTime;
+
+	if (DecelerateSpeed.Size() > CameraMaxSpeed)
+	{
+		DecelerateSpeed = DecelerateSpeed.GetSafeNormal()*CameraMaxSpeed;
+	}
 
 	TracePoints.Empty();   //清空数组内容
 }
