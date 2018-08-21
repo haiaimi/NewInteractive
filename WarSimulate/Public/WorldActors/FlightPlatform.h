@@ -7,7 +7,7 @@
 #include "FlightPlatform.generated.h"
 
 static const FString FlightConfigName(TEXT("CommonPlane.json"));
-struct FBaseActorData;
+struct FInventoryActorData;
 
 /**
  *  飞行平台

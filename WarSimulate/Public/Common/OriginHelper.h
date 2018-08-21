@@ -22,6 +22,9 @@ public:
 
 	static void Debug_LogMessage(FString&& InString);
 
+	/**适配角度差，使其限制在-180-180*/
+	static float AdaptSubAngle(const float InAngle1,const float InAngle2);
+
 	///向Json中写入（序列化相关）Begin
 
 	/** 向文件写入Json数据

@@ -81,6 +81,7 @@ void AFlightPlatform::Tick(float DeltaTime)
 	ModuleMovement->MoveUpdatedComponent(GetActorRotation().Vector()*FlySpeed*DeltaTime/100.f, GetActorRotation().Quaternion(), true);
 	//SetMaxSpeed(FlySpeed*DeltaTime);
 
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(FlySpeed));
 	TakeOff(DeltaTime);
 	UpdatePlatformData();
 

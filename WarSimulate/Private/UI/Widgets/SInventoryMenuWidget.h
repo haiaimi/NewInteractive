@@ -75,7 +75,7 @@ public:
 	/**用于Menu界面渐入的动画*/
 	FCurveHandle InventoryMenuIn;
 
-	/**结束预览按键动画*/
+	/**结束预览按键动 画*/
 	FCurveHandle PreviewButtonIn;
 
 	/**动画序列*/

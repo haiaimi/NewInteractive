@@ -15,7 +15,7 @@ typedef void(AInventoryActor::*RemoveDelegatePtr)(AInventoryActor*);
 extern TMap<FName, BindFunctionPtr> GlobalBindFunctions;     //全局函数指针（绑定对象的函数指针）
 extern TMap<FName, RemoveDelegatePtr> GlobalRemoveDelegates;   
 
-struct FBaseActorData;
+struct FInventoryActorData;
 struct FFlightPlatformData;
 class AFlightPlatform;
 
@@ -26,8 +26,19 @@ UCLASS()
 class WARSIMULATE_API AInventoryActor : public APawn, public ICustomTouchInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
+
+	/**宏测试*/
+	/*下面的宏中间不要加任何东西，否则会影响内存定位错误，程序会崩溃*/
+	WH_FUN_DEFINE_BEGIN();
+
+	WH_FUN_DEFINE(FlightPlatform, true, SendPosInfo, void, FVector, PlatformPos, float, FlySpeed);
+
+	WH_FUN_DEFINE(InventoryActor, false, SendID, void, FName, ID);
+
+	WH_FUN_DEFINE_END(2);
+
 	// Sets default values for this actor's properties
 	AInventoryActor(const FObjectInitializer& ObjectInitializer);
 
@@ -119,20 +130,10 @@ public:
 	virtual void MoveRightImpl(float Val);
 
 	/**获取平台信息*/
-	struct FBaseActorData* GetPlatformData() { return PlatformData; };
+	struct FInventoryActorData* GetPlatformData() { return PlatformData; };
 
 	/**设置平台信息*/
 	void SetPlatformData(FName InID, ESQBTeam::Type InTeam);
-
-	/**宏测试*/
-	/*下面的宏中间不要加任何东西，否则会影响内存定位错误，程序会崩溃*/
-	/*WH_FUN_DEFINE_BEGIN();
-
-	WH_FUN_DEFINE(FlightPlatform, true, SendPosInfo, void, FVector, PlatformPos, float, FlySpeed);
-
-	WH_FUN_DEFINE(BaseActor, false, SendID, void, FName, ID);
-
-	WH_FUN_DEFINE_END(2);*/
 
 	//GET_SPECIFIED_PLATFORM_DATA(PlatformData.ID, TArray<FName>, AllOtherName, this);
 
@@ -178,7 +179,7 @@ public:
 	class UCameraComponent* ViewCamera;
 
 	/** 平台信息，包含平台的一些基础信息*/
-	FBaseActorData* PlatformData;
+	FInventoryActorData* PlatformData;
 
 protected:
 		/**平台类型*/
@@ -207,3 +208,6 @@ private:
 	/**该模块所在平台，该成员可以为空*/
 	class AInventoryActor * OwnerPltform;
 };
+
+WH_CUSTOM_FUN_FINISH(AInventoryActor, SendPosInfo);
+WH_CUSTOM_FUN_FINISH(AInventoryActor, SendID);

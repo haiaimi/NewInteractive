@@ -34,7 +34,7 @@ AInventoryActor::AInventoryActor(const FObjectInitializer& ObjectInitializer):
 	BaseScene = CreateDefaultSubobject<USceneComponent>(TEXT("BaseScene"));
 	ActorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ActorMesh"));
 	ViewCamera->SetupAttachment(BaseScene);
-	PlatformData = new FBaseActorData;
+	PlatformData = new FInventoryActorData;
 
 	if (BaseScene)
 		RootComponent = BaseScene;
@@ -65,10 +65,23 @@ void AInventoryActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	WH_FUN_DEFINE_IMPLEMENT();
 	OriginLocation = GetRelativeLocation();
 
 	//更新通信状态，执行对应通信状态的方法
 	UpdateCommunicateType();   
+
+	for (auto Iter = GlobalBindFunctions.CreateIterator(); Iter; ++Iter)
+	{
+		OriginHelper::Debug_ScreenMessage((*Iter).Key.ToString());
+	}
+
+	OriginHelper::Debug_ScreenMessage(FString::Printf(TEXT("%p"), &SendPosInfoBindPtr), 10);
+	OriginHelper::Debug_ScreenMessage(FString::Printf(TEXT("%p"), &SendIDBindPtr), 10);
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(sizeof(FVector)));
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(sizeof(ICustomTouchInterface)));
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(sizeof(FSendPosInfoDelegate)));
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber((int32)(&DefineEnd - &DefineStart)));
 }
 
 void AInventoryActor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

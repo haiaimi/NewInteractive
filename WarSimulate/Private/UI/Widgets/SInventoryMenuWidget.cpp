@@ -25,7 +25,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 	FSimpleDelegate SpawnPlain;
 	SpawnPlain.BindLambda([&]()
 	{
-		if (OwnerController.IsValid() && !bIsInUI)
+		if (OwnerController.IsValid() && !bIsInUI && !OwnerController->IsInDrag())
 		{
 			bIsInUI = true;
 
@@ -95,7 +95,7 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						//.OnClicked(this, &SInventoryMenuWidget::OnClicked)
 						.OnPressed(this, &SInventoryMenuWidget::OnPressed)
 						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
-						.PressMethod(EButtonPressMethod::Type::DownAndUp)
+						.PressMethod(EButtonPressMethod::Type::ButtonPress)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
 						.TouchMethod(EButtonTouchMethod::Type::DownAndUp)
 						.IsFocusable(false)
@@ -140,7 +140,6 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 						.OnReleased(this, &SInventoryMenuWidget::OnReleased)
 						.PressMethod(EButtonPressMethod::Type::ButtonPress)
 						.ClickMethod(EButtonClickMethod::Type::MouseDown)
-						.IsFocusable(false)
 						[
 							SNew(STextBlock)
 							.Text(FText::FromString(FString(TEXT("Plain"))))
@@ -197,8 +196,6 @@ void SInventoryMenuWidget::OnPressed()
 
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
-
-		OriginHelper::Debug_ScreenMessage(TEXT("SPawn Actor"));
 	}
 }
 
@@ -206,8 +203,6 @@ void SInventoryMenuWidget::OnReleased()
 {
 	HoldTime = 0.f;
 	bIsInUI = false;
-		
-	OriginHelper::Debug_ScreenMessage(TEXT("Stop Spawn Actor"));
 }
 
 void SInventoryMenuWidget::LoadLandscape()
@@ -227,7 +222,6 @@ FReply SInventoryMenuWidget::OnClicked()
 		OwnerController->SpawnInventoryActors(AEarth::StaticClass());
 		HoldTime = 0.001f;
 
-		OriginHelper::Debug_ScreenMessage(TEXT("Spawn Actor"));
 		return FReply::Handled();
 	}
 

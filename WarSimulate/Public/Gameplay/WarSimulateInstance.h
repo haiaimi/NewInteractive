@@ -53,7 +53,7 @@ private:
 	TArray<AInventoryActor*> AllSQBActor;
 
 	/**所有SQBActor相关的数据*/
-	TArray<struct FBaseActorData*> AllSQBData;
+	TArray<struct FInventoryActorData*> AllSQBData;
 
 	/**内部通信管理类*/
 	UCommunicationManager* CommunicationManager;

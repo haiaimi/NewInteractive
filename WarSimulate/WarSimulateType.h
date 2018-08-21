@@ -94,6 +94,7 @@ TArray<FString> FunNames;\
 int64 DefineStart=1;
 
 #define WH_FUN_DEFINE_END(FunCount)\
+int64 DefineEnd=1;\
 const int32 CustomFunCounts=FunCount;
 
 /**识别方法名以便后面的使用*/
@@ -107,21 +108,22 @@ if (GlobalBindFunctions.Num() == 0 && GlobalRemoveDelegates.Num()==0)\
 	BindFunctionPtr* FunPoint = nullptr;\
 	RemoveDelegatePtr* RemoveDelegatePoint = nullptr;\
 	StartPoint++;\
+	const uint32 FunDefineWidth=((uint32)(&DefineEnd - &DefineStart)-1)/2;\
 	for (int32 i = 0; i < CustomFunCounts; ++i)\
 	{\
 		StrPoint = (FString*)(StartPoint);\
 		StartPoint += 2;\
 		FunPoint = (BindFunctionPtr*)(StartPoint);\
 		StartPoint += 2;\
-		RemoveDelegatePoint=(RemoveDelegatePtr*)(StartPoint);\
-		StartPoint += 17;\
+		RemoveDelegatePoint = (RemoveDelegatePtr*)(StartPoint);\
+		StartPoint += FunDefineWidth-4;\
 		GlobalBindFunctions.Add(FName(**StrPoint), *FunPoint);\
 		GlobalRemoveDelegates.Add(FName(**StrPoint), *RemoveDelegatePoint);\
-		OriginHelper::Debug_ScreenMessage(MoveTemp(*StrPoint),10);\
+		\
 	}\
 }
 
-#define WH_CUSTOM_FUN_FINISH(ClassName,FunName,FunNumber)\
+#define WH_CUSTOM_FUN_FINISH(ClassName,FunName)\
 typedef ClassName::F##FunName F##FunName;\
 typedef ClassName::F##FunName##Delegate F##FunName##Delegate;
 
@@ -292,7 +294,7 @@ namespace EFunctionName
 
 /**平台的信息*/
 USTRUCT(BlueprintType)
-struct FBaseActorData
+struct FInventoryActorData
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -320,7 +322,7 @@ struct FBaseActorData
 
 	//PlatformData_Speed Speed;
 
-	FBaseActorData()
+	FInventoryActorData()
 	{
 		ID = TEXT("None");
 		OwnerTeam = ESQBTeam::UnKnown;
@@ -330,7 +332,7 @@ struct FBaseActorData
 	}
 
 	/**拷贝构造函数*/
-	FBaseActorData(const FBaseActorData& InData)
+	FInventoryActorData(const FInventoryActorData& InData)
 	{
 		*this = InData;
 	}
@@ -338,7 +340,7 @@ struct FBaseActorData
 
 /**具体的飞行平台*/
 USTRUCT(BlueprintType)
-struct FFlightPlatformData :public FBaseActorData
+struct FFlightPlatformData :public FInventoryActorData
 {
 	GENERATED_USTRUCT_BODY();
 
@@ -349,13 +351,13 @@ struct FFlightPlatformData :public FBaseActorData
 	float FlyAcceleration;
 
 	FFlightPlatformData():
-		FBaseActorData()
+		FInventoryActorData()
 	{
 		FlySpeed = 0.f;
 		FlyAcceleration = 0.f;
 	}
 
-	FFlightPlatformData(const FBaseActorData& InData):
-		FBaseActorData(InData)
+	FFlightPlatformData(const FInventoryActorData& InData):
+		FInventoryActorData(InData)
 	{}
 };

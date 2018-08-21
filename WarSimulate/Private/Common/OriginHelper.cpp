@@ -30,6 +30,14 @@ void OriginHelper::Debug_LogMessage(FString&& InString)
 	UE_LOG(LogOrigin, Log, TEXT("%s"), *InString)
 }
 
+float OriginHelper::AdaptSubAngle(const float InAngle1, const float InAngle2)
+{
+	const float TempSub = InAngle1 - InAngle2;
+
+	//if()
+	return 0;
+}
+
 bool OriginHelper::WriteJsonToFile(const FString& FileName, const FString& JsonData)
 {
 	if (JsonData.IsEmpty())return false;

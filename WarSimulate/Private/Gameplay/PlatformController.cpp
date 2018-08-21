@@ -265,35 +265,31 @@ void APlatformController::StopDrag(FVector2D StopPoint)
 				AimLocker->AddInventoryThing(CurDragThing, HitResult.ImpactPoint);
 			}
 		}
-		else
+		else if (CurDragThing->bInLocker)
 		{
-			//if (ATestProjectHUD* CurHUD = Cast<ATestProjectHUD>(GetHUD()))
-			//{
-			//	if (CurHUD->IsInventoryWidgetValid())
-			//	{
-			//		const bool bInMenu = DoesCursorInMenu();
-			//		if (bInMenu && CurHUD->IsMenuShow() && CurMenuSpawnThing)      //菜单正在显示，并且鼠标指针在菜单内
-			//		{
-			//			CurMenuSpawnThing->Destroy();
-			//		}
-			//		else
-			//		{
-			//			CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
-			//			if (CurDragThing->bInLocker)
-			//			{
-			//				ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
-			//				CurDragThing->bInLocker = false;
+			ALocker* OwnerLocker = Cast<ALocker>(CurDragThing->GetAttachParentActor());
+			CurDragThing->bInLocker = false;
+			CurDragThing->OriginLocation = CurDragThing->GetActorLocation();  //设置物体当前新的停留位置
 
-			//				if (OwnerLocker)
-			//				{
-			//					OwnerLocker->RemoveInventoryThing(CurDragThing);
-			//					OwnerLocker->StopCastLight();
-			//				}
-			//				//CurDragThing->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			//			}
-			//		}
-			//	}
-			//}
+			if (OwnerLocker)
+			{
+				OwnerLocker->RemoveInventoryThing(CurDragThing);
+				OwnerLocker->StopCastLight();
+			}
+		}
+
+		if (AWarSimulateHUD* CurHUD = Cast<AWarSimulateHUD>(GetHUD()))
+		{
+			if (CurHUD->IsInventoryWidgetValid())
+			{
+				const bool bInMenu = DoesPointInMenu(StopPoint);
+				if (bInMenu && CurHUD->IsMenuShow() && CurMenuSpawnThing)      //菜单正在显示，并且鼠标指针在菜单内
+				{
+					OriginHelper::Debug_ScreenMessage(TEXT("Stop Drag"));
+					CurMenuSpawnThing->Destroy();
+					bShouldSpawnActor = false;
+				}
+			}
 		}
 		//FSlateApplication::Get().SetCursorPos(FVector2D(0.f, 0.f));       //在触屏状态下恢复鼠标位置
 		//CurDragThing->StopMoveWithCursor();
