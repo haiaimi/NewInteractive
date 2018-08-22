@@ -10,14 +10,16 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "WarSimulateProject.h"
+#include "WarSimulateInstance.h"
 
 
-AFlightPlatform::AFlightPlatform(const FObjectInitializer& ObjectInitializer):
+AFlightPlatform::AFlightPlatform(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UFloatingPawnMovement>(TEXT("ModuleMovement"))),
 	bInAir(false),
 	TakeOffAngle(0.f),
 	CurOffsetAngle_Right(0.f),
-	CurOffsetAngle_Up(0.f)
+	CurOffsetAngle_Up(0.f),
+	OriginAngle(0.f)
 {
 	PlaneBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PlaneCollision"));
 	PlaneBox->SetupAttachment(BaseScene);
@@ -44,6 +46,13 @@ AFlightPlatform::AFlightPlatform(const FObjectInitializer& ObjectInitializer):
 	PlatformData->ID = TEXT("Plane");
 	ExpandPlatformData = static_cast<FFlightPlatformData*>(PlatformData);
 
+	FOnClicked ClickDelegate;
+	ClickDelegate.BindUObject(this, &AFlightPlatform::PossessCurPlatform);
+	InfoInMenu.AddButton(FString(TEXT("玩家操纵")), ClickDelegate);
+
+	ClickDelegate.BindUObject(this, &AFlightPlatform::FlyInFollowing);
+	InfoInMenu.AddButton(FString(TEXT("跟飞")), ClickDelegate);
+
 	SupportTouchType.Add(ECustomTouchType::Drag_1P);
 }
 
@@ -51,6 +60,7 @@ void AFlightPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OriginAngle = GetActorRotation().Yaw;
 	////测试序列化
 	//TArray<int32>  EnumsResult = { 0,1,2,3 };
 	//FVector Pos(10.1f, 10.1f, 10.1f);
@@ -81,12 +91,16 @@ void AFlightPlatform::Tick(float DeltaTime)
 	ModuleMovement->MoveUpdatedComponent(GetActorRotation().Vector()*FlySpeed*DeltaTime/100.f, GetActorRotation().Quaternion(), true);
 	//SetMaxSpeed(FlySpeed*DeltaTime);
 
-	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(FlySpeed));
+	FSendPosInfo SendPosInfo;
+	SendPosInfo.FlySpeed = FlySpeed;
+	SendPosInfo.PlatformPos = GetActorLocation() - GetActorRotation().Vector()*100.f;
+	SendPosInfo_Publish(&SendPosInfo);
+
 	TakeOff(DeltaTime);
-	UpdatePlatformData();
 
 	if (Controller == NULL)MoveRightImpl(0);
 	if (FlySpeed < 10000.f || !bInAir)return;
+
 	// 飞机飞行时的晃动，提高真实性
 	static float ShakeTime = 0.f;
 	static float AddDir = 1.f;
@@ -100,6 +114,7 @@ void AFlightPlatform::Tick(float DeltaTime)
 		ShakeTime = -PI;
 		AddDir = 1.f;
 	}
+
 	const float CurRelHeight = FMath::Sin(ShakeTime + PI)*AddDir;
 	ViewCamera->SetRelativeLocation(FVector(0.f, ShakeTime * 0.7f, CurRelHeight)*2.f);
 
@@ -292,6 +307,47 @@ int32 AFlightPlatform::EventTest(float Speed, int32 Num)
 	return Num;
 }
 
+FReply AFlightPlatform::PossessCurPlatform()
+{
+	if (APlatformController* PlatformController = Cast<APlatformController>(GetOwner()))
+	{
+		PlatformController->SetNextControlPlatform(this);
+	}
+
+	return FReply::Handled();
+}
+
+FReply AFlightPlatform::FlyInFollowing()
+{
+	if (APlatformController* PlatformController = Cast<APlatformController>(GetOwner()))
+	{
+		TArray<AActor*>& MultiSelected = PlatformController->GetMultiSelectedActors();
+
+		if (MultiSelected.Num() > 0)
+			for (auto Iter = TArray<AActor*>::TIterator(MultiSelected); Iter; ++Iter)
+			{
+				if (AFlightPlatform* Temp = Cast<AFlightPlatform>(*Iter))
+				{
+					UWarSimulateInstance* GameInstance = GetWorld()->GetGameInstance<UWarSimulateInstance>();
+					if (PlatformController->GetControlPlatform())
+						GameInstance->SendPosInfo_BuildCommunication(PlatformController->GetControlPlatform(), Temp);  //构建两架飞机间的通信
+					else
+						UE_LOG(LogOrigin, Error, TEXT("还未设置主控制飞机"));
+				}
+			}
+		else
+		{
+			UWarSimulateInstance* GameInstance = GetWorld()->GetGameInstance<UWarSimulateInstance>();
+			if (PlatformController->GetControlPlatform())
+				GameInstance->SendPosInfo_BuildCommunication(PlatformController->GetControlPlatform(), this);
+			else
+				UE_LOG(LogOrigin, Error, TEXT("还未设置主控制飞机"));
+		}
+	}
+
+	return FReply::Handled();
+}
+
 FVector AFlightPlatform::GetUpVector()
 { 
 	FVector Up = FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::Z);
@@ -335,13 +391,14 @@ void AFlightPlatform::TakeOff(float DeltaTime)
 
 		//使用这个简单粗暴的方法
 		FlySpeed = 20000.f;
-		MoveRightImpl(1.f);
-		if (FMath::Abs(GetActorRotation().Yaw - 90.f) < 1.f)
+		MoveRightImpl(-1.f);
+		if (FMath::Abs(OriginHelper::AdaptSubAngle(GetActorRotation().Yaw, OriginAngle - 90.f)) < 1.f)
 			TakeOffAngle = -1.f;
+
 	}
 	else if (TakeOffAngle < 0.f)   //下面的就是加速起步
 	{
-		FlySpeed += 100000.f*DeltaTime;
+		FlySpeed += 100000.f * DeltaTime;
 
 		if (FlySpeed > 100000.f)
 		{

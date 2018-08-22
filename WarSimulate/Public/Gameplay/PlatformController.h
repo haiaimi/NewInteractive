@@ -89,6 +89,10 @@ public:
 
 	bool IsInDrag() { return CurDragThing != nullptr; };
 
+	void SetNextControlPlatform(class AFlightPlatform* InPlatformRef);
+
+	class AFlightPlatform* GetControlPlatform() { return ControlPlatform; }
+
 	void ToggleTarget();
 
 	void PossessNewTarget();
@@ -155,6 +159,7 @@ private:
 
 	class UClass* SpawnActor;
 
+	/**玩家要控制的平台*/
 	class AFlightPlatform* ControlPlatform;
 
 	/**在经过镜头转换后就开始Possess新目标*/

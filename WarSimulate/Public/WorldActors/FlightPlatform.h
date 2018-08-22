@@ -54,6 +54,12 @@ public:
 
 	float GetFlySpeed() { return FlySpeed; };
 
+	/**设置当前平台为玩家所控*/
+	FReply PossessCurPlatform();
+
+	/**设置为跟飞*/
+	FReply FlyInFollowing();
+
 private:
 	/**获取飞行平台的向上的向量*/
 	FVector GetUpVector();
@@ -83,6 +89,9 @@ private:
 	float CurOffsetAngle_Right = 0.f;  
 
 	float CurOffsetAngle_Up = 0.f;
+
+	/**飞机停机时的Yaw角度大小*/
+	float OriginAngle;
 
 	/**飞机碰撞体*/
 	class UBoxComponent* PlaneBox;

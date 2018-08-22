@@ -352,8 +352,7 @@ void APlatformController::OnHoldPressed(const FVector2D& Point, float DownTime)
 	{
 		NewMenuInfo = CurTargetActor->InfoInMenu;
 	}
-	else
-		NewMenuInfo.SetButtonNum(8);
+	
 
 	FVector2D ScreenSize;
 	GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
@@ -413,8 +412,10 @@ void APlatformController::OnSwipePressed(const FVector2D& Point, float DownTime)
 			FVector WorldPos, WorldDir;
 			DeprojectScreenPositionToWorld(Point.X, Point.Y, WorldPos, WorldDir);
 
+			FActorSpawnParameters SpawnParameter;
+			SpawnParameter.Owner = this;
 			const FTransform ActorSpawnTransform = FTransform(FRotator::ZeroRotator, WorldPos + 800.f*WorldDir);
-			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform));
+			CurMenuSpawnThing = Cast<AInventoryActor>(GetWorld()->SpawnActor(SpawnActor, &ActorSpawnTransform, SpawnParameter));
 			CurMenuSpawnThing->AttachToActor(CurLocker, FAttachmentTransformRules::KeepWorldTransform);
 			CurMenuSpawnThing->AddToCluster(this);  
 
@@ -656,9 +657,14 @@ void APlatformController::StopPreview()
 	}
 }
 
+void APlatformController::SetNextControlPlatform(class AFlightPlatform* InPlatformRef)
+{
+	ControlPlatform = InPlatformRef;
+}
+
 void APlatformController::ToggleTarget()
 {
-	for (TActorIterator<AFlightPlatform> It(GetWorld()); It; ++It)
+	/*for (TActorIterator<AFlightPlatform> It(GetWorld()); It; ++It)
 	{
 		if (*It != ControlPlatform)
 		{
@@ -669,6 +675,14 @@ void APlatformController::ToggleTarget()
 			ControlPlatform = *It;
 			break;
 		}
+	}*/
+
+	if (ControlPlatform)
+	{
+		SetViewTargetWithBlend(ControlPlatform, 1.f, EViewTargetBlendFunction::VTBlend_Linear);
+		FTimerDelegate Delegate;
+		Delegate.BindUObject(this, &APlatformController::PossessNewTarget);
+		GetWorldTimerManager().SetTimer(PossessHandle, Delegate, 1.f, false);
 	}
 }
 
@@ -678,12 +692,12 @@ void APlatformController::PossessNewTarget()
 	if (AActor* TargetActor = GetViewTarget())
 	{
 		AInventoryActor* TempTarget = Cast<AInventoryActor>(TargetActor);
-		if (bControlPlatform)
+		/*if (bControlPlatform)
 		{
 			bControlPlatform = false;
 			TempTarget->PlatformData->PlatformPos = FVector(-225.f, 0.f, 17454.f);
 			TempTarget->PlatformData->bControlled = true;
-		}
+		}*/
 
 		Possess(TempTarget);
 	}
