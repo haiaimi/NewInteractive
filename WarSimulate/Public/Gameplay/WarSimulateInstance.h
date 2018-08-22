@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "WarSimulateType.h"
+#include "Communication/CommunicationManager.h"
+#include "InventoryActor.h" 
 #include "WarSimulateInstance.generated.h"
 
 class AInventoryActor;
@@ -47,7 +49,7 @@ public:
 	/** 获取所有BaseActor的ID名*/
 	TArray<FName> GetData_AllOtherName(FName& PlatformID, AInventoryActor* ActorRef);
 
-	//WH_COMMUNICATE_IMPLEMENT(SendPosInfo);
+	WH_COMMUNICATE_IMPLEMENT(SendPosInfo);
 
 private:
 	TArray<AInventoryActor*> AllSQBActor;
@@ -57,6 +59,4 @@ private:
 
 	/**内部通信管理类*/
 	UCommunicationManager* CommunicationManager;
-	
-	
 };

@@ -2,9 +2,7 @@
 
 #include "WarSimulateInstance.h"
 #include "OriginHelper.h"
-#include "InventoryActor.h" 
 #include "FlightPlatform.h"
-#include "Communication/CommunicationManager.h"
 
 
 UWarSimulateInstance::UWarSimulateInstance():
@@ -44,15 +42,11 @@ TArray<FName> UWarSimulateInstance::GetData_AllOtherName(FName& PlatformID, clas
 	return Result;
 }
 
-//void UWarSimulateInstance::SendPosInfo_Implementation(AInventoryActor* Sender, void* InParams)
-//{
-//	FSendPosInfo Temp;
-//	if (InParams)
-//	{
-//		Temp.PlatformPos = Sender->GetActorLocation() + Sender->GetActorRotation().Vector()*100.f;
-//		Temp.FlySpeed = Cast<AFlightPlatform>(Sender)->GetFlySpeed();
-//	}
-//
-//	Sender->SendPosInfo_Publish(&Temp);
-//}
+void UWarSimulateInstance::SendPosInfo_Implementation(AInventoryActor* Sender, FSendPosInfo& InParams)
+{
+	InParams.PlatformPos = Sender->GetActorLocation() + Sender->GetActorRotation().Vector()*100.f;
+	InParams.FlySpeed = Cast<AFlightPlatform>(Sender)->GetFlySpeed();
+	
+	Sender->SendPosInfo_Publish(&InParams);
+}
 

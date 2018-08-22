@@ -56,8 +56,7 @@ AInventoryActor::AInventoryActor(const FObjectInitializer& ObjectInitializer):
 	FOnClicked ClickDelegate;
 	ClickDelegate.BindUObject(this, &AInventoryActor::DestroySelf);
 
-	InfoInMenu.Delegates[0] = ClickDelegate;
-	InfoInMenu.ButtonNames[0] = TEXT("删除物体");
+	InfoInMenu.AddButton(FString(TEXT("删除物体")), ClickDelegate);
 }
 
 // Called when the game starts or when spawned

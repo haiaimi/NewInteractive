@@ -52,6 +52,7 @@ void UTCDragSwipeComponent::OnDragPressed(const FVector2D& Point, FVector& LookD
 	}
 	else if (InActors.Num() > 1)
 		bMultiMove = true;
+	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(InActors.Num()));
 }
 
 void UTCDragSwipeComponent::OnDragUpdate(const FVector2D& Point, FVector& LookDir, TArray<AActor*>& InActors)

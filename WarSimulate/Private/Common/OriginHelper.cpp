@@ -34,8 +34,11 @@ float OriginHelper::AdaptSubAngle(const float InAngle1, const float InAngle2)
 {
 	const float TempSub = InAngle1 - InAngle2;
 
-	//if()
-	return 0;
+	if (TempSub > 180.f)
+		return 360.f - TempSub;
+	else if (TempSub < -180.f)
+		return 360.f + TempSub;
+	else return TempSub;
 }
 
 bool OriginHelper::WriteJsonToFile(const FString& FileName, const FString& JsonData)

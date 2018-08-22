@@ -108,7 +108,7 @@ if (GlobalBindFunctions.Num() == 0 && GlobalRemoveDelegates.Num()==0)\
 	BindFunctionPtr* FunPoint = nullptr;\
 	RemoveDelegatePtr* RemoveDelegatePoint = nullptr;\
 	StartPoint++;\
-	const uint32 FunDefineWidth=((uint32)(&DefineEnd - &DefineStart)-1)/2;\
+	const uint32 FunDefineWidth=((uint32)(&DefineEnd - &DefineStart)-1)/CustomFunCounts;\
 	for (int32 i = 0; i < CustomFunCounts; ++i)\
 	{\
 		StrPoint = (FString*)(StartPoint);\
@@ -157,7 +157,7 @@ EXPAND(WH_FOREACH(##__VA_ARGS__))\
 }\
 \
 UFUNCTION()\
-void FunName##_Publish(void* InArg)\
+void FunName##_Publish(F##FunName* InArg)\
 { \
 	if(InArg!=nullptr)\
 	{ \
@@ -187,13 +187,14 @@ void CommunicateName##_BuildCommunication(AInventoryActor* Sender,AInventoryActo
 {\
 	if(CommunicationManager)\
 		CommunicationManager->BuildCommunication(Sender,Receiver,FunName);\
+	OriginHelper::Debug_ScreenMessage(Sender->GetName()); \
 };\
 void CommunicateName##_BreakCommunication(AInventoryActor* Sender,AInventoryActor* Receiver,FString FunName = #CommunicateName)\
 {\
 	if(CommunicationManager)\
 		CommunicationManager->BreakCommunication(Sender, Receiver, FunName);\
 };\
-void CommunicateName##_Implementation(AInventoryActor* Sender, void* InParams);
+void CommunicateName##_Implementation(AInventoryActor* Sender, F##CommunicateName& InParams);
 
 /**多参数列表测试代码*/
 #define WH_TEST1__(v1,v2,...) \

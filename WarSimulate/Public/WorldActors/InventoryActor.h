@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Interface/CustomTouchInterface.h"
 #include "SPopMenuWidget.h"
-#include "Gameplay/WarSimulateInstance.h"
+#include "WarSimulateType.h"
 #include "GameFramework/Pawn.h"
 #include "InventoryActor.generated.h"
 
@@ -37,7 +37,9 @@ public:
 
 	WH_FUN_DEFINE(InventoryActor, false, SendID, void, FName, ID);
 
-	WH_FUN_DEFINE_END(2);
+	WH_FUN_DEFINE(FlightPlatform, false, SendSpeed, void, float, FlySpeed);
+
+	WH_FUN_DEFINE_END(3);
 
 	// Sets default values for this actor's properties
 	AInventoryActor(const FObjectInitializer& ObjectInitializer);
