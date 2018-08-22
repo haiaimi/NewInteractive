@@ -19,6 +19,8 @@ public:
 	
 	virtual void DrawHUD()override;
 
+	virtual void BeginPlay()override;
+
 public:
 	bool IsInUI();
 
@@ -34,6 +36,9 @@ public:
 
 	void SpawnNewWidget();
 
+	/**绘制小地图*/
+	void DrawMiniMap();
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
 
@@ -44,4 +49,7 @@ private:
 	uint8 bDrawDebugLine : 1;
 
 	FVector2D TouchPoints[2];
+
+	/**小地图捕捉*/
+	class AOverLookMiniMapCapture* MiniMapCapture;
 };

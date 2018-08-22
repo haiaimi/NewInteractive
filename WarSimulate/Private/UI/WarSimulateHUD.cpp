@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "WarSimulateHUD.h"
+#include "UI/WarSimulateHUD.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "OriginHelper.h"
@@ -9,6 +9,13 @@
 #include "DrawDebugHelpers.h"
 #include "SPopMenuWidget.h"
 #include "SMultiSelectWidget.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "Engine/Texture.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "CanvasItem.h"
+#include "Engine/Canvas.h"
+#include "OverLookMiniMapCapture.h"
 
 
 AWarSimulateHUD::AWarSimulateHUD()
@@ -62,6 +69,15 @@ void AWarSimulateHUD::DrawHUD()
 		DrawDebugCanvas2DLine(Canvas, TwoPointCenter - LineVec1 * 25, TwoPointCenter + LineVec1 * 25, FLinearColor::Blue);
 		DrawDebugCanvas2DLine(Canvas, TwoPointCenter - LineVec2 * 25, TwoPointCenter + LineVec2 * 25, FLinearColor::Blue);
 	}
+
+	DrawMiniMap();
+}
+
+void AWarSimulateHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	MiniMapCapture = GetWorld()->SpawnActor<AOverLookMiniMapCapture>(PlayerOwner->GetFocalLocation() + FVector(0.f, 0.f, 1000.f), FRotator::ZeroRotator);
 }
 
 bool AWarSimulateHUD::IsInUI()
@@ -111,4 +127,20 @@ void AWarSimulateHUD::SpawnNewWidget()
 					0
 				);
 			}*/
+}
+
+void AWarSimulateHUD::DrawMiniMap()
+{
+	if (MiniMapCapture->GetCaptureComponent2D()->TextureTarget)
+	{
+		MiniMapCapture->GetCaptureComponent2D()->UpdateContent();
+		float MapWidth = MiniMapCapture->MiniMapWidth;
+		float MapHeight = MiniMapCapture->MiniMapHeight;
+
+		FCanvasTileItem MinimapTileItem(FVector2D::ZeroVector, FVector2D::ZeroVector, FLinearColor::White);
+		MinimapTileItem.Size = FVector2D(MapWidth, MapHeight);
+		MinimapTileItem.Texture = MiniMapCapture->GetCaptureComponent2D()->TextureTarget->Resource;
+		MinimapTileItem.BlendMode = ESimpleElementBlendMode::SE_BLEND_Opaque;       //非透明混合
+		Canvas->DrawItem(MinimapTileItem, Canvas->ClipX - MapWidth, Canvas->ClipY - MapHeight);    //在hud中绘制地图
+	}
 }
