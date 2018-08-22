@@ -21,45 +21,30 @@ struct FPopMenuInfo
 	/**按键数量*/
 	int32 ButtonsNum;
 
-	/**按键代理*/
-	TArray<FOnClicked> Delegates;
-
-	/**按键名称*/
-	TArray<FString> ButtonNames;
+	TMap<FString, FOnClicked> ButtonDelegates;
 
 public:
 	FPopMenuInfo(FMargin& InMargin, EHorizontalAlignment InAlignType, int32 InButtonNum)
 	{
 		MenuPos = InMargin;
 		HorizontalAlignType = InAlignType;
-		SetButtonNum(InButtonNum);
-		
 	}
 
 	FPopMenuInfo()
 	{
 		MenuPos = FMargin(0.f, 0.f, 0.f, 0.f);
 		HorizontalAlignType = EHorizontalAlignment::HAlign_Left;
-		SetButtonNum(4);
 	}
 
-	void SetButtonNum(int32 InNum)
+	void AddButton(FString ButtonName, FOnClicked& Delegate)
 	{
-		if (InNum > ButtonsNum)
-		{
-			for (int32 i = 0; i < InNum - ButtonsNum; ++i)
-			{
-				Delegates.Add(FOnClicked());
-				ButtonNames.Add(TEXT("Button"));
-			}
-		}
-		else
-		{
-			Delegates.SetNum(InNum);
-			ButtonNames.SetNum(InNum);
-		}
+		ButtonDelegates.Add(ButtonName, Delegate);
+		ButtonsNum = ButtonDelegates.Num();
+	}
 
-		ButtonsNum = InNum;
+	const int32 GetButtonNum()const
+	{
+		return ButtonsNum;
 	}
 };
 /**

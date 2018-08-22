@@ -14,17 +14,18 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 	FSlateBrush* TitleBrush = new FSlateBrush();
 	TitleBrush->TintColor = FLinearColor(1.f, 0.804f, 0.219f, 0.5f);
 
-	ButtonAnimHandles.SetNum(InArgs._InMenuInfo.ButtonsNum);
-	Buttons.SetNum(InArgs._InMenuInfo.ButtonsNum);
-	TextBlocks.SetNum(InArgs._InMenuInfo.ButtonsNum);
+	const FPopMenuInfo& MenuInfo = InArgs._InMenuInfo;
+	ButtonAnimHandles.SetNum(MenuInfo.ButtonsNum);
+	Buttons.SetNum(MenuInfo.ButtonsNum);
+	TextBlocks.SetNum(MenuInfo.ButtonsNum);
 
 	ChildSlot
 	[
 		SNew(SOverlay)
 		+SOverlay::Slot()
 		.VAlign(EVerticalAlignment::VAlign_Top)
-		.HAlign(InArgs._InMenuInfo.HorizontalAlignType)
-		.Padding(InArgs._InMenuInfo.MenuPos)
+		.HAlign(MenuInfo.HorizontalAlignType)
+		.Padding(MenuInfo.MenuPos)
 		[
 			SNew(SBorder)
 			.HAlign(HAlign_Fill)
@@ -60,8 +61,11 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 		]
 	];
 	
-	for (int32 i = 0; i < InArgs._InMenuInfo.ButtonsNum; ++i)
+	auto ButtonIter = MenuInfo.ButtonDelegates.CreateConstIterator();
+
+	for (int32 i = 0; i < MenuInfo.ButtonsNum; ++i)
 	{
+		if (!ButtonIter)continue;
 		ButtonContainer->AddSlot()
 		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.HAlign(EHorizontalAlignment::HAlign_Fill)
@@ -73,15 +77,16 @@ void SPopMenuWidget::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Center)
 			.PressMethod(EButtonPressMethod::Type::DownAndUp)
 			.TouchMethod(EButtonTouchMethod::DownAndUp)
-			.OnClicked(InArgs._InMenuInfo.Delegates[i])
+			.OnClicked((*ButtonIter).Value)
 			[
 				SAssignNew(TextBlocks[i], STextBlock)
-				.Text(FText::FromString(InArgs._InMenuInfo.ButtonNames[i]))
+				.Text(FText::FromString((*ButtonIter).Key))
 				.ColorAndOpacity(FSlateColor(FLinearColor(0.2f, 0.2f, 0.2f, 0.f)))
 				.Font(FSlateFontInfo(TEXT("Roboto"), 30))
 				.AutoWrapText(true)
 			]
 		];
+		++ButtonIter;
 	}
 	
 	SetupAnimation();
