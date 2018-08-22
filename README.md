@@ -13,7 +13,7 @@
   
   ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E9%95%BF%E6%8C%89%E9%A2%84%E8%A7%88.gif)
   
-  ###3、放入抽屉
+  ### 3、放入抽屉
   * 把目标物体放入到抽屉，抽屉会按序排放
   
   ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E6%8B%96%E6%8B%BD%E8%87%B3%E6%8A%BD%E5%B1%89.gif)
