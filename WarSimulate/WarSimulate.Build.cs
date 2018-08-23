@@ -8,7 +8,7 @@ public class WarSimulate : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Landscape", "Json"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Landscape", "Json", "ImageWrapper"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore" });
 

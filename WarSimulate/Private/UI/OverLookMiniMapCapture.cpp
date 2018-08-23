@@ -11,7 +11,7 @@ AOverLookMiniMapCapture::AOverLookMiniMapCapture()
 	GetCaptureComponent2D()->bCaptureOnMovement = true;
 
 	PrimaryActorTick.bCanEverTick = true;
-	CameraFOV = 90.f;
+	CameraFOV = 60.f;
 	MiniMapHeight = 256;
 	MiniMapWidth = 256;
 	bUpdateRot = false;

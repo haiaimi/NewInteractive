@@ -16,6 +16,7 @@
 #include "CanvasItem.h"
 #include "Engine/Canvas.h"
 #include "OverLookMiniMapCapture.h"
+#include "SVisualControlWidget.h"
 
 
 AWarSimulateHUD::AWarSimulateHUD()
@@ -48,6 +49,26 @@ void AWarSimulateHUD::DrawHUD()
 		}
 	}
 
+	if (!VisualControlWidget.IsValid() && GEngine)
+	{
+		if (APlatformController* OwnerController = Cast<APlatformController>(GetOwningPlayerController()))
+		{
+			SAssignNew(VisualControlWidget, SVisualControlWidget)
+				.OwnerController(OwnerController);
+
+			if (VisualControlWidget.IsValid())
+			{
+				GEngine->GameViewport->AddViewportWidgetContent(
+					SNew(SWeakWidget)
+					.PossiblyNullContent(VisualControlWidget.ToSharedRef()),
+					0
+				);
+
+				VisualControlWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
+				FSlateApplication::Get().SetKeyboardFocus(VisualControlWidget.ToSharedRef());
+			}
+		}
+	}
 	/*if (InventoryWidget.IsValid())
 	{
 		if (InventoryWidget->IsHovered())
@@ -143,4 +164,9 @@ void AWarSimulateHUD::DrawMiniMap()
 		MinimapTileItem.BlendMode = ESimpleElementBlendMode::SE_BLEND_Opaque;       //非透明混合
 		Canvas->DrawItem(MinimapTileItem, Canvas->ClipX - MapWidth, Canvas->ClipY - MapHeight);    //在hud中绘制地图
 	}
+}
+
+TSharedPtr<class SInventoryMenuWidget>& AWarSimulateHUD::GetMenuWidget()
+{
+	return InventoryWidget;
 }

@@ -60,6 +60,11 @@ public:
 	/**设置为跟飞*/
 	FReply FlyInFollowing();
 
+	/**画面投射到小地图*/
+	void CastToMiniMap(class AOverLookMiniMapCapture* MiniMapCapture);
+
+	struct TOptional<FTransform2D> GetSlateRenderTransform()const;
+
 private:
 	/**获取飞行平台的向上的向量*/
 	FVector GetUpVector();
@@ -92,6 +97,9 @@ private:
 
 	/**飞机停机时的Yaw角度大小*/
 	float OriginAngle;
+
+	/**飞机转向最后更新的时间，注意这只适用于自动飞行的状态*/
+	float LastUpdateTime;
 
 	/**飞机碰撞体*/
 	class UBoxComponent* PlaneBox;

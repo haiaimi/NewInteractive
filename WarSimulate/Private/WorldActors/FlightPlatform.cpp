@@ -11,6 +11,10 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "WarSimulateProject.h"
 #include "WarSimulateInstance.h"
+#include "OverLookMiniMapCapture.h"
+#include "WarSimulateHUD.h"
+#include "Math/TransformCalculus2D.h"
+#include "SVisualControlWidget.h"
 
 
 AFlightPlatform::AFlightPlatform(const FObjectInitializer& ObjectInitializer) :
@@ -19,7 +23,8 @@ AFlightPlatform::AFlightPlatform(const FObjectInitializer& ObjectInitializer) :
 	TakeOffAngle(0.f),
 	CurOffsetAngle_Right(0.f),
 	CurOffsetAngle_Up(0.f),
-	OriginAngle(0.f)
+	OriginAngle(0.f),
+	LastUpdateTime(0.f)
 {
 	PlaneBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PlaneCollision"));
 	PlaneBox->SetupAttachment(BaseScene);
@@ -98,7 +103,11 @@ void AFlightPlatform::Tick(float DeltaTime)
 
 	TakeOff(DeltaTime);
 
-	if (Controller == NULL)MoveRightImpl(0);
+	if (Controller == NULL && GetWorld()->TimeSeconds - LastUpdateTime > 0.3f)
+	{
+		MoveRightImpl(0);
+	}
+		
 	if (FlySpeed < 10000.f || !bInAir)return;
 
 	// 飞机飞行时的晃动，提高真实性
@@ -119,6 +128,10 @@ void AFlightPlatform::Tick(float DeltaTime)
 	ViewCamera->SetRelativeLocation(FVector(0.f, ShakeTime * 0.7f, CurRelHeight)*2.f);
 
 	ShakeTime += DeltaTime * AddDir;
+
+	/*FMatrix Matrix = FRotationMatrix::MakeFromX(GetActorRotation().Vector());
+	OriginHelper::Debug_ScreenMessage(Matrix.Rotator().ToString());
+	OriginHelper::Debug_ScreenMessage(GetActorRotation().ToString());*/
 }
 
 void AFlightPlatform::BeginDestroy()
@@ -187,6 +200,7 @@ void AFlightPlatform::MoveRightImpl(float Val)
 
 	if (Val != 0.f)
 	{
+		LastUpdateTime = GetWorld()->TimeSeconds;
 		FRotator PlaneRot = GetActorRotation();
 		const FQuat AddedAngle_Yaw(FVector(0.f, 0.f, 1.f), Val * FMath::DegreesToRadians(DeltaTime*20.f));
 		AddActorWorldRotation(AddedAngle_Yaw);
@@ -312,6 +326,11 @@ FReply AFlightPlatform::PossessCurPlatform()
 	if (APlatformController* PlatformController = Cast<APlatformController>(GetOwner()))
 	{
 		PlatformController->SetNextControlPlatform(this);
+
+		AWarSimulateHUD* CurHUD = Cast<AWarSimulateHUD>(PlatformController->GetHUD());
+		TAttribute<TOptional<FTransform2D>> TransformAttribute;
+		TransformAttribute.BindUObject(PlatformController->GetControlPlatform(), &AFlightPlatform::GetSlateRenderTransform);
+		CurHUD->VisualControlWidget->SetRenderTransform(TransformAttribute);
 	}
 
 	return FReply::Handled();
@@ -330,7 +349,9 @@ FReply AFlightPlatform::FlyInFollowing()
 				{
 					UWarSimulateInstance* GameInstance = GetWorld()->GetGameInstance<UWarSimulateInstance>();
 					if (PlatformController->GetControlPlatform())
+					{
 						GameInstance->SendPosInfo_BuildCommunication(PlatformController->GetControlPlatform(), Temp);  //构建两架飞机间的通信
+					}
 					else
 						UE_LOG(LogOrigin, Error, TEXT("还未设置主控制飞机"));
 				}
@@ -339,13 +360,31 @@ FReply AFlightPlatform::FlyInFollowing()
 		{
 			UWarSimulateInstance* GameInstance = GetWorld()->GetGameInstance<UWarSimulateInstance>();
 			if (PlatformController->GetControlPlatform())
+			{
 				GameInstance->SendPosInfo_BuildCommunication(PlatformController->GetControlPlatform(), this);
+				AWarSimulateHUD* CurHUD = Cast<AWarSimulateHUD>(PlatformController->GetHUD());
+				CastToMiniMap(CurHUD->MiniMapCapture);
+			}
+
 			else
 				UE_LOG(LogOrigin, Error, TEXT("还未设置主控制飞机"));
 		}
 	}
 
 	return FReply::Handled();
+}
+
+void AFlightPlatform::CastToMiniMap(class AOverLookMiniMapCapture* MiniMapCapture)
+{
+	//MiniMapCapture->SetActorTransform(ViewCamera->GetComponentTransform());
+	MiniMapCapture->AttachToComponent(ViewCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+}
+
+TOptional<FTransform2D> AFlightPlatform::GetSlateRenderTransform()const
+{
+	TOptional<FTransform2D> Ret = FTransform2D(FQuat2D(GetActorRotation().Pitch));
+	
+	return Ret;
 }
 
 FVector AFlightPlatform::GetUpVector()

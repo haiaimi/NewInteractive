@@ -24,11 +24,17 @@
 #include "TCDragSwipeComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "SPopMenuWidget.h"
+#include "SInventoryMenuWidget.h"
 #include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
 #include "TCMultiSelectComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "FlightPlatform.h"
+#include "Engine/GameViewportClient.h"
+#include "IImageWrapperModule.h"
+#include "IImageWrapper.h"
+#include "Materials/MaterialInstance.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 APlatformController::APlatformController()
@@ -179,6 +185,7 @@ void APlatformController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Quit"), EInputEvent::IE_Pressed, this, &APlatformController::QuitGame);
 		InputComponent->BindAction(TEXT("LockerSwitch"), EInputEvent::IE_Pressed, this, &APlatformController::SwitchLocker);
 		InputComponent->BindAction(TEXT("ToggleTarget"), EInputEvent::IE_Pressed, this, &APlatformController::ToggleTarget);
+		InputComponent->BindAction(TEXT("ScreenShot"), EInputEvent::IE_Pressed, this, &APlatformController::ScreenShot);
 		//InputComponent->BindAction(TEXT("PopMenu"), EInputEvent::IE_Pressed, this, &AMainController::SpawnNewWidget);
 	}
 }
@@ -700,5 +707,53 @@ void APlatformController::PossessNewTarget()
 		}*/
 
 		Possess(TempTarget);
+	}
+}
+
+void APlatformController::ScreenShot()
+{
+	//从Viewport获取截屏，只能获取渲染的画面
+	FViewport* viewport = GetLocalPlayer()->ViewportClient->Viewport;
+	//FViewport* viewport = GetWorld()->GetGameViewport()->Viewport;
+	//viewport->ReadPixels(PixelBuffer);
+
+	AWarSimulateHUD* CurHUD = Cast<AWarSimulateHUD>(GetHUD());
+	if (CurHUD)
+	{
+		if (!CurHUD->IsInventoryWidgetValid())
+			return;
+	}
+
+	TArray<FColor> PixelBuffer;
+	FIntVector Res;
+
+	TSharedPtr<SInventoryMenuWidget>& Widget = CurHUD->GetMenuWidget();
+	FSlateApplication::Get().TakeScreenshot(Widget.ToSharedRef(), PixelBuffer, Res);
+
+	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
+	ImageWrapper->SetRaw((void*)PixelBuffer.GetData(), PixelBuffer.GetAllocatedSize(), viewport->GetSizeXY().X, viewport->GetSizeXY().Y, ERGBFormat::BGRA, 8);      //设置JPEG格式图片数据
+
+	if (ImageWrapper.IsValid())       //
+	{
+		TArray<uint8> ImageData = ImageWrapper->GetCompressed();
+		FString ScreenShotDir = FPaths::ScreenShotDir() / TEXT("ScreenShot");
+		IFileManager::Get().MakeDirectory(*FPaths::ScreenShotDir(), true);
+		FString SavePath = ScreenShotDir + TEXT("000.jpg");
+		int32 PictureIndex = 1;      //截图文件夹中图片序号
+		while (IFileManager::Get().FileExists(*SavePath))
+		{
+			SavePath = ScreenShotDir;
+
+			if (PictureIndex <= 99)
+				SavePath.Append(TEXT("0"));
+			if (PictureIndex <= 9)
+				SavePath.Append(TEXT("0"));
+			SavePath.AppendInt(PictureIndex);
+			SavePath.Append(".jpg");
+
+			PictureIndex++;
+		}
+		FFileHelper::SaveArrayToFile(ImageData, *SavePath);            //保存图片数据
 	}
 }

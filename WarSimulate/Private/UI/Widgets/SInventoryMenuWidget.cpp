@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerInput.h"
 #include "GroundCameraComponent.h"
 #include "FlightPlatform.h"
+#include "Materials/MaterialInstance.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -171,6 +172,12 @@ void SInventoryMenuWidget::Construct(const FArguments& InArgs)
 
 	bShowMenu = false;
 	SetupAnimation();
+
+	/*UMaterialInstance* MaterialInstance;
+	SImage* Image;
+	UMaterialInstanceDynamic::Create()
+	Image->SetImage(MaterialInstance->)
+	FindObject<UMaterialInstance>()*/
 }
 
 void SInventoryMenuWidget::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)

@@ -39,8 +39,15 @@ public:
 	/**绘制小地图*/
 	void DrawMiniMap();
 
+	TSharedPtr<class SInventoryMenuWidget>& GetMenuWidget();
+
+	class AOverLookMiniMapCapture* MiniMapCapture;
+
+	TSharedPtr<class SVisualControlWidget> VisualControlWidget;
+
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
+
 
 	/**长按弹出的菜单*/
 	//TSharedPtr<class SMultiSelectWidget> MultiSelectWidget;
@@ -51,5 +58,5 @@ private:
 	FVector2D TouchPoints[2];
 
 	/**小地图捕捉*/
-	class AOverLookMiniMapCapture* MiniMapCapture;
+	
 };

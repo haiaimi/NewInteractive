@@ -97,6 +97,8 @@ public:
 
 	void PossessNewTarget();
 
+	void ScreenShot();
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
