@@ -21,7 +21,6 @@ typedef void(*funPtr)(int32, int32);
 // Sets default values
 AInventoryActor::AInventoryActor(const FObjectInitializer& ObjectInitializer):
 	Super(ObjectInitializer),
-	PopMenu(nullptr),
 	bDestroyedFromPopMenu(false),
 	CommunicateType(EOutsideCommunicate::ELoadConfigFile_Json),    //默认是读取Json文件的方式
 	OwnerPltform(nullptr),
@@ -75,6 +74,7 @@ void AInventoryActor::BeginPlay()
 		OriginHelper::Debug_ScreenMessage((*Iter).Key.ToString());
 	}
 
+	///测试代码
 	OriginHelper::Debug_ScreenMessage(FString::Printf(TEXT("%p"), &SendPosInfoBindPtr), 10);
 	OriginHelper::Debug_ScreenMessage(FString::Printf(TEXT("%p"), &SendIDBindPtr), 10);
 	OriginHelper::Debug_ScreenMessage(FString::FormatAsNumber(sizeof(FVector)));
@@ -306,6 +306,15 @@ void AInventoryActor::SetPlatformData(FName InID, ESQBTeam::Type InTeam)
 void AInventoryActor::UpdatePlatformData()
 {
 
+}
+
+void AInventoryActor::DestroyPopMenu()
+{
+	if (APlatformController* PC = Cast<APlatformController>(GetOwner()))
+	{
+		TSharedPtr<SPopMenuWidget>& PopMenu = PC->GetPopMenu();
+		if (PopMenu.IsValid())PopMenu.Reset();
+	}
 }
 
 void AInventoryActor::MoveTick(float DeltaTime)

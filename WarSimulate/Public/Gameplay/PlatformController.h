@@ -99,6 +99,11 @@ public:
 
 	void ScreenShot();
 
+	TOptional<FTransform2D> GetVisualControlRenderTrans()const;
+
+	/**更新显控状态*/
+	void UpdateVisualControl();
+
 private:
 	class AGroundSpectatorPawn* GetGroundSpectatorPawn()const;
 
@@ -168,6 +173,9 @@ private:
 	FTimerHandle PossessHandle;
 
 	class TSharedPtr<class SPopMenuWidget> PopMenu;
+
+	/**显控控件*/
+	class TSharedPtr<class SVisualControlWidget> VisualControlWidget;
 
 	UPROPERTY()
 	TArray<class AActor*> MultiSelectedActors;

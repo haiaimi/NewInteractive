@@ -13,12 +13,17 @@ UWarSimulateInstance::UWarSimulateInstance():
 
 void UWarSimulateInstance::StartGameInstance()
 {
-	if (CommunicationManager == nullptr)
-		CommunicationManager = NewObject<UCommunicationManager>(this);
-
-	CommunicationManager->BreakCommunication(nullptr, nullptr, FString(TEXT("SendID")));
+	
 
 	Super::StartGameInstance();
+}
+
+void UWarSimulateInstance::OnStart()
+{
+	Super::OnStart();
+
+	if (CommunicationManager == nullptr)
+		CommunicationManager = NewObject<UCommunicationManager>(this);
 }
 
 void UWarSimulateInstance::RegisterSQBActor(class AInventoryActor* InRef)

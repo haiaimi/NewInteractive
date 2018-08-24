@@ -35,6 +35,8 @@
 #include "IImageWrapper.h"
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "TransformCalculus2D.h"
+#include "SVisualControlWidget.h"
 
 
 APlatformController::APlatformController()
@@ -49,7 +51,8 @@ APlatformController::APlatformController()
 	PostProcessVoulme(nullptr),
 	bInPreview(false),
 	bHasLandscape(false),
-	ControlPlatform(nullptr)
+	ControlPlatform(nullptr),
+	VisualControlWidget(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;      //Controller每帧更新
 	MaterialInventory.Reset();
@@ -169,6 +172,7 @@ void APlatformController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	UpdateVisualControl();
 	/*if (CurLocker->WasRecentlyRendered())
 		TestProjectHelper::Debug_ScreenMessage(FString::Printf(TEXT("Last Render Time: %f"), CurLocker->GetLastRenderTime()));*/
 }
@@ -360,7 +364,6 @@ void APlatformController::OnHoldPressed(const FVector2D& Point, float DownTime)
 		NewMenuInfo = CurTargetActor->InfoInMenu;
 	}
 	
-
 	FVector2D ScreenSize;
 	GetLocalPlayer()->ViewportClient->GetViewportSize(ScreenSize);
 
@@ -400,16 +403,12 @@ void APlatformController::OnHoldPressed(const FVector2D& Point, float DownTime)
 			PossiblyNullContent(PopMenu.ToSharedRef()), 
 			0
 			);
+		PopMenu->SetVisibility(EVisibility::SelfHitTestInvisible);
 	}
 }
 
 void APlatformController::OnSwipePressed(const FVector2D& Point, float DownTime)
 {
-	if (GetGroundCamera() != nullptr && bHasLandscape)
-	{
-		GetGroundCamera()->StartSwipe(Point, DownTime);
-	}
-
 	if (DragSwipeComponent)
 	{
 		FVector LookDir = ((const UGroundCameraComponent*)UGroundCameraComponent::StaticClass()->GetDefaultObject())->LookRotation.Vector();
@@ -448,11 +447,16 @@ void APlatformController::OnSwipePressed(const FVector2D& Point, float DownTime)
 	{
 		TapComponent->OnRotateTapPressed(Point, DownTime, TargetActor);
 	}
+
+	if (GetGroundCamera() != nullptr && bHasLandscape && !CurDragThing)
+	{
+		GetGroundCamera()->StartSwipe(Point, DownTime);
+	}
 }
 
 void APlatformController::OnSwipeReleased(const FVector2D& Point, float DownTime)
 {
-	if (GetGroundCamera() != nullptr && bHasLandscape)
+	if (GetGroundCamera() != nullptr && bHasLandscape && !CurDragThing)
 	{
 		GetGroundCamera()->EndSwipe(Point, DownTime);
 	}
@@ -706,6 +710,26 @@ void APlatformController::PossessNewTarget()
 			TempTarget->PlatformData->bControlled = true;
 		}*/
 
+		if (VisualControlWidget.IsValid()) //控件已存在就直接设置为可见
+			VisualControlWidget->SetVisibility(EVisibility::Visible);
+		else    
+		{
+			//控件不存在则需要生成一个
+			SAssignNew(VisualControlWidget, SVisualControlWidget)
+				.OwnerController(this);
+
+			if (VisualControlWidget.IsValid() && GEngine)
+			{
+				GEngine->GameViewport->AddViewportWidgetContent(
+					SNew(SWeakWidget)
+					.PossiblyNullContent(VisualControlWidget.ToSharedRef()),
+					0
+				);
+
+				VisualControlWidget->SetVisibility(EVisibility::Visible);
+			}
+		}
+
 		Possess(TempTarget);
 	}
 }
@@ -755,5 +779,33 @@ void APlatformController::ScreenShot()
 			PictureIndex++;
 		}
 		FFileHelper::SaveArrayToFile(ImageData, *SavePath);            //保存图片数据
+	}
+}
+
+TOptional<FTransform2D> APlatformController::GetVisualControlRenderTrans() const
+{
+	if (ControlPlatform)
+	{
+		TOptional<FTransform2D> Ret = FTransform2D(FQuat2D(-FMath::DegreesToRadians(ControlPlatform->GetActorRotation().Roll)));
+		return Ret;
+	}
+
+	return TOptional<FTransform2D>();
+}
+
+void APlatformController::UpdateVisualControl()
+{
+	if (ControlPlatform && VisualControlWidget.IsValid())
+	{
+		//设置Roll
+		VisualControlWidget->SetControlInput(EVisualControlInputs::Roll, ControlPlatform->GetActorRotation().Roll);
+		//设置Pitch
+		VisualControlWidget->SetControlInput(EVisualControlInputs::Pitch, ControlPlatform->GetActorRotation().Pitch);
+		//设置Heading
+		VisualControlWidget->SetControlInput(EVisualControlInputs::Heading, ControlPlatform->GetActorRotation().Yaw);
+		//设置速度
+		VisualControlWidget->SetControlInput(EVisualControlInputs::FlightSpeed, ControlPlatform->GetFlySpeed());
+		//设置海拔
+		VisualControlWidget->SetControlInput(EVisualControlInputs::FlightAltitude, ControlPlatform->GetActorLocation().Z);
 	}
 }

@@ -49,26 +49,6 @@ void AWarSimulateHUD::DrawHUD()
 		}
 	}
 
-	if (!VisualControlWidget.IsValid() && GEngine)
-	{
-		if (APlatformController* OwnerController = Cast<APlatformController>(GetOwningPlayerController()))
-		{
-			SAssignNew(VisualControlWidget, SVisualControlWidget)
-				.OwnerController(OwnerController);
-
-			if (VisualControlWidget.IsValid())
-			{
-				GEngine->GameViewport->AddViewportWidgetContent(
-					SNew(SWeakWidget)
-					.PossiblyNullContent(VisualControlWidget.ToSharedRef()),
-					0
-				);
-
-				VisualControlWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
-				FSlateApplication::Get().SetKeyboardFocus(VisualControlWidget.ToSharedRef());
-			}
-		}
-	}
 	/*if (InventoryWidget.IsValid())
 	{
 		if (InventoryWidget->IsHovered())

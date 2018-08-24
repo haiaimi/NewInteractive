@@ -186,8 +186,11 @@ void Remove##FunName##Delegate(AInventoryActor* Receiver)\
 void CommunicateName##_BuildCommunication(AInventoryActor* Sender,AInventoryActor* Receiver,FString FunName = #CommunicateName)\
 {\
 	if(CommunicationManager)\
+	{\
 		CommunicationManager->BuildCommunication(Sender,Receiver,FunName);\
-	OriginHelper::Debug_ScreenMessage(Sender->GetName()); \
+		OriginHelper::Debug_ScreenMessage(Sender->GetName(), 10.f); \
+		OriginHelper::Debug_ScreenMessage(Receiver->GetName(), 10.f); \
+	}\
 };\
 void CommunicateName##_BreakCommunication(AInventoryActor* Sender,AInventoryActor* Receiver,FString FunName = #CommunicateName)\
 {\
@@ -280,6 +283,22 @@ namespace ESQBTeam
 		UnKnown,
 		EPlayer,   //玩家本方
 		EEnemy,     //敌方
+	};
+}
+
+UENUM(BlueprintType)
+namespace EVisualControlInputs
+{
+	enum Type
+	{
+		Roll,
+		Pitch,
+		Heading,
+		SkidPercent,
+		FlightPathUp,
+		FlightPathRight,
+		FlightAltitude,   //飞行海拔
+		FlightSpeed,   //飞行速度
 	};
 }
 

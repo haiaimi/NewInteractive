@@ -24,6 +24,8 @@ public:
 
 	virtual void StartGameInstance()override;
 
+	virtual void OnStart()override;
+
 public:
 	/** 注册BaseActor，以便相互之间的通信*/
 	void RegisterSQBActor(AInventoryActor* InRef);

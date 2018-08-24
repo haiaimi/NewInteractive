@@ -93,7 +93,7 @@ void AFlightPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ModuleMovement->MoveUpdatedComponent(GetActorRotation().Vector()*FlySpeed*DeltaTime/100.f, GetActorRotation().Quaternion(), true);
+	ModuleMovement->MoveUpdatedComponent(GetActorRotation().Vector()*FlySpeed*DeltaTime/100.f/*按照真实飞机速度就会太快，所以这里除以100*/, GetActorRotation().Quaternion(), true);
 	//SetMaxSpeed(FlySpeed*DeltaTime);
 
 	FSendPosInfo SendPosInfo;
@@ -323,14 +323,10 @@ int32 AFlightPlatform::EventTest(float Speed, int32 Num)
 
 FReply AFlightPlatform::PossessCurPlatform()
 {
-	if (APlatformController* PlatformController = Cast<APlatformController>(GetOwner()))
+	if(APlatformController* PlatformController = Cast<APlatformController>(GetOwner()))
 	{
 		PlatformController->SetNextControlPlatform(this);
-
-		AWarSimulateHUD* CurHUD = Cast<AWarSimulateHUD>(PlatformController->GetHUD());
-		TAttribute<TOptional<FTransform2D>> TransformAttribute;
-		TransformAttribute.BindUObject(PlatformController->GetControlPlatform(), &AFlightPlatform::GetSlateRenderTransform);
-		CurHUD->VisualControlWidget->SetRenderTransform(TransformAttribute);
+		DestroyPopMenu();
 	}
 
 	return FReply::Handled();
@@ -369,6 +365,7 @@ FReply AFlightPlatform::FlyInFollowing()
 			else
 				UE_LOG(LogOrigin, Error, TEXT("还未设置主控制飞机"));
 		}
+		DestroyPopMenu();
 	}
 
 	return FReply::Handled();
@@ -382,7 +379,7 @@ void AFlightPlatform::CastToMiniMap(class AOverLookMiniMapCapture* MiniMapCaptur
 
 TOptional<FTransform2D> AFlightPlatform::GetSlateRenderTransform()const
 {
-	TOptional<FTransform2D> Ret = FTransform2D(FQuat2D(GetActorRotation().Pitch));
+	TOptional<FTransform2D> Ret = FTransform2D(FQuat2D(FMath::DegreesToRadians(GetActorRotation().Roll)));
 	
 	return Ret;
 }

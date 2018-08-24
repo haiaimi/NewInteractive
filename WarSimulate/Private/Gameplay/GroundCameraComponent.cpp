@@ -180,7 +180,6 @@ void UGroundCameraComponent::UpdateSwipe(const FVector2D& InPoint, float DownTim
 
 void UGroundCameraComponent::EndSwipe(const FVector2D& InPoint, float DownTime)
 {
-	OriginHelper::Debug_ScreenMessage(TEXT("End Swipe"));
 	//StartSwipePos = GetOwner()->GetActorLocation();
 	bDecelerate = true;
 	FVector DeclerateVec;

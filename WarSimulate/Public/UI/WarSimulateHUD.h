@@ -43,11 +43,8 @@ public:
 
 	class AOverLookMiniMapCapture* MiniMapCapture;
 
-	TSharedPtr<class SVisualControlWidget> VisualControlWidget;
-
 private:
 	TSharedPtr<class SInventoryMenuWidget> InventoryWidget;
-
 
 	/**长按弹出的菜单*/
 	//TSharedPtr<class SMultiSelectWidget> MultiSelectWidget;

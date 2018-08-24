@@ -14,6 +14,7 @@ void UCommunicationManager::BuildCommunication(class AInventoryActor* PublishAct
 	{
 		// 调用函数指针进行绑定
 		FDelegateHandle BindHandle = (PublishActor->**FindRes)(SubscribeActor);   //执行该函数指针，进行绑定，并获取其代理句柄
+		OriginHelper::Debug_ScreenMessage(MoveTemp(FunName));
 	}
 }
 

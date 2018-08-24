@@ -143,6 +143,9 @@ public:
 	/**更新数据*/
 	virtual void UpdatePlatformData();
 
+	/**在按下一些按键后PopMenu可能需要删除*/
+	void DestroyPopMenu();
+
 private:
 	/**物体移动，有过渡效果，使其看起来不那么突兀*/
 	void MoveTick(float DeltaTime);
@@ -204,8 +207,6 @@ private:
 
 	/**是否从PopMenu删除*/
 	uint8 bDestroyedFromPopMenu : 1;
-
-	class TSharedPtr<class SPopMenuWidget> PopMenu;
 
 	/**该模块所在平台，该成员可以为空*/
 	class AInventoryActor * OwnerPltform;
