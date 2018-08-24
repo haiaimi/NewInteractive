@@ -5,6 +5,7 @@
 #include "SlateBasics.h"
 #include "SlateExtras.h"
 #include "Widgets/SCompoundWidget.h"
+#include "WarSimulateType.h"
 
 class APlatformController;
 /**
@@ -20,6 +21,11 @@ public:
 
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
+
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)override;
+
+	/**设置*/
+	void SetControlInput(EVisualControlInputs::Type InputType, float Value);
 
 private:
 	TSharedPtr<class SImage> VisualControlImage;
