@@ -44,24 +44,24 @@
   
   ### 9、添加选择控制目标的按钮
   * 可以通过弹出菜单选择控制的目标，不然Controller无法指定Pawn
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E9%80%89%E6%8B%A9%E6%8E%A7%E5%88%B6%E9%A3%9E%E6%9C%BA.gif)
   
   ### 10、切换到控制画面
   * 由俯视观察模式切换到控制飞机的画面（这只是粗糙的显示一下，还没有设置相应的机场）
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E6%8E%A7%E5%88%B6%E9%A3%9E%E6%9C%BA2.gif)
   
   ### 11、飞机在飞机状态
   * 飞行的动作以及显控状态变化，这是使用的UI材质，但然也可以使用正常的模型材质，线控画面以平面模型显示（还没有加飞机的尾焰）
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E9%A3%9E%E8%A1%8C%E7%8A%B6%E6%80%81.gif)
   
   ### 12、选择僚机
   * 同样可以通过弹出菜单选择自己的僚机，右下角的小地图就是用来显示僚机飞机画面
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E8%B7%9F%E9%A3%9E.gif)
   
   ### 13、跟飞状态
   * 僚机会跟随玩家控制的飞，包括一些左右倾斜上仰等动作
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E8%B7%9F%E9%A3%9E%E7%94%BB%E9%9D%A2.gif)
   
   ### 14、多架僚机
   * 当然可以款选多架飞机作为自己的僚机
-  ![image]()
+  ![image](https://github.com/haiaimi/PictureRepository/blob/master/PictureRepository/WarSimulate/%E5%A4%9A%E6%9E%B6%E8%B7%9F%E9%A3%9E.gif)
